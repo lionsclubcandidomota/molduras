@@ -78,5 +78,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "assessor-de-marketing",
+    "nome": "Assessor de Marketing",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/assessor-de-marketing.png",
+    "ativo": true,
+    "novo": false
   }
 ];
