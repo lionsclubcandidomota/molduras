@@ -1,28 +1,19 @@
-# Painel de Molduras Lions v3
+# Site público – Molduras Lions v3
 
-## O que mudou
+Substitua na raiz do repositório:
 
-- Categorias têm `id`, `nome` e `ordem` próprios.
-- Molduras usam `categoriaId` e uma `ordem` independente dentro da categoria.
-- O painel lê o formato antigo (`categoria: "Nome"`) e o migra automaticamente na primeira publicação.
-- O site público ordena primeiro por categoria e depois pela ordem da moldura.
-- Categorias podem ser renomeadas, reordenadas e excluídas quando vazias.
+- `index.html`
+- `styles.css`
+- `app.js`
 
-## Arquivos para substituir no repositório
+Mantenha no repositório:
 
+- `molduras.js`
 - `admin.html`
 - `admin.css`
 - `admin.js`
-- `app.js`
+- pasta `assets/`
 
-Não substitua o seu `molduras.js` pelo arquivo de exemplo. O painel fará a migração preservando as molduras existentes.
+O `index.html` carrega `molduras.js` antes de `app.js`.
 
-## Primeira utilização
-
-1. Envie os quatro arquivos ao repositório.
-2. Abra `admin.html` e conecte ao GitHub.
-3. Confira as categorias e molduras.
-4. Faça uma pequena alteração ou clique em salvar ordenação.
-5. O `molduras.js` será regravado no formato v3.
-
-Use `Ctrl + F5` depois da publicação para evitar cache antigo.
+Após publicar no GitHub Pages, use Ctrl + F5 para limpar o cache.

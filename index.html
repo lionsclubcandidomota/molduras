@@ -1,98 +1,136 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f2d69" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b2f6b">
+  <meta name="description" content="Crie gratuitamente sua foto com molduras do Lions Club.">
   <title>Molduras Lions Club</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="app-shell">
-    <header class="hero">
-      <div class="brand-mark" aria-hidden="true">🦁</div>
-      <div>
-        <p class="eyebrow">Lions Club</p>
-        <h1>Crie sua foto com a moldura</h1>
-        <p class="subtitle">Escolha um modelo, envie sua foto, ajuste e baixe sem marca d’água.</p>
-      </div>
-    </header>
+  <a class="skip-link" href="#galeria">Ir para as molduras</a>
 
-    <section class="frame-section step-card is-active" id="stepFrames" aria-labelledby="frameTitle">
-      <div class="section-heading">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-symbol" aria-hidden="true">L</div>
         <div>
-          <p class="step-label">Passo 1</p>
-          <h2 id="frameTitle">Escolha uma moldura</h2>
+          <p class="brand-kicker">Lions Club de Cândido Mota</p>
+          <h1>Molduras Lions</h1>
         </div>
-        <span id="selectedFrameName" class="selected-frame">Carregando...</span>
       </div>
+      <a class="header-help" href="#como-usar">Como usar</a>
+    </div>
+  </header>
 
-      <div class="library-tools">
-        <label class="search-box">
-          <span aria-hidden="true">🔎</span>
-          <input id="frameSearch" type="search" placeholder="Pesquisar moldura" autocomplete="off" />
-        </label>
-        <div id="categoryFilters" class="category-filters" aria-label="Categorias"></div>
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <span class="hero-badge">Grátis • Sem marca d’água</span>
+        <h2>Crie sua imagem com uma moldura do Lions</h2>
+        <p>Escolha uma moldura, envie sua foto, ajuste com os dedos e baixe a imagem pronta.</p>
+        <div class="steps" aria-label="Etapas">
+          <span><b>1</b> Escolha</span>
+          <span><b>2</b> Envie</span>
+          <span><b>3</b> Ajuste</span>
+          <span><b>4</b> Compartilhe</span>
+        </div>
       </div>
-
-      <p id="frameMessage" class="frame-message" hidden></p>
-      <div class="frame-gallery" id="frameGallery" role="list" aria-label="Modelos de moldura"></div>
     </section>
 
-    <section class="workspace" aria-label="Editor de foto">
-      <div class="editor-card step-card" id="stepPhoto">
-        <div class="editor-heading">
+    <section class="library section-shell" id="galeria" aria-labelledby="gallery-title">
+      <div class="section-title-row">
+        <div>
+          <p class="eyebrow">Passo 1</p>
+          <h2 id="gallery-title">Escolha sua moldura</h2>
+        </div>
+        <div class="selection-summary" id="selectedFrameName">Carregando molduras…</div>
+      </div>
+
+      <div class="library-toolbar">
+        <label class="search-field">
+          <span aria-hidden="true">⌕</span>
+          <input id="frameSearch" type="search" placeholder="Pesquise por nome ou categoria" autocomplete="off">
+        </label>
+        <div id="categoryFilters" class="category-strip" aria-label="Filtrar por categoria"></div>
+      </div>
+
+      <p id="frameMessage" class="notice" hidden></p>
+      <div id="frameGallery" class="frame-groups" aria-live="polite"></div>
+    </section>
+
+    <section class="editor-section section-shell" id="editor" aria-labelledby="editor-title">
+      <div class="editor-card">
+        <div class="section-title-row compact">
           <div>
-            <p class="step-label">Passos 2 e 3</p>
-            <h2>Envie e ajuste sua foto</h2>
+            <p class="eyebrow">Passos 2 e 3</p>
+            <h2 id="editor-title">Envie e ajuste sua foto</h2>
           </div>
           <span class="status-pill" id="photoStatus">Aguardando foto</span>
         </div>
 
-        <div class="canvas-wrap" id="canvasWrap">
-          <canvas id="editorCanvas" width="1080" height="1080" aria-label="Pré-visualização da foto com moldura"></canvas>
+        <div class="canvas-stage" id="canvasWrap">
+          <canvas id="editorCanvas" width="1080" height="1080" aria-label="Prévia da foto com a moldura selecionada"></canvas>
           <div class="empty-state" id="emptyState">
-            <span class="empty-icon">📷</span>
-            <strong>Toque abaixo para escolher sua foto</strong>
-            <small>Depois, arraste e use o zoom para ajustar</small>
+            <span class="empty-icon" aria-hidden="true">📷</span>
+            <strong>Escolha uma foto para começar</strong>
+            <small>Depois arraste, aumente ou gire para ajustar.</small>
           </div>
         </div>
 
-        <div class="primary-actions">
-          <label class="button button-primary" id="photoButton" for="photoInput"><span aria-hidden="true">📷</span> Escolher foto</label>
-          <input id="photoInput" type="file" accept="image/*" hidden />
-          <button class="button button-success" id="downloadBtn" type="button" disabled><span aria-hidden="true">⬇️</span> Baixar imagem pronta</button>
+        <div class="main-actions">
+          <label class="button primary" id="photoButton" for="photoInput">📷 Escolher foto</label>
+          <input id="photoInput" type="file" accept="image/*" hidden>
+          <button class="button success" id="downloadBtn" type="button" disabled>⬇ Baixar imagem</button>
+          <button class="button secondary" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
         </div>
 
-        <div class="adjust-hint" id="adjustHint" hidden>Arraste a foto diretamente na imagem. Use dois dedos para aumentar ou diminuir.</div>
+        <p class="gesture-hint" id="adjustHint" hidden>Arraste a foto para posicionar. Use dois dedos ou a roda do mouse para alterar o zoom.</p>
 
         <div class="controls" id="controls" aria-disabled="true">
-          <div class="controls-title"><span>✨ Ajustes da foto</span><small>Opcional</small></div>
-          <label><span>Zoom</span><input id="zoomRange" type="range" min="0.2" max="4" value="1" step="0.01" disabled /></label>
-          <label><span>Rotação</span><input id="rotationRange" type="range" min="-180" max="180" value="0" step="1" disabled /></label>
-          <div class="secondary-actions">
-            <button class="button button-light" id="fitBtn" type="button" disabled>↔️ Preencher</button>
-            <button class="button button-light" id="centerBtn" type="button" disabled>🎯 Centralizar</button>
-            <button class="button button-light button-danger" id="resetBtn" type="button" disabled>🗑️ Remover foto</button>
+          <div class="control-row">
+            <label for="zoomRange">Zoom</label>
+            <input id="zoomRange" type="range" min="0.2" max="4" value="1" step="0.01" disabled>
+          </div>
+          <div class="control-row">
+            <label for="rotationRange">Rotação</label>
+            <input id="rotationRange" type="range" min="-180" max="180" value="0" step="1" disabled>
+          </div>
+          <div class="small-actions">
+            <button class="button light" id="fitBtn" type="button" disabled>Preencher</button>
+            <button class="button light" id="centerBtn" type="button" disabled>Centralizar</button>
+            <button class="button light danger" id="resetBtn" type="button" disabled>Remover foto</button>
           </div>
         </div>
       </div>
 
-      <aside class="help-card">
+      <aside class="info-card" id="como-usar">
         <h2>Como usar</h2>
         <ol>
-          <li>Selecione uma moldura.</li>
-          <li>Escolha sua foto.</li>
-          <li>Arraste para posicionar.</li>
-          <li>Use o zoom ou o gesto de pinça.</li>
-          <li>Baixe a imagem pronta.</li>
+          <li>Escolha uma moldura na galeria.</li>
+          <li>Envie uma foto do celular ou computador.</li>
+          <li>Arraste e use o zoom para ajustar.</li>
+          <li>Baixe ou compartilhe a imagem pronta.</li>
         </ol>
-        <p class="privacy"><strong>Privacidade:</strong> sua foto é processada apenas no navegador e não é enviada para nenhum servidor.</p>
+        <div class="privacy-box">
+          <strong>🔒 Sua privacidade</strong>
+          <p>A foto é processada apenas no seu navegador e não é enviada para nenhum servidor.</p>
+        </div>
+        <button class="text-button" id="newCreationBtn" type="button">Criar outra imagem</button>
       </aside>
     </section>
-
-    <footer>Feito para facilitar a participação de todos.</footer>
   </main>
+
+  <footer class="site-footer">
+    <strong>Nós Servimos</strong>
+    <span>Ferramenta gratuita do Lions Club de Cândido Mota.</span>
+  </footer>
+
+  <div class="mobile-action-bar" id="mobileActionBar" hidden>
+    <button class="button success" id="mobileDownloadBtn" type="button">⬇ Baixar imagem</button>
+  </div>
+
   <script src="molduras.js"></script>
   <script src="app.js"></script>
 </body>
