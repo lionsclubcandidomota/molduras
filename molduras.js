@@ -19,20 +19,20 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
+    "id": "causas-globais",
+    "nome": "Causas Globais",
+    "ordem": 4,
+    "ativo": true
+  },
+  {
     "id": "aniversario",
     "nome": "Feliz Aniversário",
-    "ordem": 4,
+    "ordem": 5,
     "ativo": true
   },
   {
     "id": "publicacao",
     "nome": "Publicação",
-    "ordem": 5,
-    "ativo": true
-  },
-  {
-    "id": "causas-globais",
-    "nome": "Causas Globais",
     "ordem": 6,
     "ativo": true
   }
