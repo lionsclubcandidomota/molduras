@@ -209,5 +209,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "socorro-a-catastrofes",
+    "nome": "Socorro a Catástrofes",
+    "categoriaId": "causas-globais",
+    "ordem": 7,
+    "arquivo": "assets/molduras/socorro-a-catastrofes.png",
+    "ativo": true,
+    "novo": false
   }
 ];
