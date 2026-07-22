@@ -29,7 +29,7 @@ window.MOLDURAS = [
     "categoria": "Lions",
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
-    "novo": true
+    "novo": false
   },
   {
     "id": "presidente-de-clube",
