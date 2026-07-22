@@ -38,5 +38,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
     "novo": true
+  },
+  {
+    "id": "eu-vou-ircd",
+    "nome": "Eu vou IRCD",
+    "categoria": "IRCD 26/27",
+    "arquivo": "assets/molduras/eu-vou-ircd.png",
+    "ativo": true,
+    "novo": true
   }
 ];
