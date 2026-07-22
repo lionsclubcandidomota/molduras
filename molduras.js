@@ -22,5 +22,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
     "novo": true
+  },
+  {
+    "id": "orgulho-de-ser-leao",
+    "nome": "Orgulho de ser Leão",
+    "categoria": "Lions",
+    "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
+    "ativo": true,
+    "novo": true
   }
 ];
