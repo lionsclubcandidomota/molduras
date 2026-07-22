@@ -55,7 +55,7 @@ window.MOLDURAS = [
     "id": "orgulho-de-ser-leao",
     "nome": "Orgulho de ser Leão",
     "categoriaId": "lions",
-    "ordem": 1,
+    "ordem": 2,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "novo": false
@@ -235,7 +235,7 @@ window.MOLDURAS = [
     "id": "dia-d",
     "nome": "Dia D",
     "categoriaId": "lions",
-    "ordem": 2,
+    "ordem": 1,
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
     "novo": true
