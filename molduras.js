@@ -173,5 +173,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "fome",
+    "nome": "Fome",
+    "categoriaId": "causas-globais",
+    "ordem": 3,
+    "arquivo": "assets/molduras/fome.png",
+    "ativo": true,
+    "novo": false
   }
 ];
