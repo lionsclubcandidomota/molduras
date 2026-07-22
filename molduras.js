@@ -53,7 +53,7 @@ window.MOLDURAS = [
     "categoria": "Cargos",
     "arquivo": "assets/molduras/secretario-de-clube.png",
     "ativo": true,
-    "novo": true
+    "novo": false
   },
   {
     "id": "tesoureiro-de-clube",
