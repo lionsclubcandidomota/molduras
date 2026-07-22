@@ -13,14 +13,14 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
-    "id": "aniversario",
-    "nome": "Aniversário",
+    "id": "cargos",
+    "nome": "Cargos de Clube",
     "ordem": 3,
     "ativo": true
   },
   {
-    "id": "cargos",
-    "nome": "Cargos",
+    "id": "aniversario",
+    "nome": "Feliz Aniversário",
     "ordem": 4,
     "ativo": true
   }
