@@ -1,39 +1,33 @@
 // Gerenciado pelo Painel de Molduras Lions v3
 window.CATEGORIAS = [
   {
-    "id": "ircd-26-27",
-    "nome": "IRCD 26/27",
-    "ordem": 1,
-    "ativo": true
-  },
-  {
-    "id": "lions",
-    "nome": "Lions",
-    "ordem": 2,
-    "ativo": true
-  },
-  {
     "id": "cargos",
     "nome": "Cargos de Clube",
-    "ordem": 3,
+    "ordem": 1,
     "ativo": true
   },
   {
     "id": "causas-globais",
     "nome": "Causas Globais",
-    "ordem": 4,
+    "ordem": 2,
     "ativo": true
   },
   {
     "id": "aniversario",
     "nome": "Feliz Aniversário",
-    "ordem": 5,
+    "ordem": 3,
     "ativo": true
   },
   {
-    "id": "publicacao",
-    "nome": "Publicação",
-    "ordem": 6,
+    "id": "ircd-26-27",
+    "nome": "IRCD 26/27",
+    "ordem": 4,
+    "ativo": true
+  },
+  {
+    "id": "lions",
+    "nome": "Lions",
+    "ordem": 5,
     "ativo": true
   }
 ];
