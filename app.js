@@ -34,6 +34,9 @@
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
   const slug = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const categoryName = frame => frame.categoriaNome || frame.categoria || state.categories.find(c => c.id === frame.categoriaId)?.nome || 'Outras';
+  const frameStatus = frame => frame?.statusVisivel === false ? 'normal' : (['novo','atualizada'].includes(frame?.status) ? frame.status : (frame?.novo === true ? 'novo' : 'normal'));
+  const categoryStatus = id => { const frames=state.frames.filter(f=>f.categoriaId===id); return frames.some(f=>frameStatus(f)==='novo')?'novo':frames.some(f=>frameStatus(f)==='atualizada')?'atualizada':'normal'; };
+  const statusText = status => status==='novo'?'NOVO':status==='atualizada'?'ATUALIZADA':'';
 
   function normalizeData() {
     const rawFrames = Array.isArray(window.MOLDURAS) ? window.MOLDURAS : [];
@@ -54,7 +57,9 @@
         ...f,
         arquivo: f.arquivo || f.imagem || f.src,
         categoriaId: f.categoriaId ? String(f.categoriaId) : '',
-        ordem: Number(f.ordem) || i + 1
+        ordem: Number(f.ordem) || i + 1,
+        status: ['novo','atualizada'].includes(f.status) && f.statusVisivel !== false ? f.status : (f.novo === true ? 'novo' : 'normal'),
+        statusVisivel: f.statusVisivel !== false
       }));
 
     // Compatibilidade com o formato antigo e recuperação de categorias sem correspondência.
@@ -106,7 +111,7 @@
   function buildCategories() {
     const available = state.categories.filter(c => state.frames.some(f => f.categoriaId === c.id));
     const buttons = [{id:'todas', nome:'Todas'}, ...available];
-    categoryFilters.innerHTML = buttons.map(c => `<button type="button" class="category-chip${c.id === 'todas' ? ' is-active' : ''}" data-category="${escapeHtml(c.id)}">${escapeHtml(c.nome)}</button>`).join('');
+    categoryFilters.innerHTML = buttons.map(c => { const st=c.id==='todas'?'normal':categoryStatus(c.id); return `<button type="button" class="category-chip${c.id === 'todas' ? ' is-active' : ''}" data-category="${escapeHtml(c.id)}"><span>${escapeHtml(c.nome)}</span>${st!=='normal'?`<small class="category-status ${st}">${statusText(st)}</small>`:''}</button>`; }).join('');
   }
 
   categoryFilters?.addEventListener('click', event => {
@@ -139,13 +144,13 @@
       const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b) => a.ordem - b.ordem);
       if (!frames.length) return '';
       return `<section class="frame-group" aria-labelledby="cat-${escapeHtml(category.id)}">
-        <div class="frame-group-header"><h3 id="cat-${escapeHtml(category.id)}">${escapeHtml(category.nome)}</h3><span class="frame-count">${frames.length}</span></div>
+        <div class="frame-group-header"><h3 id="cat-${escapeHtml(category.id)}">${escapeHtml(category.nome)}</h3>${categoryStatus(category.id)!=='normal'?`<span class="category-heading-status ${categoryStatus(category.id)}">${statusText(categoryStatus(category.id))}</span>`:''}<span class="frame-count">${frames.length}</span></div>
         <div class="frame-grid" role="list">${frames.map(frame => `
           <button type="button" class="frame-option${state.selectedFrame?.id === frame.id ? ' is-selected' : ''}" data-frame-id="${escapeHtml(frame.id)}" role="listitem" aria-pressed="${state.selectedFrame?.id === frame.id}">
             <span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span>
             <span class="frame-name">${escapeHtml(frame.nome)}</span>
             <span class="frame-meta">${escapeHtml(category.nome)}</span>
-            ${frame.novo ? '<span class="new-badge">NOVA</span>' : ''}<span class="frame-check" aria-hidden="true">✓</span>
+            ${frameStatus(frame)!=='normal'?`<span class="new-badge ${frameStatus(frame)}">${statusText(frameStatus(frame))}</span>`:''}<span class="frame-check" aria-hidden="true">✓</span>
           </button>`).join('')}</div></section>`;
     }).join('');
   }

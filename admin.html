@@ -10,11 +10,11 @@
 <body>
   <main class="admin-shell">
     <header class="admin-hero">
-      <div class="brand">🦁</div>
+      <div class="brand-logo-wrap"><img src="logo-lions.png" alt="Logo Lions Clubs International" class="admin-logo"></div>
       <div>
-        <p class="eyebrow">Molduras Lions Club</p>
-        <h1>Painel de manutenção</h1>
-        <p>Adicione, edite, oculte ou remova molduras diretamente no GitHub.</p>
+        <p class="eyebrow">Lions Clube de Cândido Mota</p>
+        <h1>Central de conteúdo</h1>
+        <p>Gerencie molduras, categorias, destaques e a ordem de exibição em um só lugar.</p>
       </div>
       <a class="site-link" href="index.html">← Voltar ao site</a>
     </header>
@@ -22,8 +22,8 @@
     <section class="card" id="connectionCard">
       <div class="heading-row">
         <div>
-          <span class="step">Etapa 1</span>
-          <h2>Conectar ao repositório</h2>
+          <span class="step">Acesso seguro</span>
+          <h2>Conectar ao GitHub</h2>
         </div>
         <span id="connectionStatus" class="status neutral">Desconectado</span>
       </div>
@@ -60,13 +60,20 @@
     <section class="card" id="managerCard" hidden>
       <div class="heading-row">
         <div>
-          <span class="step">Etapa 2</span>
-          <h2>Gerenciar molduras</h2>
+          <span class="step">Biblioteca</span>
+          <h2>Gerenciar conteúdo</h2>
         </div>
         <button id="refreshBtn" class="button light" type="button">↻ Atualizar lista</button>
       </div>
 
       <div id="flashMessage" class="flash" hidden></div>
+
+      <div class="dashboard-summary" aria-label="Resumo da biblioteca">
+        <div class="summary-card"><span>Total</span><strong id="summaryTotal">0</strong><small>molduras</small></div>
+        <div class="summary-card"><span>Visíveis</span><strong id="summaryVisible">0</strong><small>no site</small></div>
+        <div class="summary-card"><span>Destaques</span><strong id="summaryHighlights">0</strong><small>ativos</small></div>
+        <div class="summary-card"><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
+      </div>
 
       <form id="frameForm" class="editor-panel">
         <input id="editingOriginalId" type="hidden" />
@@ -100,9 +107,21 @@
           </label>
         </div>
 
-        <div class="checks">
-          <label><input id="frameActive" type="checkbox" checked /> Exibir no site</label>
-          <label><input id="frameNew" type="checkbox" checked /> Mostrar selo “Nova”</label>
+        <div class="form-grid status-form-grid">
+          <label>
+            <span>Destaque da moldura</span>
+            <select id="frameStatus">
+              <option value="normal">Sem destaque</option>
+              <option value="novo">Novo</option>
+              <option value="atualizada">Atualizada</option>
+            </select>
+            <small>O destaque também aparece automaticamente na categoria.</small>
+          </label>
+          <label class="switch-card">
+            <span>Visibilidade</span>
+            <span class="switch-line"><input id="frameActive" type="checkbox" checked /> <strong>Exibir no site</strong></span>
+            <small>Desative para ocultar sem excluir.</small>
+          </label>
         </div>
 
         <div class="preview-area">
