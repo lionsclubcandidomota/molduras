@@ -38,5 +38,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/presidente-de-clube.png",
     "ativo": true,
     "novo": true
+  },
+  {
+    "id": "segundo-vice-presidente-de-clube",
+    "nome": "Segundo Vice-Presidente de Clube",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
+    "ativo": true,
+    "novo": true
   }
 ];
