@@ -14,5 +14,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
     "novo": true
+  },
+  {
+    "id": "feliz-aniversario",
+    "nome": "Feliz Aniversario",
+    "categoria": "Aniversário",
+    "arquivo": "assets/molduras/feliz-aniversario.png",
+    "ativo": true,
+    "novo": true
   }
 ];
