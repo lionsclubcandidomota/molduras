@@ -218,5 +218,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "esforcos-humanitarios",
+    "nome": "Esforços Humanitários",
+    "categoriaId": "causas-globais",
+    "ordem": 8,
+    "arquivo": "assets/molduras/esforcos-humanitarios.png",
+    "ativo": true,
+    "novo": false
   }
 ];
