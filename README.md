@@ -1,34 +1,28 @@
-# Painel de Molduras Lions — categorias e molduras ordenáveis
+# Painel de Molduras Lions v3
 
-Atualização do painel administrativo para o repositório:
+## O que mudou
 
-- Organização: `lionsclubcandidomota`
-- Repositório: `molduras`
-- Branch: `main`
+- Categorias têm `id`, `nome` e `ordem` próprios.
+- Molduras usam `categoriaId` e uma `ordem` independente dentro da categoria.
+- O painel lê o formato antigo (`categoria: "Nome"`) e o migra automaticamente na primeira publicação.
+- O site público ordena primeiro por categoria e depois pela ordem da moldura.
+- Categorias podem ser renomeadas, reordenadas e excluídas quando vazias.
 
-## Instalação
-
-Substitua somente estes arquivos na raiz do repositório:
+## Arquivos para substituir no repositório
 
 - `admin.html`
 - `admin.css`
 - `admin.js`
+- `app.js`
 
-Não substitua `molduras.js`, `app.js`, `index.html`, `styles.css` ou a pasta `assets`.
+Não substitua o seu `molduras.js` pelo arquivo de exemplo. O painel fará a migração preservando as molduras existentes.
 
-Depois aguarde o GitHub Pages atualizar e abra:
+## Primeira utilização
 
-`https://lionsclubcandidomota.github.io/molduras/admin.html`
+1. Envie os quatro arquivos ao repositório.
+2. Abra `admin.html` e conecte ao GitHub.
+3. Confira as categorias e molduras.
+4. Faça uma pequena alteração ou clique em salvar ordenação.
+5. O `molduras.js` será regravado no formato v3.
 
-Use `Ctrl + F5` no computador para evitar o cache da versão anterior.
-
-## Como ordenar
-
-1. Conecte o painel ao GitHub.
-2. Na seção **Ordem das categorias**, arraste uma categoria ou use as setas.
-3. Na seção **Ordem das molduras**, organize cada moldura dentro da própria categoria.
-4. Clique em **Salvar ordenação**.
-
-O painel grava uma lista única no `molduras.js`, agrupando as molduras pela ordem escolhida para as categorias e preservando a ordem interna de cada grupo.
-
-Para mover uma moldura para outra categoria, use **Editar** e altere o campo Categoria. Depois, faça a ordenação novamente caso necessário.
+Use `Ctrl + F5` depois da publicação para evitar cache antigo.

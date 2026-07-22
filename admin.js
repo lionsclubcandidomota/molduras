@@ -2,904 +2,202 @@
   "use strict";
 
   const API_VERSION = "2022-11-28";
-  const MAX_CONFLICT_RETRIES = 4;
   const CONFIG_PATH = "molduras.js";
   const IMAGE_DIR = "assets/molduras";
+  const MAX_RETRIES = 4;
 
   const state = {
-    owner: "",
-    repo: "",
-    branch: "main",
-    token: "",
-    frames: [],
-    pendingDelete: null,
-    operationInProgress: false,
-    orderDirty: false,
-    originalOrder: [],
-    categoryOrder: [],
-    originalCategoryOrder: [],
-    draggedId: null,
-    draggedCategory: null,
+    owner: "", repo: "", branch: "main", token: "",
+    categorias: [], molduras: [], originalSnapshot: "",
+    busy: false, dirty: false, editingId: "", pendingDelete: null,
+    draggedCategory: null, draggedFrame: null,
   };
 
   const $ = (id) => document.getElementById(id);
-  const els = {
-    connectionForm: $("connectionForm"),
-    owner: $("repoOwner"),
-    repo: $("repoName"),
-    branch: $("repoBranch"),
-    token: $("githubToken"),
-    toggleToken: $("toggleToken"),
-    connectBtn: $("connectBtn"),
-    connectionStatus: $("connectionStatus"),
-    managerCard: $("managerCard"),
-    refreshBtn: $("refreshBtn"),
-    flash: $("flashMessage"),
-    frameForm: $("frameForm"),
-    originalId: $("editingOriginalId"),
-    formTitle: $("formTitle"),
-    cancelEdit: $("cancelEditBtn"),
-    frameName: $("frameName"),
-    frameId: $("frameId"),
-    category: $("frameCategory"),
-    categoryList: $("categoryList"),
-    frameFile: $("frameFile"),
-    fileHint: $("fileHint"),
-    active: $("frameActive"),
-    isNew: $("frameNew"),
-    preview: $("filePreview"),
-    destination: $("destinationPath"),
-    saveBtn: $("saveFrameBtn"),
-    list: $("framesList"),
-    count: $("frameCount"),
-    search: $("adminSearch"),
-    saveOrder: $("saveOrderBtn"),
-    cancelOrder: $("cancelOrderBtn"),
-    orderNotice: $("orderNotice"),
-    categoriesOrderList: $("categoriesOrderList"),
-    dialog: $("confirmDialog"),
-    confirmText: $("confirmText"),
-    deleteFile: $("deleteImageFile"),
-    confirmDelete: $("confirmDeleteBtn"),
+  const el = {
+    formConnect: $("connectionForm"), owner: $("repoOwner"), repo: $("repoName"), branch: $("repoBranch"), token: $("githubToken"),
+    toggleToken: $("toggleToken"), connect: $("connectBtn"), status: $("connectionStatus"), manager: $("managerCard"), refresh: $("refreshBtn"),
+    flash: $("flashMessage"), form: $("frameForm"), originalId: $("editingOriginalId"), formTitle: $("formTitle"), cancelEdit: $("cancelEditBtn"),
+    name: $("frameName"), id: $("frameId"), category: $("frameCategory"), categoryList: $("categoryList"), file: $("frameFile"),
+    fileHint: $("fileHint"), active: $("frameActive"), isNew: $("frameNew"), preview: $("filePreview"), destination: $("destinationPath"), save: $("saveFrameBtn"),
+    list: $("framesList"), count: $("frameCount"), search: $("adminSearch"), saveOrder: $("saveOrderBtn"), cancelOrder: $("cancelOrderBtn"),
+    notice: $("orderNotice"), categories: $("categoriesOrderList"), dialog: $("confirmDialog"), confirmText: $("confirmText"), deleteFile: $("deleteImageFile"), confirmDelete: $("confirmDeleteBtn"),
   };
 
-  class GitHubError extends Error {
-    constructor(message, status = 0, data = null) {
-      super(message);
-      this.name = "GitHubError";
-      this.status = status;
-      this.data = data;
-    }
-  }
+  class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
+  const slugify = (v) => String(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  const esc = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
-  function slugify(value) {
-    return value
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>'"]/g, (char) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      "'": "&#39;",
-      '"': "&quot;",
-    }[char]));
-  }
-
-  function setStatus(text, type = "neutral") {
-    els.connectionStatus.textContent = text;
-    els.connectionStatus.className = `status ${type}`;
-  }
-
-  function flash(message, type = "info") {
-    els.flash.textContent = message;
-    els.flash.className = `flash ${type}`;
-    els.flash.hidden = false;
-    els.flash.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }
-
-  function clearFlash() {
-    els.flash.hidden = true;
-  }
-
-  function setBusy(isBusy, label = "Sincronizando...") {
-    state.operationInProgress = isBusy;
-    els.refreshBtn.disabled = isBusy;
-    els.connectBtn.disabled = isBusy;
-    els.saveBtn.disabled = isBusy;
-    els.confirmDelete.disabled = isBusy;
-    els.saveOrder.disabled = isBusy || !state.orderDirty;
-    els.cancelOrder.disabled = isBusy || !state.orderDirty;
-    if (isBusy) setStatus(label, "neutral");
-  }
-
-  function headers() {
-    return {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${state.token}`,
-      "X-GitHub-Api-Version": API_VERSION,
-    };
+  function flash(message, type = "info") { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; }
+  function status(message, type = "neutral") { el.status.textContent = message; el.status.className = `status ${type}`; }
+  function setBusy(value, message = "Sincronizando...") {
+    state.busy = value;
+    [el.connect, el.refresh, el.save, el.confirmDelete, el.saveOrder, el.cancelOrder].forEach(x => { if (x) x.disabled = value; });
+    if (value) status(message);
+    updateDirtyUI();
   }
 
   function apiUrl(path) {
-    const question = path.indexOf("?");
-    const pathname = question >= 0 ? path.slice(0, question) : path;
-    const query = question >= 0 ? path.slice(question + 1) : "";
-    const encodedPath = pathname.split("/").map(encodeURIComponent).join("/");
-    const base = `https://api.github.com/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/contents/${encodedPath}`;
+    const [pathname, query = ""] = path.split("?");
+    const encoded = pathname.split("/").map(encodeURIComponent).join("/");
+    const base = `https://api.github.com/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/contents/${encoded}`;
     return query ? `${base}?${query}` : base;
   }
-
   async function api(path, options = {}) {
-    const response = await fetch(apiUrl(path), {
-      ...options,
-      headers: {
-        ...headers(),
-        ...(options.headers || {}),
-      },
-    });
-
-    let data = null;
-    try {
-      data = await response.json();
-    } catch {
-      // Algumas respostas podem não conter JSON.
-    }
-
-    if (!response.ok) {
-      throw new GitHubError(data?.message || `Erro ${response.status} ao acessar o GitHub.`, response.status, data);
-    }
-
+    const response = await fetch(apiUrl(path), { ...options, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, ...(options.headers || {}) } });
+    let data = null; try { data = await response.json(); } catch {}
+    if (!response.ok) throw new GitHubError(data?.message || `Erro ${response.status}`, response.status);
     return data;
   }
+  const isConflict = e => e instanceof GitHubError && (e.status === 409 || e.status === 422 || /sha|does not match/i.test(e.message));
+  const b64ToText = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, "")), c => c.charCodeAt(0)));
+  const textToB64 = text => { const bytes = new TextEncoder().encode(text); let s=""; for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(s); };
+  const bufferToB64 = buffer => { const bytes=new Uint8Array(buffer); let s=""; for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(s); };
 
-  function isConflict(error) {
-    if (!(error instanceof GitHubError)) return false;
-    const message = error.message.toLowerCase();
-    return error.status === 409 || error.status === 422 || message.includes("does not match") || message.includes("sha");
+  function extractArray(source, name) {
+    const match = source.match(new RegExp(`(?:window\\.)?${name}\\s*=\\s*([\\s\\S]*?);(?:\\s|$)`));
+    if (!match) return null;
+    const value = JSON.parse(match[1]);
+    if (!Array.isArray(value)) throw new Error(`${name} precisa ser uma lista JSON válida.`);
+    return value;
   }
 
-  function isNotFound(error) {
-    return error instanceof GitHubError && error.status === 404;
-  }
+  function normalizeData(source) {
+    const oldFrames = extractArray(source, "MOLDURAS") || [];
+    const rawCategories = extractArray(source, "CATEGORIAS");
+    let categorias;
 
-  function utf8ToBase64(text) {
-    const bytes = new TextEncoder().encode(text);
-    let binary = "";
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-    }
-    return btoa(binary);
-  }
-
-  function base64ToUtf8(base64) {
-    const binary = atob(base64.replace(/\n/g, ""));
-    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  }
-
-  function arrayBufferToBase64(buffer) {
-    const bytes = new Uint8Array(buffer);
-    let binary = "";
-    for (let i = 0; i < bytes.length; i += 0x8000) {
-      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-    }
-    return btoa(binary);
-  }
-
-  function serializeFrames(frames) {
-    return `window.MOLDURAS = ${JSON.stringify(frames, null, 2)};\n`;
-  }
-
-  function parseFrames(source) {
-    const match = source.match(/(?:window\.)?MOLDURAS\s*=\s*([\s\S]*?)\s*;\s*$/);
-    if (!match) {
-      throw new Error("O arquivo molduras.js não está no formato esperado: window.MOLDURAS = [...];");
+    if (rawCategories?.length) {
+      categorias = rawCategories.map((c, index) => ({
+        id: slugify(c.id || c.nome || `categoria-${index + 1}`),
+        nome: String(c.nome || c.id || "Sem categoria"),
+        ordem: Number.isFinite(Number(c.ordem)) ? Number(c.ordem) : index + 1,
+        ativo: c.ativo !== false,
+      })).sort((a,b) => a.ordem-b.ordem);
+    } else {
+      const names = [];
+      oldFrames.forEach(f => { const n=String(f.categoria || "Sem categoria").trim() || "Sem categoria"; if(!names.includes(n)) names.push(n); });
+      categorias = names.map((nome,index) => ({ id: slugify(nome) || `categoria-${index+1}`, nome, ordem:index+1, ativo:true }));
     }
 
-    try {
-      const parsed = JSON.parse(match[1]);
-      if (!Array.isArray(parsed)) throw new Error();
-      return parsed;
-    } catch {
-      throw new Error("O conteúdo de molduras.js precisa ser uma lista JSON válida.");
-    }
-  }
-
-  async function getContent(path) {
-    return api(`${path}?ref=${encodeURIComponent(state.branch)}`);
-  }
-
-  async function putContent(path, content, message, sha) {
-    return api(path, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message,
-        content,
-        branch: state.branch,
-        ...(sha ? { sha } : {}),
-      }),
+    const categoryByName = new Map(categorias.map(c => [c.nome.toLowerCase(), c]));
+    const categoryById = new Map(categorias.map(c => [c.id, c]));
+    const counters = new Map();
+    const molduras = oldFrames.map((f,index) => {
+      let categoriaId = f.categoriaId;
+      if (!categoryById.has(categoriaId)) {
+        const name = String(f.categoria || "Sem categoria").trim() || "Sem categoria";
+        let cat = categoryByName.get(name.toLowerCase());
+        if (!cat) { cat={id:slugify(name)||`categoria-${categorias.length+1}`,nome:name,ordem:categorias.length+1,ativo:true}; categorias.push(cat); categoryByName.set(name.toLowerCase(),cat); categoryById.set(cat.id,cat); }
+        categoriaId = cat.id;
+      }
+      const n = (counters.get(categoriaId) || 0) + 1; counters.set(categoriaId,n);
+      return { id:String(f.id||`moldura-${index+1}`), nome:String(f.nome||f.id||"Moldura"), categoriaId, ordem:Number.isFinite(Number(f.ordem))?Number(f.ordem):n, arquivo:f.arquivo, ativo:f.ativo!==false, novo:f.novo===true };
     });
+    renumber(categorias, molduras);
+    return { categorias, molduras };
   }
 
-  async function deleteContent(path, message, sha) {
-    return api(path, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message, sha, branch: state.branch }),
-    });
+  function serialize(categorias, molduras) {
+    return `// Gerenciado pelo Painel de Molduras Lions v3\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+  }
+  function renumber(categorias = state.categorias, molduras = state.molduras) {
+    categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
+    for (const cat of categorias) molduras.filter(f=>f.categoriaId===cat.id).sort((a,b)=>a.ordem-b.ordem).forEach((f,i)=>f.ordem=i+1);
+  }
+  function snapshot() { return JSON.stringify({categorias:state.categorias,molduras:state.molduras}); }
+  function markDirty() { state.dirty = snapshot() !== state.originalSnapshot; updateDirtyUI(); }
+  function updateDirtyUI() {
+    if (!el.saveOrder) return;
+    el.saveOrder.disabled = state.busy || !state.dirty;
+    el.cancelOrder.disabled = state.busy || !state.dirty;
+    el.notice.hidden = !state.dirty;
   }
 
-  async function readLatestFrames() {
-    const file = await getContent(CONFIG_PATH);
-    return {
-      sha: file.sha,
-      frames: parseFrames(base64ToUtf8(file.content)),
-    };
-  }
+  async function getFile(path) { return api(`${path}?ref=${encodeURIComponent(state.branch)}`); }
+  async function putFile(path, content, message, sha) { return api(path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,content,branch:state.branch,...(sha?{sha}:{})})}); }
+  async function deleteFile(path,message,sha){ return api(path,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:state.branch})}); }
 
-  async function mutateFrames(message, mutator) {
-    let lastError;
-
-    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
+  async function saveConfig(message) {
+    let last;
+    for(let attempt=1;attempt<=MAX_RETRIES;attempt++){
       try {
-        const latest = await readLatestFrames();
-        const working = structuredClone(latest.frames);
-        const result = await mutator(working);
-        const nextFrames = result?.frames || working;
-
-        await putContent(
-          CONFIG_PATH,
-          utf8ToBase64(serializeFrames(nextFrames)),
-          message,
-          latest.sha,
-        );
-
-        state.frames = nextFrames;
-        return result;
-      } catch (error) {
-        lastError = error;
-        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
-      }
+        const latest=await getFile(CONFIG_PATH);
+        await putFile(CONFIG_PATH,textToB64(serialize(state.categorias,state.molduras)),message,latest.sha);
+        state.originalSnapshot=snapshot(); state.dirty=false; updateDirtyUI(); return;
+      } catch(e){ last=e; if(!isConflict(e)||attempt===MAX_RETRIES)throw e; await wait(300*attempt); }
     }
+    throw last;
+  }
+  async function uploadImage(file,path,message){
+    let sha; try{sha=(await getFile(path)).sha;}catch(e){if(e.status!==404)throw e;}
+    return putFile(path,bufferToB64(await file.arrayBuffer()),message,sha);
+  }
+  async function removeImage(path,message){ try{const f=await getFile(path); await deleteFile(path,message,f.sha);}catch(e){if(e.status!==404)throw e;} }
 
-    throw lastError;
+  function catName(id){ return state.categorias.find(c=>c.id===id)?.nome || "Sem categoria"; }
+  function renderCategoryOptions(){
+    el.categoryList.innerHTML=state.categorias.sort((a,b)=>a.ordem-b.ordem).map(c=>`<option value="${esc(c.nome)}"></option>`).join("");
+  }
+  function renderCategories(){
+    const q=el.search.value.trim();
+    el.categories.innerHTML=state.categorias.sort((a,b)=>a.ordem-b.ordem).map((c,index)=>`<div class="category-order-row" draggable="${!q}" data-category="${esc(c.id)}">
+      <div class="category-order-controls"><button type="button" class="category-drag-handle">☰</button><span class="category-order-number">${index+1}</span><button type="button" class="category-order-arrow" data-category-action="up" ${index===0?"disabled":""}>↑</button><button type="button" class="category-order-arrow" data-category-action="down" ${index===state.categorias.length-1?"disabled":""}>↓</button></div>
+      <div><div class="category-name">${esc(c.nome)}</div><div class="category-count">${state.molduras.filter(f=>f.categoriaId===c.id).length} moldura(s)</div></div>
+      <div class="row-actions"><button type="button" class="button light" data-category-action="rename">Renomear</button><button type="button" class="button danger" data-category-action="delete">Excluir</button></div>
+    </div>`).join("");
+  }
+  function renderFrames(){
+    const q=el.search.value.toLowerCase().trim(); let total=0; let html="";
+    for(const cat of state.categorias.sort((a,b)=>a.ordem-b.ordem)){
+      const frames=state.molduras.filter(f=>f.categoriaId===cat.id).sort((a,b)=>a.ordem-b.ordem).filter(f=>!q||`${f.nome} ${f.id} ${cat.nome}`.toLowerCase().includes(q));
+      if(!frames.length)continue; html+=`<div class="category-section-label"><span>${esc(cat.nome)}</span><small>${frames.length} moldura(s)</small></div>`;
+      frames.forEach((f,index)=>{total++; html+=`<article class="frame-row" draggable="${!q}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
+        <div class="order-controls"><button type="button" class="drag-handle" data-action="drag">☰</button><span class="order-number">${index+1}</span><button type="button" class="order-arrow" data-action="up" ${index===0?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${index===frames.length-1?"disabled":""}>↓</button></div>
+        <img class="frame-thumb" src="${esc(f.arquivo)}?v=${Date.now()}" alt=""><div class="frame-info"><h4>${esc(f.nome)}</h4><p>${esc(f.id)} · ordem ${f.ordem}</p><div class="badges"><span class="badge ${f.ativo!==false?"active":"inactive"}">${f.ativo!==false?"Visível":"Oculta"}</span>${f.novo?'<span class="badge new">Nova</span>':""}</div></div>
+        <div class="row-actions"><button class="button light" data-action="edit">Editar</button><button class="button light" data-action="toggle">${f.ativo!==false?"Ocultar":"Exibir"}</button><button class="button danger" data-action="delete">Excluir</button></div></article>`;});
+    }
+    el.list.innerHTML=html||"<p>Nenhuma moldura encontrada.</p>"; el.count.textContent=`${total} moldura(s)`;
+  }
+  function render(){renumber();renderCategoryOptions();renderCategories();renderFrames();markDirty();}
+
+  async function load(){
+    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; render(); el.manager.hidden=false; status("Conectado","ok");
+  }
+  function resetForm(){state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.isNew.checked=false;el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
+  function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
+  function categoryFromInput(name){
+    const clean=String(name).trim(); let cat=state.categorias.find(c=>c.nome.toLowerCase()===clean.toLowerCase());
+    if(!cat){cat={id:slugify(clean)||`categoria-${state.categorias.length+1}`,nome:clean,ordem:state.categorias.length+1,ativo:true};state.categorias.push(cat);} return cat;
   }
 
-  async function uploadFile(file, path, message) {
-    const content = arrayBufferToBase64(await file.arrayBuffer());
-    let lastError;
-
-    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
-      try {
-        let sha;
-        try {
-          sha = (await getContent(path)).sha;
-        } catch (error) {
-          if (!isNotFound(error)) throw error;
-        }
-        return await putContent(path, content, message, sha);
-      } catch (error) {
-        lastError = error;
-        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
-      }
-    }
-
-    throw lastError;
-  }
-
-  async function removeFile(path, message) {
-    let lastError;
-
-    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
-      try {
-        const latest = await getContent(path);
-        return await deleteContent(path, message, latest.sha);
-      } catch (error) {
-        if (isNotFound(error)) return null;
-        lastError = error;
-        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
-        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
-      }
-    }
-
-    throw lastError;
-  }
-
-  function getCategoryOrder(frames = state.frames) {
-    const seen = new Set();
-    const order = [];
-    for (const frame of frames) {
-      const category = String(frame.categoria || "Sem categoria").trim() || "Sem categoria";
-      if (!seen.has(category)) {
-        seen.add(category);
-        order.push(category);
-      }
-    }
-    return order;
-  }
-
-  function regroupFramesByCategories() {
-    const grouped = new Map();
-    for (const category of state.categoryOrder) grouped.set(category, []);
-    for (const frame of state.frames) {
-      const category = String(frame.categoria || "Sem categoria").trim() || "Sem categoria";
-      if (!grouped.has(category)) {
-        grouped.set(category, []);
-        state.categoryOrder.push(category);
-      }
-      grouped.get(category).push(frame);
-    }
-    state.frames = state.categoryOrder.flatMap((category) => grouped.get(category) || []);
-  }
-
-  function renderCategoryOrder() {
-    const query = els.search.value.trim();
-    const disabled = Boolean(query) || state.operationInProgress;
-    els.categoriesOrderList.innerHTML = state.categoryOrder.map((category, index) => {
-      const count = state.frames.filter((frame) => (frame.categoria || "Sem categoria") === category).length;
-      return `
-        <article class="category-order-row ${state.orderDirty ? "ordering" : ""}" data-category="${escapeHtml(category)}" draggable="${!disabled}">
-          <div class="category-order-controls">
-            <button class="category-drag-handle" data-category-action="drag" type="button" title="Arraste para reordenar">☰</button>
-            <span class="category-order-number">${index + 1}</span>
-            <button class="category-order-arrow" data-category-action="up" type="button" ${disabled || index === 0 ? "disabled" : ""}>↑</button>
-            <button class="category-order-arrow" data-category-action="down" type="button" ${disabled || index === state.categoryOrder.length - 1 ? "disabled" : ""}>↓</button>
-          </div>
-          <div class="category-name">${escapeHtml(category)}</div>
-          <div class="category-count">${count} ${count === 1 ? "moldura" : "molduras"}</div>
-        </article>`;
-    }).join("");
-  }
-
-  function moveCategory(category, direction) {
-    const index = state.categoryOrder.indexOf(category);
-    const target = index + direction;
-    if (index < 0 || target < 0 || target >= state.categoryOrder.length) return;
-    [state.categoryOrder[index], state.categoryOrder[target]] = [state.categoryOrder[target], state.categoryOrder[index]];
-    regroupFramesByCategories();
-    markOrderDirty();
-  }
-
-  function moveCategoryBefore(draggedCategory, targetCategory) {
-    if (!draggedCategory || !targetCategory || draggedCategory === targetCategory) return;
-    const from = state.categoryOrder.indexOf(draggedCategory);
-    const to = state.categoryOrder.indexOf(targetCategory);
-    if (from < 0 || to < 0) return;
-    const [moved] = state.categoryOrder.splice(from, 1);
-    const adjusted = state.categoryOrder.indexOf(targetCategory);
-    state.categoryOrder.splice(adjusted, 0, moved);
-    regroupFramesByCategories();
-    markOrderDirty();
-  }
-
-  async function loadFrames({ announce = false } = {}) {
-    clearFlash();
-    setBusy(true, "Carregando...");
-    try {
-      const latest = await readLatestFrames();
-      state.frames = latest.frames;
-      state.originalOrder = latest.frames.map((frame) => frame.id);
-      state.categoryOrder = getCategoryOrder(latest.frames);
-      state.originalCategoryOrder = [...state.categoryOrder];
-      state.orderDirty = false;
-      state.draggedId = null;
-      state.draggedCategory = null;
-      renderCategories();
-      renderCategoryOrder();
-      renderFrames();
-      setStatus("Conectado", "ok");
-      els.managerCard.hidden = false;
-      if (announce) flash("Lista sincronizada com o GitHub.", "success");
-    } finally {
-      setBusy(false);
-      if (state.frames.length || !els.managerCard.hidden) setStatus("Conectado", "ok");
-    }
-  }
-
-  function renderCategories() {
-    const categories = [...state.categoryOrder];
-    els.categoryList.innerHTML = categories
-      .map((category) => `<option value="${escapeHtml(category)}"></option>`)
-      .join("");
-  }
-
-  function renderFrames() {
-    renderCategoryOrder();
-    const query = els.search.value.trim().toLowerCase();
-    const filtered = state.frames.filter((frame) =>
-      `${frame.nome} ${frame.categoria} ${frame.id}`.toLowerCase().includes(query),
-    );
-
-    els.count.textContent = `${state.frames.length} ${state.frames.length === 1 ? "moldura" : "molduras"}`;
-    els.saveOrder.disabled = state.operationInProgress || !state.orderDirty;
-    els.cancelOrder.disabled = state.operationInProgress || !state.orderDirty;
-    els.orderNotice.hidden = !state.orderDirty;
-    els.search.disabled = state.orderDirty;
-
-    if (!filtered.length) {
-      els.list.innerHTML = "<p>Nenhuma moldura encontrada.</p>";
-      return;
-    }
-
-    const cacheBuster = Date.now();
-    const dragEnabled = !query && !state.operationInProgress;
-    let lastCategory = null;
-    els.list.innerHTML = filtered.map((frame) => {
-      const index = state.frames.findIndex((item) => item.id === frame.id);
-      const category = frame.categoria || "Sem categoria";
-      const categoryFrames = state.frames.filter((item) => (item.categoria || "Sem categoria") === category);
-      const categoryIndex = categoryFrames.findIndex((item) => item.id === frame.id);
-      const showCategory = category !== lastCategory;
-      lastCategory = category;
-      return `${showCategory ? `<div class="category-section-label"><span>${escapeHtml(category)}</span><small>${categoryFrames.length} ${categoryFrames.length === 1 ? "moldura" : "molduras"}</small></div>` : ""}
-      <article class="frame-row ${state.orderDirty ? "ordering" : ""} ${showCategory ? "category-first" : ""}" data-id="${escapeHtml(frame.id)}" data-category="${escapeHtml(category)}" draggable="${dragEnabled}">
-        <div class="order-controls" aria-label="Ordenação de ${escapeHtml(frame.nome)}">
-          <button class="drag-handle" data-action="drag" type="button" title="Arraste dentro da categoria" aria-label="Arraste dentro da categoria">☰</button>
-          <span class="order-number">${categoryIndex + 1}</span>
-          <button class="order-arrow" data-action="up" type="button" title="Mover para cima" ${categoryIndex === 0 ? "disabled" : ""}>↑</button>
-          <button class="order-arrow" data-action="down" type="button" title="Mover para baixo" ${categoryIndex === categoryFrames.length - 1 ? "disabled" : ""}>↓</button>
-        </div>
-        <img class="frame-thumb" src="${escapeHtml(frame.arquivo)}?v=${cacheBuster}" alt="Prévia de ${escapeHtml(frame.nome)}" onerror="this.style.opacity=.25">
-        <div class="frame-info">
-          <h4>${escapeHtml(frame.nome)}</h4>
-          <p>${escapeHtml(category)} · <code>${escapeHtml(frame.id)}</code></p>
-          <p>${escapeHtml(frame.arquivo)}</p>
-          <div class="badges">
-            <span class="badge ${frame.ativo !== false ? "active" : "inactive"}">${frame.ativo !== false ? "Visível" : "Oculta"}</span>
-            ${frame.novo ? '<span class="badge new">Nova</span>' : ""}
-          </div>
-        </div>
-        <div class="row-actions">
-          <button class="button light" data-action="edit" type="button" ${state.orderDirty ? "disabled" : ""}>Editar</button>
-          <button class="button light" data-action="toggle" type="button" ${state.orderDirty ? "disabled" : ""}>${frame.ativo !== false ? "Ocultar" : "Exibir"}</button>
-          <button class="button danger" data-action="delete" type="button" ${state.orderDirty ? "disabled" : ""}>Remover</button>
-        </div>
-      </article>`;
-    }).join("");
-  }
-
-  function markOrderDirty() {
-    state.orderDirty = true;
-    renderFrames();
-  }
-
-  function moveFrame(id, direction) {
-    const frame = state.frames.find((item) => item.id === id);
-    if (!frame) return;
-    const category = frame.categoria || "Sem categoria";
-    const indexes = state.frames.map((item, index) => ({ item, index }))
-      .filter(({ item }) => (item.categoria || "Sem categoria") === category)
-      .map(({ index }) => index);
-    const localIndex = indexes.indexOf(state.frames.findIndex((item) => item.id === id));
-    const targetLocal = localIndex + direction;
-    if (localIndex < 0 || targetLocal < 0 || targetLocal >= indexes.length) return;
-    const from = indexes[localIndex];
-    const to = indexes[targetLocal];
-    [state.frames[from], state.frames[to]] = [state.frames[to], state.frames[from]];
-    markOrderDirty();
-  }
-
-  function moveFrameBefore(draggedId, targetId) {
-    if (!draggedId || !targetId || draggedId === targetId) return;
-    const dragged = state.frames.find((frame) => frame.id === draggedId);
-    const target = state.frames.find((frame) => frame.id === targetId);
-    if (!dragged || !target || (dragged.categoria || "Sem categoria") !== (target.categoria || "Sem categoria")) {
-      flash("As molduras só podem ser arrastadas dentro da mesma categoria. Use Editar para trocar a categoria.", "info");
-      return;
-    }
-    const from = state.frames.findIndex((frame) => frame.id === draggedId);
-    const [moved] = state.frames.splice(from, 1);
-    const adjustedTarget = state.frames.findIndex((frame) => frame.id === targetId);
-    state.frames.splice(adjustedTarget, 0, moved);
-    markOrderDirty();
-  }
-
-  function resetForm() {
-    els.frameForm.reset();
-    els.originalId.value = "";
-    els.frameId.dataset.edited = "";
-    els.active.checked = true;
-    els.isNew.checked = true;
-    els.formTitle.textContent = "Adicionar nova moldura";
-    els.saveBtn.textContent = "Adicionar e publicar moldura";
-    els.cancelEdit.hidden = true;
-    els.fileHint.textContent = "Obrigatório para uma nova moldura.";
-    els.preview.innerHTML = "<span>Prévia da moldura</span>";
-    updateDestination();
-  }
-
-  function updateDestination() {
-    const file = els.frameFile.files[0];
-    const original = state.frames.find((frame) => frame.id === els.originalId.value);
-    const extension = file?.name.split(".").pop()?.toLowerCase()
-      || original?.arquivo.split(".").pop()
-      || "png";
-    const id = slugify(els.frameId.value) || "arquivo";
-    els.destination.textContent = `${IMAGE_DIR}/${id}.${extension}`;
-  }
-
-  function editFrame(id) {
-    const frame = state.frames.find((item) => item.id === id);
-    if (!frame) return;
-
-    els.originalId.value = frame.id;
-    els.frameName.value = frame.nome;
-    els.frameId.value = frame.id;
-    els.frameId.dataset.edited = "1";
-    els.category.value = frame.categoria;
-    els.active.checked = frame.ativo !== false;
-    els.isNew.checked = Boolean(frame.novo);
-    els.formTitle.textContent = `Editar: ${frame.nome}`;
-    els.saveBtn.textContent = "Salvar alterações";
-    els.cancelEdit.hidden = false;
-    els.fileHint.textContent = "Opcional. Selecione somente para substituir a imagem.";
-    els.preview.innerHTML = `<img src="${escapeHtml(frame.arquivo)}?v=${Date.now()}" alt="Prévia">`;
-    updateDestination();
-    els.frameForm.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  els.connectionForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    state.owner = els.owner.value.trim();
-    state.repo = els.repo.value.trim();
-    state.branch = els.branch.value.trim();
-    state.token = els.token.value.trim();
-
-    try {
-      await loadFrames();
-      flash("Conexão realizada. O painel está sincronizado com o repositório.", "success");
-    } catch (error) {
-      setStatus("Erro", "error");
-      flash(error.message, "error");
-    }
-  });
-
-  els.toggleToken.addEventListener("click", () => {
-    const show = els.token.type === "password";
-    els.token.type = show ? "text" : "password";
-    els.toggleToken.textContent = show ? "Ocultar" : "Mostrar";
-  });
-
-  els.refreshBtn.addEventListener("click", async () => {
-    try {
-      await loadFrames({ announce: true });
-    } catch (error) {
-      flash(error.message, "error");
-    }
-  });
-
-  els.frameName.addEventListener("input", () => {
-    if (!els.originalId.value && !els.frameId.dataset.edited) {
-      els.frameId.value = slugify(els.frameName.value);
-      updateDestination();
-    }
-  });
-
-  els.frameId.addEventListener("input", () => {
-    els.frameId.dataset.edited = "1";
-    els.frameId.value = slugify(els.frameId.value);
-    updateDestination();
-  });
-
-  els.frameFile.addEventListener("change", () => {
-    const file = els.frameFile.files[0];
-    updateDestination();
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    els.preview.innerHTML = `<img src="${url}" alt="Prévia da nova moldura">`;
-  });
-
-  els.cancelEdit.addEventListener("click", resetForm);
-  els.search.addEventListener("input", renderFrames);
-
-  els.saveOrder.addEventListener("click", async () => {
-    if (!state.orderDirty || state.operationInProgress) return;
-    const desiredOrder = state.frames.map((frame) => frame.id);
-    const desiredCategoryOrder = [...state.categoryOrder];
-    setBusy(true, "Salvando ordem...");
-    try {
-      await mutateFrames("Atualiza ordenação das categorias e molduras", (latestFrames) => {
-        const byId = new Map(latestFrames.map((frame) => [frame.id, frame]));
-        const ordered = [];
-        for (const id of desiredOrder) {
-          const frame = byId.get(id);
-          if (frame) {
-            ordered.push(frame);
-            byId.delete(id);
-          }
-        }
-        // Molduras adicionadas em outra sessão são preservadas na categoria correspondente.
-        const remaining = [...byId.values()];
-        for (const category of desiredCategoryOrder) {
-          const insertAt = ordered.reduce((last, frame, index) =>
-            (frame.categoria || "Sem categoria") === category ? index + 1 : last, 0);
-          const additions = remaining.filter((frame) => (frame.categoria || "Sem categoria") === category);
-          if (additions.length) ordered.splice(insertAt, 0, ...additions);
-        }
-        ordered.push(...remaining.filter((frame) => !ordered.some((item) => item.id === frame.id)));
-        return { frames: ordered };
-      });
-      state.originalOrder = state.frames.map((frame) => frame.id);
-      state.categoryOrder = getCategoryOrder(state.frames);
-      state.originalCategoryOrder = [...state.categoryOrder];
-      state.orderDirty = false;
-      renderFrames();
-      flash("Nova ordenação publicada com sucesso.", "success");
-    } catch (error) {
-      flash(`Não foi possível salvar a ordenação: ${error.message}`, "error");
-      try { await loadFrames(); } catch { /* mantém o erro original */ }
-    } finally {
-      setBusy(false);
-      setStatus("Conectado", "ok");
-      renderFrames();
-    }
-  });
-
-  els.cancelOrder.addEventListener("click", () => {
-    if (!state.orderDirty) return;
-    const byId = new Map(state.frames.map((frame) => [frame.id, frame]));
-    state.frames = state.originalOrder.map((id) => byId.get(id)).filter(Boolean);
-    for (const frame of byId.values()) {
-      if (!state.originalOrder.includes(frame.id)) state.frames.push(frame);
-    }
-    state.categoryOrder = [...state.originalCategoryOrder];
-    regroupFramesByCategories();
-    state.orderDirty = false;
-    state.draggedId = null;
-    state.draggedCategory = null;
-    renderFrames();
-    flash("Alterações de ordem descartadas.", "info");
-  });
-
-  els.frameForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    clearFlash();
-
-    const originalId = els.originalId.value;
-    const localExisting = originalId ? state.frames.find((frame) => frame.id === originalId) : null;
-    const file = els.frameFile.files[0];
-    const id = slugify(els.frameId.value);
-    const name = els.frameName.value.trim();
-    const category = els.category.value.trim();
-
-    if (!localExisting && !file) {
-      flash("Escolha o arquivo da moldura.", "error");
-      return;
-    }
-
-    if (!id || !name || !category) {
-      flash("Preencha nome, identificador e categoria.", "error");
-      return;
-    }
-
-    setBusy(true, "Publicando...");
-    els.saveBtn.textContent = "Publicando...";
-
-    try {
-      let newPath = localExisting?.arquivo;
-
-      if (file) {
-        const extension = (file.name.split(".").pop() || "png").toLowerCase();
-        newPath = `${IMAGE_DIR}/${id}.${extension}`;
-        await uploadFile(file, newPath, `${localExisting ? "Atualiza" : "Adiciona"} imagem da moldura ${name}`);
-      }
-
-      await mutateFrames(`${localExisting ? "Atualiza" : "Adiciona"} moldura ${name}`, (frames) => {
-        const currentIndex = originalId ? frames.findIndex((frame) => frame.id === originalId) : -1;
-        const duplicateIndex = frames.findIndex((frame) => frame.id === id && frame.id !== originalId);
-
-        if (duplicateIndex >= 0) {
-          throw new Error("Já existe uma moldura com esse identificador.");
-        }
-
-        const latestExisting = currentIndex >= 0 ? frames[currentIndex] : null;
-        if (originalId && !latestExisting) {
-          throw new Error("Essa moldura foi alterada ou removida em outra sessão. Atualize a lista e tente novamente.");
-        }
-
-        const frame = {
-          id,
-          nome: name,
-          categoria: category,
-          arquivo: newPath || latestExisting?.arquivo,
-          ativo: els.active.checked,
-          novo: els.isNew.checked,
-        };
-
-        if (currentIndex >= 0) frames[currentIndex] = frame;
-        else frames.push(frame);
-      });
-
-      state.categoryOrder = getCategoryOrder(state.frames);
-      renderCategories();
-      renderFrames();
-      resetForm();
-      flash("Moldura publicada com sucesso. O GitHub Pages pode levar alguns instantes para atualizar.", "success");
-    } catch (error) {
-      flash(`Não foi possível publicar: ${error.message}`, "error");
-      try { await loadFrames(); } catch { /* mantém o erro original */ }
-    } finally {
-      setBusy(false);
-      setStatus("Conectado", "ok");
-      if (els.originalId.value) els.saveBtn.textContent = "Salvar alterações";
-      else els.saveBtn.textContent = "Adicionar e publicar moldura";
-    }
-  });
-
-  els.categoriesOrderList.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-category-action]");
-    if (!button || state.operationInProgress || els.search.value.trim()) return;
-    const row = button.closest(".category-order-row");
-    const category = row?.dataset.category;
-    if (!category) return;
-    if (button.dataset.categoryAction === "up") moveCategory(category, -1);
-    if (button.dataset.categoryAction === "down") moveCategory(category, 1);
-  });
-
-  els.categoriesOrderList.addEventListener("dragstart", (event) => {
-    if (els.search.value.trim() || state.operationInProgress) {
-      event.preventDefault();
-      return;
-    }
-    const row = event.target.closest(".category-order-row");
-    if (!row) return;
-    state.draggedCategory = row.dataset.category;
-    row.classList.add("dragging");
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", state.draggedCategory);
-  });
-
-  els.categoriesOrderList.addEventListener("dragover", (event) => {
-    if (!state.draggedCategory) return;
-    event.preventDefault();
-    const row = event.target.closest(".category-order-row");
-    els.categoriesOrderList.querySelectorAll(".drag-over").forEach((item) => item.classList.remove("drag-over"));
-    if (row && row.dataset.category !== state.draggedCategory) row.classList.add("drag-over");
-  });
-
-  els.categoriesOrderList.addEventListener("drop", (event) => {
-    event.preventDefault();
-    const row = event.target.closest(".category-order-row");
-    if (row && state.draggedCategory) moveCategoryBefore(state.draggedCategory, row.dataset.category);
-    state.draggedCategory = null;
-    els.categoriesOrderList.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
-  });
-
-  els.categoriesOrderList.addEventListener("dragend", () => {
-    state.draggedCategory = null;
-    els.categoriesOrderList.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
-  });
-
-  els.list.addEventListener("dragstart", (event) => {
-    if (els.search.value.trim() || state.operationInProgress) {
-      event.preventDefault();
-      return;
-    }
-    const row = event.target.closest(".frame-row");
-    if (!row) return;
-    state.draggedId = row.dataset.id;
-    row.classList.add("dragging");
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", state.draggedId);
-  });
-
-  els.list.addEventListener("dragover", (event) => {
-    if (!state.draggedId) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-    const row = event.target.closest(".frame-row");
-    els.list.querySelectorAll(".drag-over").forEach((item) => item.classList.remove("drag-over"));
-    const draggedRow = els.list.querySelector(`.frame-row[data-id="${CSS.escape(state.draggedId)}"]`);
-    if (row && draggedRow && row.dataset.id !== state.draggedId && row.dataset.category === draggedRow.dataset.category) row.classList.add("drag-over");
-  });
-
-  els.list.addEventListener("drop", (event) => {
-    event.preventDefault();
-    const row = event.target.closest(".frame-row");
-    if (row && state.draggedId) moveFrameBefore(state.draggedId, row.dataset.id);
-    state.draggedId = null;
-    els.list.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
-  });
-
-  els.list.addEventListener("dragend", () => {
-    state.draggedId = null;
-    els.list.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
-  });
-
-  els.list.addEventListener("click", async (event) => {
-    const button = event.target.closest("button[data-action]");
-    if (!button || state.operationInProgress) return;
-
-    const row = button.closest(".frame-row");
-    const id = row?.dataset.id;
-    const frame = state.frames.find((item) => item.id === id);
-    if (!frame) return;
-
-    if (button.dataset.action === "up") { moveFrame(id, -1); return; }
-    if (button.dataset.action === "down") { moveFrame(id, 1); return; }
-    if (button.dataset.action === "drag") return;
-
-    if (button.dataset.action === "edit") {
-      editFrame(id);
-      return;
-    }
-
-    if (button.dataset.action === "delete") {
-      state.pendingDelete = frame;
-      els.confirmText.textContent = `A moldura “${frame.nome}” será removida da lista.`;
-      els.deleteFile.checked = true;
-      els.dialog.showModal();
-      return;
-    }
-
-    if (button.dataset.action === "toggle") {
-      setBusy(true, frame.ativo !== false ? "Ocultando..." : "Exibindo...");
-      try {
-        let resultingFrame;
-        await mutateFrames(`${frame.ativo !== false ? "Oculta" : "Exibe"} moldura ${frame.nome}`, (frames) => {
-          const latest = frames.find((item) => item.id === id);
-          if (!latest) throw new Error("A moldura não existe mais no repositório.");
-          latest.ativo = latest.ativo === false;
-          resultingFrame = latest;
-        });
-        renderFrames();
-        flash(`Moldura ${resultingFrame.ativo !== false ? "exibida" : "ocultada"} com sucesso.`, "success");
-      } catch (error) {
-        flash(`Não foi possível alterar a visibilidade: ${error.message}`, "error");
-        try { await loadFrames(); } catch { /* mantém o erro original */ }
-      } finally {
-        setBusy(false);
-        setStatus("Conectado", "ok");
-      }
-    }
-  });
-
-  els.dialog.addEventListener("close", async () => {
-    if (els.dialog.returnValue !== "confirm" || !state.pendingDelete) return;
-
-    const frame = state.pendingDelete;
-    state.pendingDelete = null;
-    setBusy(true, "Removendo...");
-
-    try {
-      await mutateFrames(`Remove moldura ${frame.nome}`, (frames) => {
-        const index = frames.findIndex((item) => item.id === frame.id);
-        if (index < 0) throw new Error("A moldura já foi removida em outra sessão.");
-        frames.splice(index, 1);
-      });
-
-      let fileWarning = "";
-      if (els.deleteFile.checked) {
-        try {
-          await removeFile(frame.arquivo, `Remove imagem da moldura ${frame.nome}`);
-        } catch (error) {
-          fileWarning = ` A moldura saiu da lista, mas o arquivo de imagem não pôde ser apagado: ${error.message}`;
-        }
-      }
-
-      state.categoryOrder = getCategoryOrder(state.frames);
-      renderCategories();
-      renderFrames();
-      resetForm();
-      flash(fileWarning ? `Moldura removida.${fileWarning}` : "Moldura removida com sucesso.", fileWarning ? "error" : "success");
-    } catch (error) {
-      flash(`Não foi possível remover: ${error.message}`, "error");
-      try { await loadFrames(); } catch { /* mantém o erro original */ }
-    } finally {
-      setBusy(false);
-      setStatus("Conectado", "ok");
-    }
-  });
+  el.formConnect.addEventListener("submit",async e=>{e.preventDefault();state.owner=el.owner.value.trim();state.repo=el.repo.value.trim();state.branch=el.branch.value.trim();state.token=el.token.value.trim();setBusy(true,"Conectando...");try{await load();flash("Dados carregados. O formato antigo será migrado ao salvar.","success");}catch(err){status("Erro","error");flash(err.message,"error");}finally{setBusy(false);if(!el.manager.hidden)status("Conectado","ok");}});
+  el.toggleToken.addEventListener("click",()=>{el.token.type=el.token.type==="password"?"text":"password";el.toggleToken.textContent=el.token.type==="password"?"Mostrar":"Ocultar";});
+  el.refresh.addEventListener("click",async()=>{if(state.dirty&&!confirm("Descartar alterações não salvas?"))return;setBusy(true);try{await load();flash("Lista atualizada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
+  el.search.addEventListener("input",()=>{renderCategories();renderFrames();});
+  el.name.addEventListener("input",()=>{if(!state.editingId)el.id.value=slugify(el.name.value);updateDestination();}); el.id.addEventListener("input",updateDestination); el.file.addEventListener("change",()=>{updateDestination();const f=el.file.files[0];if(f){el.preview.innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Prévia">`;}});
+  el.cancelEdit.addEventListener("click",resetForm);
+
+  el.form.addEventListener("submit",async e=>{e.preventDefault();const name=el.name.value.trim(),id=slugify(el.id.value),categoryName=el.category.value.trim(),file=el.file.files[0];if(!name||!id||!categoryName)return flash("Preencha nome, identificador e categoria.","error");const existing=state.molduras.find(f=>f.id===state.editingId);if(!existing&&!file)return flash("Escolha uma imagem.","error");if(state.molduras.some(f=>f.id===id&&f.id!==state.editingId))return flash("Identificador já utilizado.","error");setBusy(true,"Publicando...");try{const cat=categoryFromInput(categoryName);let path=existing?.arquivo;if(file){const ext=(file.name.split(".").pop()||"png").toLowerCase();path=`${IMAGE_DIR}/${id}.${ext}`;await uploadImage(file,path,`Atualiza imagem ${name}`);}const oldCat=existing?.categoriaId;if(existing){Object.assign(existing,{id,nome:name,categoriaId:cat.id,arquivo:path,ativo:el.active.checked,novo:el.isNew.checked});if(oldCat!==cat.id)existing.ordem=state.molduras.filter(f=>f.categoriaId===cat.id).length+1;}else state.molduras.push({id,nome:name,categoriaId:cat.id,ordem:state.molduras.filter(f=>f.categoriaId===cat.id).length+1,arquivo:path,ativo:el.active.checked,novo:el.isNew.checked});renumber();await saveConfig(`${existing?"Atualiza":"Adiciona"} moldura ${name}`);render();resetForm();flash("Moldura publicada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
+
+  el.saveOrder.addEventListener("click",async()=>{setBusy(true,"Salvando ordenação...");try{renumber();await saveConfig("Atualiza ordem de categorias e molduras");render();flash("Ordenação salva e publicada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
+  el.cancelOrder.addEventListener("click",()=>{const data=JSON.parse(state.originalSnapshot);state.categorias=data.categorias;state.molduras=data.molduras;render();flash("Alterações descartadas.","info");});
+
+  function moveCategory(id,delta){const a=state.categorias.sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(c=>c.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renumber();render();}
+  function moveFrame(id,delta){const f=state.molduras.find(x=>x.id===id);if(!f)return;const a=state.molduras.filter(x=>x.categoriaId===f.categoriaId).sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(x=>x.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;const oi=a[i].ordem;a[i].ordem=a[j].ordem;a[j].ordem=oi;renumber();render();}
+
+  el.categories.addEventListener("click",e=>{const b=e.target.closest("button[data-category-action]");if(!b)return;const id=b.closest(".category-order-row")?.dataset.category,action=b.dataset.categoryAction,cat=state.categorias.find(c=>c.id===id);if(!cat)return;if(action==="up"||action==="down")return moveCategory(id,action==="up"?-1:1);if(action==="rename"){const name=prompt("Novo nome da categoria:",cat.nome)?.trim();if(name){cat.nome=name;render();}}if(action==="delete"){const used=state.molduras.filter(f=>f.categoriaId===id);if(used.length)return flash("Mova ou exclua as molduras desta categoria antes de apagá-la.","error");if(confirm(`Excluir a categoria “${cat.nome}”?`)){state.categorias=state.categorias.filter(c=>c.id!==id);render();}}});
+  el.categories.addEventListener("dragstart",e=>{const row=e.target.closest(".category-order-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedCategory=row.dataset.category;row.classList.add("dragging");});
+  el.categories.addEventListener("dragover",e=>{if(state.draggedCategory){e.preventDefault();e.target.closest(".category-order-row")?.classList.add("drag-over");}});
+  el.categories.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".category-order-row")?.dataset.category;if(target&&target!==state.draggedCategory){const a=state.categorias.sort((x,y)=>x.ordem-y.ordem),from=a.findIndex(c=>c.id===state.draggedCategory),to=a.findIndex(c=>c.id===target),[item]=a.splice(from,1);a.splice(to,0,item);renumber();render();}state.draggedCategory=null;});
+
+  el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;const action=b.dataset.action;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.isNew.checked=f.novo===true;el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;updateDestination();el.form.scrollIntoView({behavior:"smooth"});return;}if(action==="toggle"){f.ativo=f.ativo===false;setBusy(true,"Publicando...");try{await saveConfig(`${f.ativo?"Exibe":"Oculta"} moldura ${f.nome}`);render();flash("Visibilidade atualizada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;}if(action==="delete"){state.pendingDelete=f;el.confirmText.textContent=`A moldura “${f.nome}” será removida.`;el.dialog.showModal();}});
+  el.list.addEventListener("dragstart",e=>{const row=e.target.closest(".frame-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedFrame=row.dataset.id;row.classList.add("dragging");});
+  el.list.addEventListener("dragover",e=>{if(state.draggedFrame)e.preventDefault();});
+  el.list.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".frame-row")?.dataset.id,from=state.molduras.find(f=>f.id===state.draggedFrame),to=state.molduras.find(f=>f.id===target);if(from&&to&&from.categoriaId===to.categoriaId&&from.id!==to.id){const a=state.molduras.filter(f=>f.categoriaId===from.categoriaId).sort((x,y)=>x.ordem-y.ordem),fi=a.findIndex(f=>f.id===from.id),ti=a.findIndex(f=>f.id===to.id),[item]=a.splice(fi,1);a.splice(ti,0,item);a.forEach((f,i)=>f.ordem=i+1);render();}state.draggedFrame=null;});
+
+  el.dialog.addEventListener("close",async()=>{if(el.dialog.returnValue!=="confirm"||!state.pendingDelete)return;const f=state.pendingDelete;state.pendingDelete=null;setBusy(true,"Removendo...");try{state.molduras=state.molduras.filter(x=>x.id!==f.id);renumber();await saveConfig(`Remove moldura ${f.nome}`);if(el.deleteFile.checked)await removeImage(f.arquivo,`Remove imagem ${f.nome}`);render();resetForm();flash("Moldura removida.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
 
   updateDestination();
 })();
