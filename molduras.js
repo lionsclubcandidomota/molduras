@@ -149,14 +149,5 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
     "ativo": true,
     "novo": false
-  },
-  {
-    "id": "publicacao-de-doacao",
-    "nome": "Publicação de Doação",
-    "categoriaId": "publicacao",
-    "ordem": 1,
-    "arquivo": "assets/molduras/publicacao-de-doacao.png",
-    "ativo": true,
-    "novo": false
   }
 ];
