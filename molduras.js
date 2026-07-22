@@ -37,7 +37,7 @@ window.MOLDURAS = [
     "id": "eu-vou-ircd",
     "nome": "Eu vou IRCD",
     "categoriaId": "ircd-26-27",
-    "ordem": 2,
+    "ordem": 1,
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
     "novo": true
@@ -46,7 +46,7 @@ window.MOLDURAS = [
     "id": "nos-vamos-ircd",
     "nome": "Nós Vamos IRCD",
     "categoriaId": "ircd-26-27",
-    "ordem": 1,
+    "ordem": 2,
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
     "novo": true
