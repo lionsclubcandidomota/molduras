@@ -1,13 +1,5 @@
 window.MOLDURAS = [
   {
-    "id": "nos-vamos-ircd",
-    "nome": "Nós Vamos IRCD",
-    "categoria": "IRCD 26/27",
-    "arquivo": "assets/molduras/nos-vamos-ircd.png",
-    "ativo": true,
-    "novo": true
-  },
-  {
     "id": "eu-vou-ircd",
     "nome": "Eu vou IRCD",
     "categoria": "IRCD 26/27",
@@ -16,12 +8,12 @@ window.MOLDURAS = [
     "novo": true
   },
   {
-    "id": "feliz-aniversario",
-    "nome": "Feliz Aniversário",
-    "categoria": "Aniversário",
-    "arquivo": "assets/molduras/feliz-aniversario.png",
+    "id": "nos-vamos-ircd",
+    "nome": "Nós Vamos IRCD",
+    "categoria": "IRCD 26/27",
+    "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
-    "novo": false
+    "novo": true
   },
   {
     "id": "orgulho-de-ser-leao",
@@ -32,10 +24,26 @@ window.MOLDURAS = [
     "novo": false
   },
   {
+    "id": "feliz-aniversario",
+    "nome": "Feliz Aniversário",
+    "categoria": "Aniversário",
+    "arquivo": "assets/molduras/feliz-aniversario.png",
+    "ativo": true,
+    "novo": false
+  },
+  {
     "id": "presidente-de-clube",
     "nome": "Presidente de Clube",
     "categoria": "Cargos",
     "arquivo": "assets/molduras/presidente-de-clube.png",
+    "ativo": true,
+    "novo": false
+  },
+  {
+    "id": "primeiro-vice-presidente-de-clube",
+    "nome": "Primeiro Vice-Presidente de Clube",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
     "ativo": true,
     "novo": false
   },
@@ -92,14 +100,6 @@ window.MOLDURAS = [
     "nome": "Assessor de Serviços do Clube",
     "categoria": "Cargos",
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
-    "ativo": true,
-    "novo": false
-  },
-  {
-    "id": "primeiro-vice-presidente-de-clube",
-    "nome": "Primeiro Vice-Presidente de Clube",
-    "categoria": "Cargos",
-    "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
     "ativo": true,
     "novo": false
   }
