@@ -160,7 +160,7 @@ window.MOLDURAS = [
     "id": "visao",
     "nome": "Visão",
     "categoriaId": "causas-globais",
-    "ordem": 1,
+    "ordem": 4,
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "novo": false
@@ -169,7 +169,7 @@ window.MOLDURAS = [
     "id": "diabetes",
     "nome": "Diabetes",
     "categoriaId": "causas-globais",
-    "ordem": 2,
+    "ordem": 1,
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
     "novo": false
@@ -178,7 +178,7 @@ window.MOLDURAS = [
     "id": "fome",
     "nome": "Fome",
     "categoriaId": "causas-globais",
-    "ordem": 3,
+    "ordem": 2,
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
     "novo": false
@@ -187,7 +187,7 @@ window.MOLDURAS = [
     "id": "meio-ambiente",
     "nome": "Meio Ambiente",
     "categoriaId": "causas-globais",
-    "ordem": 4,
+    "ordem": 3,
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
     "novo": false
