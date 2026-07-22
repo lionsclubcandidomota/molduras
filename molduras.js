@@ -1,8 +1,37 @@
+// Gerenciado pelo Painel de Molduras Lions v3
+window.CATEGORIAS = [
+  {
+    "id": "ircd-26-27",
+    "nome": "IRCD 26/27",
+    "ordem": 1,
+    "ativo": true
+  },
+  {
+    "id": "lions",
+    "nome": "Lions",
+    "ordem": 2,
+    "ativo": true
+  },
+  {
+    "id": "aniversario",
+    "nome": "Aniversário",
+    "ordem": 3,
+    "ativo": true
+  },
+  {
+    "id": "cargos",
+    "nome": "Cargos",
+    "ordem": 4,
+    "ativo": true
+  }
+];
+
 window.MOLDURAS = [
   {
     "id": "eu-vou-ircd",
     "nome": "Eu vou IRCD",
-    "categoria": "IRCD 26/27",
+    "categoriaId": "ircd-26-27",
+    "ordem": 2,
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
     "novo": true
@@ -10,7 +39,8 @@ window.MOLDURAS = [
   {
     "id": "nos-vamos-ircd",
     "nome": "Nós Vamos IRCD",
-    "categoria": "IRCD 26/27",
+    "categoriaId": "ircd-26-27",
+    "ordem": 1,
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
     "novo": true
@@ -18,7 +48,8 @@ window.MOLDURAS = [
   {
     "id": "orgulho-de-ser-leao",
     "nome": "Orgulho de ser Leão",
-    "categoria": "Lions",
+    "categoriaId": "lions",
+    "ordem": 1,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "novo": false
@@ -26,7 +57,8 @@ window.MOLDURAS = [
   {
     "id": "feliz-aniversario",
     "nome": "Feliz Aniversário",
-    "categoria": "Aniversário",
+    "categoriaId": "aniversario",
+    "ordem": 1,
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
     "novo": false
@@ -34,7 +66,8 @@ window.MOLDURAS = [
   {
     "id": "presidente-de-clube",
     "nome": "Presidente de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 1,
     "arquivo": "assets/molduras/presidente-de-clube.png",
     "ativo": true,
     "novo": false
@@ -42,7 +75,8 @@ window.MOLDURAS = [
   {
     "id": "primeiro-vice-presidente-de-clube",
     "nome": "Primeiro Vice-Presidente de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 2,
     "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
     "ativo": true,
     "novo": false
@@ -50,7 +84,8 @@ window.MOLDURAS = [
   {
     "id": "segundo-vice-presidente-de-clube",
     "nome": "Segundo Vice-Presidente de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 3,
     "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
     "ativo": true,
     "novo": false
@@ -58,7 +93,8 @@ window.MOLDURAS = [
   {
     "id": "secretario-de-clube",
     "nome": "Secretário de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 4,
     "arquivo": "assets/molduras/secretario-de-clube.png",
     "ativo": true,
     "novo": false
@@ -66,7 +102,8 @@ window.MOLDURAS = [
   {
     "id": "tesoureiro-de-clube",
     "nome": "Tesoureiro de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 5,
     "arquivo": "assets/molduras/tesoureiro-de-clube.png",
     "ativo": true,
     "novo": false
@@ -74,7 +111,8 @@ window.MOLDURAS = [
   {
     "id": "diretor-de-clube",
     "nome": "Diretor de Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 6,
     "arquivo": "assets/molduras/diretor-de-clube.png",
     "ativo": true,
     "novo": false
@@ -82,7 +120,8 @@ window.MOLDURAS = [
   {
     "id": "assessor-de-socios-do-clube",
     "nome": "Assessor de Sócios do Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 7,
     "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
     "ativo": true,
     "novo": false
@@ -90,7 +129,8 @@ window.MOLDURAS = [
   {
     "id": "assessor-de-marketing",
     "nome": "Assessor de Marketing",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 8,
     "arquivo": "assets/molduras/assessor-de-marketing.png",
     "ativo": true,
     "novo": false
@@ -98,7 +138,8 @@ window.MOLDURAS = [
   {
     "id": "assessor-de-servicos-do-clube",
     "nome": "Assessor de Serviços do Clube",
-    "categoria": "Cargos",
+    "categoriaId": "cargos",
+    "ordem": 9,
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
     "ativo": true,
     "novo": false
