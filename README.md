@@ -1,33 +1,27 @@
-# Molduras Lions Club — com painel administrativo
+# Painel administrativo — Molduras Lions
 
-## Publicação
-Envie todos os arquivos e pastas para a raiz do repositório do GitHub Pages, sem ZIP.
+Este pacote contém somente o painel administrativo e não substitui `molduras.js`, `app.js`, `index.html`, `styles.css` ou a pasta `assets` do site.
 
-## Site público
-Abra `index.html` normalmente pelo endereço do GitHub Pages.
+## Instalação
 
-## Painel administrativo
-Acesse:
+Envie para a raiz do repositório `lionsclubcandidomota/molduras` apenas:
 
-`https://SEU-USUARIO.github.io/SEU-REPOSITORIO/admin.html`
+- `admin.html`
+- `admin.css`
+- `admin.js`
 
-O painel permite adicionar, editar, ocultar, exibir e remover molduras diretamente no repositório.
+O painel ficará em:
 
-## Token recomendado
-Crie um Fine-grained personal access token no GitHub:
+`https://lionsclubcandidomota.github.io/molduras/admin.html`
 
-- acesso somente ao repositório das molduras;
-- permissão `Contents: Read and write`;
-- defina uma data de expiração curta ou moderada;
-- nunca coloque o token dentro de `admin.js`, `molduras.js` ou qualquer arquivo do repositório.
+Os campos já vêm preenchidos com:
 
-O painel não salva o token. Ele permanece apenas na memória da aba e é perdido ao fechar ou atualizar a página.
+- Organização: `lionsclubcandidomota`
+- Repositório: `molduras`
+- Branch: `main`
 
-## Arquivos importantes
-- `index.html`: site público;
-- `admin.html`: painel de manutenção;
-- `molduras.js`: cadastro das molduras;
-- `assets/molduras/`: arquivos das molduras.
+Informe um token fine-grained com acesso somente a esse repositório e permissão `Contents: Read and write`.
 
-## Observação
-O painel utiliza a API oficial de conteúdo do GitHub. Cada manutenção cria commits na branch selecionada e o GitHub Pages republica o site automaticamente.
+## Importante
+
+Não substitua o seu `molduras.js` atual pelo arquivo de demonstração de versões anteriores. O painel sempre lê e atualiza o `molduras.js` que já está no repositório.
