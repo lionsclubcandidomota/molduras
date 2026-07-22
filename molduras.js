@@ -45,7 +45,7 @@ window.MOLDURAS = [
     "categoria": "Cargos",
     "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
     "ativo": true,
-    "novo": true
+    "novo": false
   },
   {
     "id": "secretario-de-clube",
