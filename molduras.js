@@ -182,5 +182,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "meio-ambiente",
+    "nome": "Meio Ambiente",
+    "categoriaId": "causas-globais",
+    "ordem": 4,
+    "arquivo": "assets/molduras/meio-ambiente.png",
+    "ativo": true,
+    "novo": false
   }
 ];
