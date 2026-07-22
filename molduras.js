@@ -191,5 +191,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "cancer-infantil",
+    "nome": "Câncer Infantil",
+    "categoriaId": "causas-globais",
+    "ordem": 5,
+    "arquivo": "assets/molduras/cancer-infantil.png",
+    "ativo": true,
+    "novo": false
   }
 ];
