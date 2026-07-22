@@ -4,7 +4,7 @@ window.MOLDURAS = [
     "nome": "Institucional",
     "categoria": "Institucional",
     "arquivo": "assets/molduras/institucional.svg",
-    "ativo": true,
+    "ativo": false,
     "novo": false
   },
   {
