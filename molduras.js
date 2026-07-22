@@ -1,13 +1,5 @@
 window.MOLDURAS = [
   {
-    "id": "orgulho",
-    "nome": "Orgulho de ser Leão",
-    "categoria": "Institucional",
-    "arquivo": "assets/molduras/orgulho.svg",
-    "ativo": false,
-    "novo": false
-  },
-  {
     "id": "nos-vamos-ircd",
     "nome": "Nós Vamos IRCD",
     "categoria": "IRCD 26/27",
