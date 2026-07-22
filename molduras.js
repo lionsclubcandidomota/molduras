@@ -55,7 +55,7 @@ window.MOLDURAS = [
     "id": "orgulho-de-ser-leao",
     "nome": "Orgulho de ser Leão",
     "categoriaId": "lions",
-    "ordem": 2,
+    "ordem": 1,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "novo": false
@@ -225,10 +225,10 @@ window.MOLDURAS = [
   {
     "id": "novo-associado",
     "nome": "Novo Associado",
-    "categoriaId": "lions",
-    "ordem": 1,
+    "categoriaId": "cargos",
+    "ordem": 10,
     "arquivo": "assets/molduras/novo-associado.png",
     "ativo": true,
-    "novo": true
+    "novo": false
   }
 ];
