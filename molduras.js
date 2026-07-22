@@ -17,7 +17,7 @@ window.MOLDURAS = [
   },
   {
     "id": "feliz-aniversario",
-    "nome": "Feliz Aniversario",
+    "nome": "Feliz Aniversário",
     "categoria": "Aniversário",
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
