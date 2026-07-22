@@ -2,120 +2,617 @@
   "use strict";
 
   const API_VERSION = "2022-11-28";
-  const state = { owner:"", repo:"", branch:"main", token:"", frames:[], configSha:null, pendingDelete:null };
-  const $ = (id) => document.getElementById(id);
-  const els = {
-    connectionForm: $("connectionForm"), owner: $("repoOwner"), repo: $("repoName"), branch: $("repoBranch"), token: $("githubToken"),
-    toggleToken: $("toggleToken"), connectBtn: $("connectBtn"), connectionStatus: $("connectionStatus"), managerCard: $("managerCard"),
-    refreshBtn: $("refreshBtn"), flash: $("flashMessage"), frameForm: $("frameForm"), originalId: $("editingOriginalId"),
-    formTitle: $("formTitle"), cancelEdit: $("cancelEditBtn"), frameName: $("frameName"), frameId: $("frameId"), category: $("frameCategory"),
-    categoryList: $("categoryList"), frameFile: $("frameFile"), fileHint: $("fileHint"), active: $("frameActive"), isNew: $("frameNew"),
-    preview: $("filePreview"), destination: $("destinationPath"), saveBtn: $("saveFrameBtn"), list: $("framesList"), count: $("frameCount"),
-    search: $("adminSearch"), dialog: $("confirmDialog"), confirmText: $("confirmText"), deleteFile: $("deleteImageFile"), confirmDelete: $("confirmDeleteBtn")
+  const MAX_CONFLICT_RETRIES = 4;
+  const CONFIG_PATH = "molduras.js";
+  const IMAGE_DIR = "assets/molduras";
+
+  const state = {
+    owner: "",
+    repo: "",
+    branch: "main",
+    token: "",
+    frames: [],
+    pendingDelete: null,
+    operationInProgress: false,
   };
 
-  function slugify(value){ return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
-  function escapeHtml(value){ return String(value).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
-  function setStatus(text,type="neutral"){ els.connectionStatus.textContent=text; els.connectionStatus.className=`status ${type}`; }
-  function flash(message,type="info"){ els.flash.textContent=message; els.flash.className=`flash ${type}`; els.flash.hidden=false; els.flash.scrollIntoView({behavior:"smooth",block:"nearest"}); }
-  function clearFlash(){ els.flash.hidden=true; }
-  function headers(){ return { Accept:"application/vnd.github+json", Authorization:`Bearer ${state.token}`, "X-GitHub-Api-Version":API_VERSION }; }
-  function apiUrl(path){
-    const separatorIndex = path.indexOf("?");
-    const pathname = separatorIndex >= 0 ? path.slice(0, separatorIndex) : path;
-    const query = separatorIndex >= 0 ? path.slice(separatorIndex + 1) : "";
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    connectionForm: $("connectionForm"),
+    owner: $("repoOwner"),
+    repo: $("repoName"),
+    branch: $("repoBranch"),
+    token: $("githubToken"),
+    toggleToken: $("toggleToken"),
+    connectBtn: $("connectBtn"),
+    connectionStatus: $("connectionStatus"),
+    managerCard: $("managerCard"),
+    refreshBtn: $("refreshBtn"),
+    flash: $("flashMessage"),
+    frameForm: $("frameForm"),
+    originalId: $("editingOriginalId"),
+    formTitle: $("formTitle"),
+    cancelEdit: $("cancelEditBtn"),
+    frameName: $("frameName"),
+    frameId: $("frameId"),
+    category: $("frameCategory"),
+    categoryList: $("categoryList"),
+    frameFile: $("frameFile"),
+    fileHint: $("fileHint"),
+    active: $("frameActive"),
+    isNew: $("frameNew"),
+    preview: $("filePreview"),
+    destination: $("destinationPath"),
+    saveBtn: $("saveFrameBtn"),
+    list: $("framesList"),
+    count: $("frameCount"),
+    search: $("adminSearch"),
+    dialog: $("confirmDialog"),
+    confirmText: $("confirmText"),
+    deleteFile: $("deleteImageFile"),
+    confirmDelete: $("confirmDeleteBtn"),
+  };
+
+  class GitHubError extends Error {
+    constructor(message, status = 0, data = null) {
+      super(message);
+      this.name = "GitHubError";
+      this.status = status;
+      this.data = data;
+    }
+  }
+
+  function slugify(value) {
+    return value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>'"]/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    }[char]));
+  }
+
+  function setStatus(text, type = "neutral") {
+    els.connectionStatus.textContent = text;
+    els.connectionStatus.className = `status ${type}`;
+  }
+
+  function flash(message, type = "info") {
+    els.flash.textContent = message;
+    els.flash.className = `flash ${type}`;
+    els.flash.hidden = false;
+    els.flash.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function clearFlash() {
+    els.flash.hidden = true;
+  }
+
+  function setBusy(isBusy, label = "Sincronizando...") {
+    state.operationInProgress = isBusy;
+    els.refreshBtn.disabled = isBusy;
+    els.connectBtn.disabled = isBusy;
+    els.saveBtn.disabled = isBusy;
+    els.confirmDelete.disabled = isBusy;
+    if (isBusy) setStatus(label, "neutral");
+  }
+
+  function headers() {
+    return {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${state.token}`,
+      "X-GitHub-Api-Version": API_VERSION,
+    };
+  }
+
+  function apiUrl(path) {
+    const question = path.indexOf("?");
+    const pathname = question >= 0 ? path.slice(0, question) : path;
+    const query = question >= 0 ? path.slice(question + 1) : "";
     const encodedPath = pathname.split("/").map(encodeURIComponent).join("/");
     const base = `https://api.github.com/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/contents/${encodedPath}`;
     return query ? `${base}?${query}` : base;
   }
-  async function api(path, options={}){
-    const response=await fetch(apiUrl(path),{...options,headers:{...headers(),...(options.headers||{})}});
-    let data=null; try{ data=await response.json(); }catch{}
-    if(!response.ok) throw new Error(data?.message || `Erro ${response.status} ao acessar o GitHub.`);
+
+  async function api(path, options = {}) {
+    const response = await fetch(apiUrl(path), {
+      ...options,
+      headers: {
+        ...headers(),
+        ...(options.headers || {}),
+      },
+    });
+
+    let data = null;
+    try {
+      data = await response.json();
+    } catch {
+      // Algumas respostas podem não conter JSON.
+    }
+
+    if (!response.ok) {
+      throw new GitHubError(data?.message || `Erro ${response.status} ao acessar o GitHub.`, response.status, data);
+    }
+
     return data;
   }
-  function utf8ToBase64(text){ const bytes=new TextEncoder().encode(text); let binary=""; for(let i=0;i<bytes.length;i+=0x8000) binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(binary); }
-  function base64ToUtf8(base64){ const binary=atob(base64.replace(/\n/g,"")); const bytes=Uint8Array.from(binary,c=>c.charCodeAt(0)); return new TextDecoder().decode(bytes); }
-  function arrayBufferToBase64(buffer){ const bytes=new Uint8Array(buffer); let binary=""; for(let i=0;i<bytes.length;i+=0x8000) binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(binary); }
-  function serializeFrames(){ return `window.MOLDURAS = ${JSON.stringify(state.frames,null,2)};\n`; }
-  function parseFrames(source){ const match=source.match(/window\.MOLDURAS\s*=\s*([\s\S]*?)\s*;\s*$/); if(!match) throw new Error("O arquivo molduras.js não está no formato esperado."); try{return JSON.parse(match[1]);}catch{ throw new Error("O molduras.js precisa estar no formato JSON da nova versão."); } }
-  async function getContent(path){ return api(path+`?ref=${encodeURIComponent(state.branch)}`); }
-  async function putContent(path,content,message,sha){ return api(path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,content,branch:state.branch,...(sha?{sha}:{})})}); }
-  async function deleteContent(path,message,sha){ return api(path,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:state.branch})}); }
 
-  async function loadFrames(){
-    clearFlash(); setStatus("Carregando...","neutral");
-    const file=await getContent("molduras.js");
-    state.configSha=file.sha; state.frames=parseFrames(base64ToUtf8(file.content));
-    renderCategories(); renderFrames(); setStatus("Conectado","ok"); els.managerCard.hidden=false;
+  function isConflict(error) {
+    if (!(error instanceof GitHubError)) return false;
+    const message = error.message.toLowerCase();
+    return error.status === 409 || error.status === 422 || message.includes("does not match") || message.includes("sha");
   }
-  function renderCategories(){ const categories=[...new Set(state.frames.map(f=>f.categoria).filter(Boolean))].sort(); els.categoryList.innerHTML=categories.map(c=>`<option value="${escapeHtml(c)}"></option>`).join(""); }
-  function renderFrames(){
-    const q=els.search.value.trim().toLowerCase();
-    const filtered=state.frames.filter(f=>`${f.nome} ${f.categoria} ${f.id}`.toLowerCase().includes(q));
-    els.count.textContent=`${state.frames.length} ${state.frames.length===1?"moldura":"molduras"}`;
-    if(!filtered.length){ els.list.innerHTML='<p>Nenhuma moldura encontrada.</p>'; return; }
-    els.list.innerHTML=filtered.map(frame=>`
+
+  function isNotFound(error) {
+    return error instanceof GitHubError && error.status === 404;
+  }
+
+  function utf8ToBase64(text) {
+    const bytes = new TextEncoder().encode(text);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    return btoa(binary);
+  }
+
+  function base64ToUtf8(base64) {
+    const binary = atob(base64.replace(/\n/g, ""));
+    const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    return new TextDecoder().decode(bytes);
+  }
+
+  function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+    }
+    return btoa(binary);
+  }
+
+  function serializeFrames(frames) {
+    return `window.MOLDURAS = ${JSON.stringify(frames, null, 2)};\n`;
+  }
+
+  function parseFrames(source) {
+    const match = source.match(/(?:window\.)?MOLDURAS\s*=\s*([\s\S]*?)\s*;\s*$/);
+    if (!match) {
+      throw new Error("O arquivo molduras.js não está no formato esperado: window.MOLDURAS = [...];");
+    }
+
+    try {
+      const parsed = JSON.parse(match[1]);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed;
+    } catch {
+      throw new Error("O conteúdo de molduras.js precisa ser uma lista JSON válida.");
+    }
+  }
+
+  async function getContent(path) {
+    return api(`${path}?ref=${encodeURIComponent(state.branch)}`);
+  }
+
+  async function putContent(path, content, message, sha) {
+    return api(path, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message,
+        content,
+        branch: state.branch,
+        ...(sha ? { sha } : {}),
+      }),
+    });
+  }
+
+  async function deleteContent(path, message, sha) {
+    return api(path, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, sha, branch: state.branch }),
+    });
+  }
+
+  async function readLatestFrames() {
+    const file = await getContent(CONFIG_PATH);
+    return {
+      sha: file.sha,
+      frames: parseFrames(base64ToUtf8(file.content)),
+    };
+  }
+
+  async function mutateFrames(message, mutator) {
+    let lastError;
+
+    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
+      try {
+        const latest = await readLatestFrames();
+        const working = structuredClone(latest.frames);
+        const result = await mutator(working);
+        const nextFrames = result?.frames || working;
+
+        await putContent(
+          CONFIG_PATH,
+          utf8ToBase64(serializeFrames(nextFrames)),
+          message,
+          latest.sha,
+        );
+
+        state.frames = nextFrames;
+        return result;
+      } catch (error) {
+        lastError = error;
+        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
+      }
+    }
+
+    throw lastError;
+  }
+
+  async function uploadFile(file, path, message) {
+    const content = arrayBufferToBase64(await file.arrayBuffer());
+    let lastError;
+
+    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
+      try {
+        let sha;
+        try {
+          sha = (await getContent(path)).sha;
+        } catch (error) {
+          if (!isNotFound(error)) throw error;
+        }
+        return await putContent(path, content, message, sha);
+      } catch (error) {
+        lastError = error;
+        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
+      }
+    }
+
+    throw lastError;
+  }
+
+  async function removeFile(path, message) {
+    let lastError;
+
+    for (let attempt = 1; attempt <= MAX_CONFLICT_RETRIES; attempt += 1) {
+      try {
+        const latest = await getContent(path);
+        return await deleteContent(path, message, latest.sha);
+      } catch (error) {
+        if (isNotFound(error)) return null;
+        lastError = error;
+        if (!isConflict(error) || attempt === MAX_CONFLICT_RETRIES) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 350 * attempt));
+      }
+    }
+
+    throw lastError;
+  }
+
+  async function loadFrames({ announce = false } = {}) {
+    clearFlash();
+    setBusy(true, "Carregando...");
+    try {
+      const latest = await readLatestFrames();
+      state.frames = latest.frames;
+      renderCategories();
+      renderFrames();
+      setStatus("Conectado", "ok");
+      els.managerCard.hidden = false;
+      if (announce) flash("Lista sincronizada com o GitHub.", "success");
+    } finally {
+      setBusy(false);
+      if (state.frames.length || !els.managerCard.hidden) setStatus("Conectado", "ok");
+    }
+  }
+
+  function renderCategories() {
+    const categories = [...new Set(state.frames.map((frame) => frame.categoria).filter(Boolean))].sort();
+    els.categoryList.innerHTML = categories
+      .map((category) => `<option value="${escapeHtml(category)}"></option>`)
+      .join("");
+  }
+
+  function renderFrames() {
+    const query = els.search.value.trim().toLowerCase();
+    const filtered = state.frames.filter((frame) =>
+      `${frame.nome} ${frame.categoria} ${frame.id}`.toLowerCase().includes(query),
+    );
+
+    els.count.textContent = `${state.frames.length} ${state.frames.length === 1 ? "moldura" : "molduras"}`;
+
+    if (!filtered.length) {
+      els.list.innerHTML = "<p>Nenhuma moldura encontrada.</p>";
+      return;
+    }
+
+    const cacheBuster = Date.now();
+    els.list.innerHTML = filtered.map((frame) => `
       <article class="frame-row" data-id="${escapeHtml(frame.id)}">
-        <img class="frame-thumb" src="${escapeHtml(frame.arquivo)}?v=${Date.now()}" alt="Prévia de ${escapeHtml(frame.nome)}" onerror="this.style.opacity=.25">
-        <div class="frame-info"><h4>${escapeHtml(frame.nome)}</h4><p>${escapeHtml(frame.categoria)} · <code>${escapeHtml(frame.id)}</code></p><p>${escapeHtml(frame.arquivo)}</p>
-          <div class="badges"><span class="badge ${frame.ativo?"active":"inactive"}">${frame.ativo?"Visível":"Oculta"}</span>${frame.novo?'<span class="badge new">Nova</span>':''}</div>
+        <img class="frame-thumb" src="${escapeHtml(frame.arquivo)}?v=${cacheBuster}" alt="Prévia de ${escapeHtml(frame.nome)}" onerror="this.style.opacity=.25">
+        <div class="frame-info">
+          <h4>${escapeHtml(frame.nome)}</h4>
+          <p>${escapeHtml(frame.categoria)} · <code>${escapeHtml(frame.id)}</code></p>
+          <p>${escapeHtml(frame.arquivo)}</p>
+          <div class="badges">
+            <span class="badge ${frame.ativo !== false ? "active" : "inactive"}">${frame.ativo !== false ? "Visível" : "Oculta"}</span>
+            ${frame.novo ? '<span class="badge new">Nova</span>' : ""}
+          </div>
         </div>
         <div class="row-actions">
           <button class="button light" data-action="edit" type="button">Editar</button>
-          <button class="button light" data-action="toggle" type="button">${frame.ativo?"Ocultar":"Exibir"}</button>
+          <button class="button light" data-action="toggle" type="button">${frame.ativo !== false ? "Ocultar" : "Exibir"}</button>
           <button class="button danger" data-action="delete" type="button">Remover</button>
         </div>
-      </article>`).join("");
+      </article>
+    `).join("");
   }
-  function resetForm(){ els.frameForm.reset(); els.originalId.value=""; els.active.checked=true; els.isNew.checked=true; els.formTitle.textContent="Adicionar nova moldura"; els.saveBtn.textContent="Adicionar e publicar moldura"; els.cancelEdit.hidden=true; els.fileHint.textContent="Obrigatório para uma nova moldura."; els.preview.innerHTML="<span>Prévia da moldura</span>"; updateDestination(); }
-  function updateDestination(){ const file=els.frameFile.files[0]; const original=state.frames.find(f=>f.id===els.originalId.value); const ext=file?.name.split(".").pop()?.toLowerCase() || original?.arquivo.split(".").pop() || "png"; const id=slugify(els.frameId.value)||"arquivo"; els.destination.textContent=`assets/molduras/${id}.${ext}`; }
-  function editFrame(id){ const f=state.frames.find(x=>x.id===id); if(!f)return; els.originalId.value=f.id; els.frameName.value=f.nome; els.frameId.value=f.id; els.category.value=f.categoria; els.active.checked=f.ativo!==false; els.isNew.checked=!!f.novo; els.formTitle.textContent=`Editar: ${f.nome}`; els.saveBtn.textContent="Salvar alterações"; els.cancelEdit.hidden=false; els.fileHint.textContent="Opcional. Selecione somente para substituir a imagem."; els.preview.innerHTML=`<img src="${escapeHtml(f.arquivo)}?v=${Date.now()}" alt="Prévia">`; updateDestination(); els.frameForm.scrollIntoView({behavior:"smooth",block:"start"}); }
-  async function saveConfig(message){ const latest=await getContent("molduras.js"); state.configSha=latest.sha; const result=await putContent("molduras.js",utf8ToBase64(serializeFrames()),message,state.configSha); state.configSha=result.content.sha; }
-  async function uploadFile(file,path,message){ let sha; try{sha=(await getContent(path)).sha;}catch(error){ if(!/Not Found/i.test(error.message)) throw error; } return putContent(path,arrayBufferToBase64(await file.arrayBuffer()),message,sha); }
 
-  els.connectionForm.addEventListener("submit",async e=>{ e.preventDefault(); state.owner=els.owner.value.trim(); state.repo=els.repo.value.trim(); state.branch=els.branch.value.trim(); state.token=els.token.value.trim(); els.connectBtn.disabled=true; try{await loadFrames(); flash("Conexão realizada. Você já pode administrar as molduras.","success");}catch(err){setStatus("Erro","error");flash(err.message,"error");}finally{els.connectBtn.disabled=false;} });
-  els.toggleToken.addEventListener("click",()=>{ const show=els.token.type==="password"; els.token.type=show?"text":"password"; els.toggleToken.textContent=show?"Ocultar":"Mostrar"; });
-  els.refreshBtn.addEventListener("click",async()=>{try{await loadFrames();flash("Lista atualizada.","success");}catch(err){flash(err.message,"error");}});
-  els.frameName.addEventListener("input",()=>{ if(!els.originalId.value || !els.frameId.dataset.edited){els.frameId.value=slugify(els.frameName.value);updateDestination();} });
-  els.frameId.addEventListener("input",()=>{els.frameId.dataset.edited="1";els.frameId.value=slugify(els.frameId.value);updateDestination();});
-  els.frameFile.addEventListener("change",()=>{ const file=els.frameFile.files[0]; updateDestination(); if(!file)return; const url=URL.createObjectURL(file); els.preview.innerHTML=`<img src="${url}" alt="Prévia da nova moldura">`; });
-  els.cancelEdit.addEventListener("click",resetForm); els.search.addEventListener("input",renderFrames);
+  function resetForm() {
+    els.frameForm.reset();
+    els.originalId.value = "";
+    els.frameId.dataset.edited = "";
+    els.active.checked = true;
+    els.isNew.checked = true;
+    els.formTitle.textContent = "Adicionar nova moldura";
+    els.saveBtn.textContent = "Adicionar e publicar moldura";
+    els.cancelEdit.hidden = true;
+    els.fileHint.textContent = "Obrigatório para uma nova moldura.";
+    els.preview.innerHTML = "<span>Prévia da moldura</span>";
+    updateDestination();
+  }
 
-  els.frameForm.addEventListener("submit",async e=>{
-    e.preventDefault(); clearFlash();
-    const originalId=els.originalId.value; const existing=originalId?state.frames.find(f=>f.id===originalId):null; const file=els.frameFile.files[0];
-    if(!existing && !file){flash("Escolha o arquivo da moldura.","error");return;}
-    const id=slugify(els.frameId.value); if(state.frames.some(f=>f.id===id && f.id!==originalId)){flash("Já existe uma moldura com esse identificador.","error");return;}
-    els.saveBtn.disabled=true; els.saveBtn.textContent="Publicando...";
-    try{
-      let path=existing?.arquivo;
-      if(file){ const ext=(file.name.split(".").pop()||"png").toLowerCase(); path=`assets/molduras/${id}.${ext}`; await uploadFile(file,path,`${existing?"Atualiza":"Adiciona"} imagem da moldura ${els.frameName.value.trim()}`); }
-      const frame={id,nome:els.frameName.value.trim(),categoria:els.category.value.trim(),arquivo:path,ativo:els.active.checked,novo:els.isNew.checked};
-      if(existing){ state.frames[state.frames.findIndex(f=>f.id===originalId)]=frame; } else state.frames.push(frame);
-      await saveConfig(`${existing?"Atualiza":"Adiciona"} moldura ${frame.nome}`);
-      renderCategories();renderFrames();resetForm();flash("Moldura publicada com sucesso. O GitHub Pages pode levar alguns instantes para atualizar.","success");
-    }catch(err){flash(`Não foi possível publicar: ${err.message}`,"error"); try{await loadFrames();}catch{} }
-    finally{els.saveBtn.disabled=false;if(!els.originalId.value)els.saveBtn.textContent="Adicionar e publicar moldura";}
-  });
+  function updateDestination() {
+    const file = els.frameFile.files[0];
+    const original = state.frames.find((frame) => frame.id === els.originalId.value);
+    const extension = file?.name.split(".").pop()?.toLowerCase()
+      || original?.arquivo.split(".").pop()
+      || "png";
+    const id = slugify(els.frameId.value) || "arquivo";
+    els.destination.textContent = `${IMAGE_DIR}/${id}.${extension}`;
+  }
 
-  els.list.addEventListener("click",async e=>{
-    const button=e.target.closest("button[data-action]"); if(!button)return; const id=button.closest(".frame-row").dataset.id; const frame=state.frames.find(f=>f.id===id); if(!frame)return;
-    if(button.dataset.action==="edit") return editFrame(id);
-    if(button.dataset.action==="delete"){ state.pendingDelete=frame; els.confirmText.textContent=`A moldura “${frame.nome}” será removida da lista.`; els.deleteFile.checked=true; els.dialog.showModal(); return; }
-    if(button.dataset.action==="toggle"){
-      button.disabled=true; try{frame.ativo=!frame.ativo;await saveConfig(`${frame.ativo?"Exibe":"Oculta"} moldura ${frame.nome}`);renderFrames();flash(`Moldura ${frame.ativo?"exibida":"ocultada"} com sucesso.`,"success");}catch(err){frame.ativo=!frame.ativo;flash(err.message,"error");}finally{button.disabled=false;}
+  function editFrame(id) {
+    const frame = state.frames.find((item) => item.id === id);
+    if (!frame) return;
+
+    els.originalId.value = frame.id;
+    els.frameName.value = frame.nome;
+    els.frameId.value = frame.id;
+    els.frameId.dataset.edited = "1";
+    els.category.value = frame.categoria;
+    els.active.checked = frame.ativo !== false;
+    els.isNew.checked = Boolean(frame.novo);
+    els.formTitle.textContent = `Editar: ${frame.nome}`;
+    els.saveBtn.textContent = "Salvar alterações";
+    els.cancelEdit.hidden = false;
+    els.fileHint.textContent = "Opcional. Selecione somente para substituir a imagem.";
+    els.preview.innerHTML = `<img src="${escapeHtml(frame.arquivo)}?v=${Date.now()}" alt="Prévia">`;
+    updateDestination();
+    els.frameForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  els.connectionForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    state.owner = els.owner.value.trim();
+    state.repo = els.repo.value.trim();
+    state.branch = els.branch.value.trim();
+    state.token = els.token.value.trim();
+
+    try {
+      await loadFrames();
+      flash("Conexão realizada. O painel está sincronizado com o repositório.", "success");
+    } catch (error) {
+      setStatus("Erro", "error");
+      flash(error.message, "error");
     }
   });
 
-  els.dialog.addEventListener("close",async()=>{
-    if(els.dialog.returnValue!=="confirm" || !state.pendingDelete)return; const frame=state.pendingDelete; state.pendingDelete=null; els.confirmDelete.disabled=true;
-    try{
-      state.frames=state.frames.filter(f=>f.id!==frame.id); await saveConfig(`Remove moldura ${frame.nome}`);
-      if(els.deleteFile.checked){ try{const img=await getContent(frame.arquivo);await deleteContent(frame.arquivo,`Remove imagem da moldura ${frame.nome}`,img.sha);}catch(err){flash(`A moldura saiu da lista, mas o arquivo não pôde ser apagado: ${err.message}`,"error");renderFrames();return;} }
-      renderCategories();renderFrames();resetForm();flash("Moldura removida com sucesso.","success");
-    }catch(err){flash(`Não foi possível remover: ${err.message}`,"error");try{await loadFrames();}catch{}}
-    finally{els.confirmDelete.disabled=false;}
+  els.toggleToken.addEventListener("click", () => {
+    const show = els.token.type === "password";
+    els.token.type = show ? "text" : "password";
+    els.toggleToken.textContent = show ? "Ocultar" : "Mostrar";
   });
+
+  els.refreshBtn.addEventListener("click", async () => {
+    try {
+      await loadFrames({ announce: true });
+    } catch (error) {
+      flash(error.message, "error");
+    }
+  });
+
+  els.frameName.addEventListener("input", () => {
+    if (!els.originalId.value && !els.frameId.dataset.edited) {
+      els.frameId.value = slugify(els.frameName.value);
+      updateDestination();
+    }
+  });
+
+  els.frameId.addEventListener("input", () => {
+    els.frameId.dataset.edited = "1";
+    els.frameId.value = slugify(els.frameId.value);
+    updateDestination();
+  });
+
+  els.frameFile.addEventListener("change", () => {
+    const file = els.frameFile.files[0];
+    updateDestination();
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    els.preview.innerHTML = `<img src="${url}" alt="Prévia da nova moldura">`;
+  });
+
+  els.cancelEdit.addEventListener("click", resetForm);
+  els.search.addEventListener("input", renderFrames);
+
+  els.frameForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    clearFlash();
+
+    const originalId = els.originalId.value;
+    const localExisting = originalId ? state.frames.find((frame) => frame.id === originalId) : null;
+    const file = els.frameFile.files[0];
+    const id = slugify(els.frameId.value);
+    const name = els.frameName.value.trim();
+    const category = els.category.value.trim();
+
+    if (!localExisting && !file) {
+      flash("Escolha o arquivo da moldura.", "error");
+      return;
+    }
+
+    if (!id || !name || !category) {
+      flash("Preencha nome, identificador e categoria.", "error");
+      return;
+    }
+
+    setBusy(true, "Publicando...");
+    els.saveBtn.textContent = "Publicando...";
+
+    try {
+      let newPath = localExisting?.arquivo;
+
+      if (file) {
+        const extension = (file.name.split(".").pop() || "png").toLowerCase();
+        newPath = `${IMAGE_DIR}/${id}.${extension}`;
+        await uploadFile(file, newPath, `${localExisting ? "Atualiza" : "Adiciona"} imagem da moldura ${name}`);
+      }
+
+      await mutateFrames(`${localExisting ? "Atualiza" : "Adiciona"} moldura ${name}`, (frames) => {
+        const currentIndex = originalId ? frames.findIndex((frame) => frame.id === originalId) : -1;
+        const duplicateIndex = frames.findIndex((frame) => frame.id === id && frame.id !== originalId);
+
+        if (duplicateIndex >= 0) {
+          throw new Error("Já existe uma moldura com esse identificador.");
+        }
+
+        const latestExisting = currentIndex >= 0 ? frames[currentIndex] : null;
+        if (originalId && !latestExisting) {
+          throw new Error("Essa moldura foi alterada ou removida em outra sessão. Atualize a lista e tente novamente.");
+        }
+
+        const frame = {
+          id,
+          nome: name,
+          categoria: category,
+          arquivo: newPath || latestExisting?.arquivo,
+          ativo: els.active.checked,
+          novo: els.isNew.checked,
+        };
+
+        if (currentIndex >= 0) frames[currentIndex] = frame;
+        else frames.push(frame);
+      });
+
+      renderCategories();
+      renderFrames();
+      resetForm();
+      flash("Moldura publicada com sucesso. O GitHub Pages pode levar alguns instantes para atualizar.", "success");
+    } catch (error) {
+      flash(`Não foi possível publicar: ${error.message}`, "error");
+      try { await loadFrames(); } catch { /* mantém o erro original */ }
+    } finally {
+      setBusy(false);
+      setStatus("Conectado", "ok");
+      if (els.originalId.value) els.saveBtn.textContent = "Salvar alterações";
+      else els.saveBtn.textContent = "Adicionar e publicar moldura";
+    }
+  });
+
+  els.list.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button || state.operationInProgress) return;
+
+    const row = button.closest(".frame-row");
+    const id = row?.dataset.id;
+    const frame = state.frames.find((item) => item.id === id);
+    if (!frame) return;
+
+    if (button.dataset.action === "edit") {
+      editFrame(id);
+      return;
+    }
+
+    if (button.dataset.action === "delete") {
+      state.pendingDelete = frame;
+      els.confirmText.textContent = `A moldura “${frame.nome}” será removida da lista.`;
+      els.deleteFile.checked = true;
+      els.dialog.showModal();
+      return;
+    }
+
+    if (button.dataset.action === "toggle") {
+      setBusy(true, frame.ativo !== false ? "Ocultando..." : "Exibindo...");
+      try {
+        let resultingFrame;
+        await mutateFrames(`${frame.ativo !== false ? "Oculta" : "Exibe"} moldura ${frame.nome}`, (frames) => {
+          const latest = frames.find((item) => item.id === id);
+          if (!latest) throw new Error("A moldura não existe mais no repositório.");
+          latest.ativo = latest.ativo === false;
+          resultingFrame = latest;
+        });
+        renderFrames();
+        flash(`Moldura ${resultingFrame.ativo !== false ? "exibida" : "ocultada"} com sucesso.`, "success");
+      } catch (error) {
+        flash(`Não foi possível alterar a visibilidade: ${error.message}`, "error");
+        try { await loadFrames(); } catch { /* mantém o erro original */ }
+      } finally {
+        setBusy(false);
+        setStatus("Conectado", "ok");
+      }
+    }
+  });
+
+  els.dialog.addEventListener("close", async () => {
+    if (els.dialog.returnValue !== "confirm" || !state.pendingDelete) return;
+
+    const frame = state.pendingDelete;
+    state.pendingDelete = null;
+    setBusy(true, "Removendo...");
+
+    try {
+      await mutateFrames(`Remove moldura ${frame.nome}`, (frames) => {
+        const index = frames.findIndex((item) => item.id === frame.id);
+        if (index < 0) throw new Error("A moldura já foi removida em outra sessão.");
+        frames.splice(index, 1);
+      });
+
+      let fileWarning = "";
+      if (els.deleteFile.checked) {
+        try {
+          await removeFile(frame.arquivo, `Remove imagem da moldura ${frame.nome}`);
+        } catch (error) {
+          fileWarning = ` A moldura saiu da lista, mas o arquivo de imagem não pôde ser apagado: ${error.message}`;
+        }
+      }
+
+      renderCategories();
+      renderFrames();
+      resetForm();
+      flash(fileWarning ? `Moldura removida.${fileWarning}` : "Moldura removida com sucesso.", fileWarning ? "error" : "success");
+    } catch (error) {
+      flash(`Não foi possível remover: ${error.message}`, "error");
+      try { await loadFrames(); } catch { /* mantém o erro original */ }
+    } finally {
+      setBusy(false);
+      setStatus("Conectado", "ok");
+    }
+  });
+
   updateDestination();
 })();

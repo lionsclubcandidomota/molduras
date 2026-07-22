@@ -1,32 +1,42 @@
-# Painel administrativo — Molduras Lions
+# Painel Administrativo v2 — Molduras Lions
 
-Este pacote contém somente o painel administrativo e não substitui `molduras.js`, `app.js`, `index.html`, `styles.css` ou a pasta `assets` do site.
+Versão configurada para:
+
+- Organização: `lionsclubcandidomota`
+- Repositório: `molduras`
+- Branch: `main`
+- Arquivo de cadastro: `molduras.js`
+- Pasta das imagens: `assets/molduras/`
 
 ## Instalação
 
-Envie para a raiz do repositório `lionsclubcandidomota/molduras` apenas:
+Envie para a raiz do repositório, substituindo as versões anteriores:
 
 - `admin.html`
 - `admin.css`
 - `admin.js`
 
-O painel ficará em:
+Não substitua `molduras.js`, `app.js`, `index.html`, `styles.css` ou a pasta `assets`.
+
+Painel:
 
 `https://lionsclubcandidomota.github.io/molduras/admin.html`
 
-Os campos já vêm preenchidos com:
+Depois de atualizar, use `Ctrl + F5` para evitar cache antigo.
 
-- Organização: `lionsclubcandidomota`
-- Repositório: `molduras`
-- Branch: `main`
+## Correções da versão 2
 
-Informe um token fine-grained com acesso somente a esse repositório e permissão `Contents: Read and write`.
+- Busca o SHA atual antes de toda alteração.
+- Repete automaticamente operações quando o GitHub informa conflito de SHA.
+- Nunca grava usando uma cópia antiga de `molduras.js`.
+- Sincroniza a lista novamente após erros.
+- Adicionar, editar, ocultar, exibir e excluir usam transações independentes.
+- Upload e exclusão de imagens também consultam o SHA atual.
 
-## Importante
+## Token
 
-Não substitua o seu `molduras.js` atual pelo arquivo de demonstração de versões anteriores. O painel sempre lê e atualiza o `molduras.js` que já está no repositório.
+Use um token fine-grained limitado ao repositório `molduras`, com:
 
+`Repository permissions > Contents > Read and write`
 
-## Correção desta versão
-
-Corrige a montagem da URL da API do GitHub para que `?ref=main` seja enviado como parâmetro de consulta, e não como parte do nome do arquivo.
+O token fica apenas na memória da aba e não é salvo pelo painel.
