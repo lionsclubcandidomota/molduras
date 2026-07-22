@@ -123,6 +123,33 @@
         </div>
         <input id="adminSearch" type="search" placeholder="Pesquisar moldura" />
       </div>
+
+      <div class="order-toolbar">
+        <div>
+          <strong>Ordenação das categorias e molduras</strong>
+          <p>Primeiro organize as categorias. Depois organize as molduras dentro de cada categoria.</p>
+        </div>
+        <div class="order-actions">
+          <button id="cancelOrderBtn" class="button light" type="button" disabled>Descartar</button>
+          <button id="saveOrderBtn" class="button primary" type="button" disabled>Salvar ordenação</button>
+        </div>
+      </div>
+      <div id="orderNotice" class="order-notice" hidden>Há alterações de ordem ainda não publicadas. Salve ou descarte antes de editar outras informações.</div>
+
+      <section class="category-order-panel" aria-labelledby="categoryOrderTitle">
+        <div class="category-order-heading">
+          <div>
+            <h3 id="categoryOrderTitle">Ordem das categorias</h3>
+            <p>Arraste pelo símbolo ☰ ou use as setas.</p>
+          </div>
+        </div>
+        <div id="categoriesOrderList" class="categories-order-list"></div>
+      </section>
+
+      <div class="frames-order-heading">
+        <h3>Ordem das molduras dentro das categorias</h3>
+        <p>Uma moldura só pode ser movida dentro da própria categoria. Para trocar de categoria, use “Editar”.</p>
+      </div>
       <div id="framesList" class="frames-list"></div>
     </section>
   </main>

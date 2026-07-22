@@ -14,6 +14,12 @@
     frames: [],
     pendingDelete: null,
     operationInProgress: false,
+    orderDirty: false,
+    originalOrder: [],
+    categoryOrder: [],
+    originalCategoryOrder: [],
+    draggedId: null,
+    draggedCategory: null,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -47,6 +53,10 @@
     list: $("framesList"),
     count: $("frameCount"),
     search: $("adminSearch"),
+    saveOrder: $("saveOrderBtn"),
+    cancelOrder: $("cancelOrderBtn"),
+    orderNotice: $("orderNotice"),
+    categoriesOrderList: $("categoriesOrderList"),
     dialog: $("confirmDialog"),
     confirmText: $("confirmText"),
     deleteFile: $("deleteImageFile"),
@@ -104,6 +114,8 @@
     els.connectBtn.disabled = isBusy;
     els.saveBtn.disabled = isBusy;
     els.confirmDelete.disabled = isBusy;
+    els.saveOrder.disabled = isBusy || !state.orderDirty;
+    els.cancelOrder.disabled = isBusy || !state.orderDirty;
     if (isBusy) setStatus(label, "neutral");
   }
 
@@ -303,13 +315,87 @@
     throw lastError;
   }
 
+  function getCategoryOrder(frames = state.frames) {
+    const seen = new Set();
+    const order = [];
+    for (const frame of frames) {
+      const category = String(frame.categoria || "Sem categoria").trim() || "Sem categoria";
+      if (!seen.has(category)) {
+        seen.add(category);
+        order.push(category);
+      }
+    }
+    return order;
+  }
+
+  function regroupFramesByCategories() {
+    const grouped = new Map();
+    for (const category of state.categoryOrder) grouped.set(category, []);
+    for (const frame of state.frames) {
+      const category = String(frame.categoria || "Sem categoria").trim() || "Sem categoria";
+      if (!grouped.has(category)) {
+        grouped.set(category, []);
+        state.categoryOrder.push(category);
+      }
+      grouped.get(category).push(frame);
+    }
+    state.frames = state.categoryOrder.flatMap((category) => grouped.get(category) || []);
+  }
+
+  function renderCategoryOrder() {
+    const query = els.search.value.trim();
+    const disabled = Boolean(query) || state.operationInProgress;
+    els.categoriesOrderList.innerHTML = state.categoryOrder.map((category, index) => {
+      const count = state.frames.filter((frame) => (frame.categoria || "Sem categoria") === category).length;
+      return `
+        <article class="category-order-row ${state.orderDirty ? "ordering" : ""}" data-category="${escapeHtml(category)}" draggable="${!disabled}">
+          <div class="category-order-controls">
+            <button class="category-drag-handle" data-category-action="drag" type="button" title="Arraste para reordenar">☰</button>
+            <span class="category-order-number">${index + 1}</span>
+            <button class="category-order-arrow" data-category-action="up" type="button" ${disabled || index === 0 ? "disabled" : ""}>↑</button>
+            <button class="category-order-arrow" data-category-action="down" type="button" ${disabled || index === state.categoryOrder.length - 1 ? "disabled" : ""}>↓</button>
+          </div>
+          <div class="category-name">${escapeHtml(category)}</div>
+          <div class="category-count">${count} ${count === 1 ? "moldura" : "molduras"}</div>
+        </article>`;
+    }).join("");
+  }
+
+  function moveCategory(category, direction) {
+    const index = state.categoryOrder.indexOf(category);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= state.categoryOrder.length) return;
+    [state.categoryOrder[index], state.categoryOrder[target]] = [state.categoryOrder[target], state.categoryOrder[index]];
+    regroupFramesByCategories();
+    markOrderDirty();
+  }
+
+  function moveCategoryBefore(draggedCategory, targetCategory) {
+    if (!draggedCategory || !targetCategory || draggedCategory === targetCategory) return;
+    const from = state.categoryOrder.indexOf(draggedCategory);
+    const to = state.categoryOrder.indexOf(targetCategory);
+    if (from < 0 || to < 0) return;
+    const [moved] = state.categoryOrder.splice(from, 1);
+    const adjusted = state.categoryOrder.indexOf(targetCategory);
+    state.categoryOrder.splice(adjusted, 0, moved);
+    regroupFramesByCategories();
+    markOrderDirty();
+  }
+
   async function loadFrames({ announce = false } = {}) {
     clearFlash();
     setBusy(true, "Carregando...");
     try {
       const latest = await readLatestFrames();
       state.frames = latest.frames;
+      state.originalOrder = latest.frames.map((frame) => frame.id);
+      state.categoryOrder = getCategoryOrder(latest.frames);
+      state.originalCategoryOrder = [...state.categoryOrder];
+      state.orderDirty = false;
+      state.draggedId = null;
+      state.draggedCategory = null;
       renderCategories();
+      renderCategoryOrder();
       renderFrames();
       setStatus("Conectado", "ok");
       els.managerCard.hidden = false;
@@ -321,19 +407,24 @@
   }
 
   function renderCategories() {
-    const categories = [...new Set(state.frames.map((frame) => frame.categoria).filter(Boolean))].sort();
+    const categories = [...state.categoryOrder];
     els.categoryList.innerHTML = categories
       .map((category) => `<option value="${escapeHtml(category)}"></option>`)
       .join("");
   }
 
   function renderFrames() {
+    renderCategoryOrder();
     const query = els.search.value.trim().toLowerCase();
     const filtered = state.frames.filter((frame) =>
       `${frame.nome} ${frame.categoria} ${frame.id}`.toLowerCase().includes(query),
     );
 
     els.count.textContent = `${state.frames.length} ${state.frames.length === 1 ? "moldura" : "molduras"}`;
+    els.saveOrder.disabled = state.operationInProgress || !state.orderDirty;
+    els.cancelOrder.disabled = state.operationInProgress || !state.orderDirty;
+    els.orderNotice.hidden = !state.orderDirty;
+    els.search.disabled = state.orderDirty;
 
     if (!filtered.length) {
       els.list.innerHTML = "<p>Nenhuma moldura encontrada.</p>";
@@ -341,12 +432,27 @@
     }
 
     const cacheBuster = Date.now();
-    els.list.innerHTML = filtered.map((frame) => `
-      <article class="frame-row" data-id="${escapeHtml(frame.id)}">
+    const dragEnabled = !query && !state.operationInProgress;
+    let lastCategory = null;
+    els.list.innerHTML = filtered.map((frame) => {
+      const index = state.frames.findIndex((item) => item.id === frame.id);
+      const category = frame.categoria || "Sem categoria";
+      const categoryFrames = state.frames.filter((item) => (item.categoria || "Sem categoria") === category);
+      const categoryIndex = categoryFrames.findIndex((item) => item.id === frame.id);
+      const showCategory = category !== lastCategory;
+      lastCategory = category;
+      return `${showCategory ? `<div class="category-section-label"><span>${escapeHtml(category)}</span><small>${categoryFrames.length} ${categoryFrames.length === 1 ? "moldura" : "molduras"}</small></div>` : ""}
+      <article class="frame-row ${state.orderDirty ? "ordering" : ""} ${showCategory ? "category-first" : ""}" data-id="${escapeHtml(frame.id)}" data-category="${escapeHtml(category)}" draggable="${dragEnabled}">
+        <div class="order-controls" aria-label="Ordenação de ${escapeHtml(frame.nome)}">
+          <button class="drag-handle" data-action="drag" type="button" title="Arraste dentro da categoria" aria-label="Arraste dentro da categoria">☰</button>
+          <span class="order-number">${categoryIndex + 1}</span>
+          <button class="order-arrow" data-action="up" type="button" title="Mover para cima" ${categoryIndex === 0 ? "disabled" : ""}>↑</button>
+          <button class="order-arrow" data-action="down" type="button" title="Mover para baixo" ${categoryIndex === categoryFrames.length - 1 ? "disabled" : ""}>↓</button>
+        </div>
         <img class="frame-thumb" src="${escapeHtml(frame.arquivo)}?v=${cacheBuster}" alt="Prévia de ${escapeHtml(frame.nome)}" onerror="this.style.opacity=.25">
         <div class="frame-info">
           <h4>${escapeHtml(frame.nome)}</h4>
-          <p>${escapeHtml(frame.categoria)} · <code>${escapeHtml(frame.id)}</code></p>
+          <p>${escapeHtml(category)} · <code>${escapeHtml(frame.id)}</code></p>
           <p>${escapeHtml(frame.arquivo)}</p>
           <div class="badges">
             <span class="badge ${frame.ativo !== false ? "active" : "inactive"}">${frame.ativo !== false ? "Visível" : "Oculta"}</span>
@@ -354,12 +460,48 @@
           </div>
         </div>
         <div class="row-actions">
-          <button class="button light" data-action="edit" type="button">Editar</button>
-          <button class="button light" data-action="toggle" type="button">${frame.ativo !== false ? "Ocultar" : "Exibir"}</button>
-          <button class="button danger" data-action="delete" type="button">Remover</button>
+          <button class="button light" data-action="edit" type="button" ${state.orderDirty ? "disabled" : ""}>Editar</button>
+          <button class="button light" data-action="toggle" type="button" ${state.orderDirty ? "disabled" : ""}>${frame.ativo !== false ? "Ocultar" : "Exibir"}</button>
+          <button class="button danger" data-action="delete" type="button" ${state.orderDirty ? "disabled" : ""}>Remover</button>
         </div>
-      </article>
-    `).join("");
+      </article>`;
+    }).join("");
+  }
+
+  function markOrderDirty() {
+    state.orderDirty = true;
+    renderFrames();
+  }
+
+  function moveFrame(id, direction) {
+    const frame = state.frames.find((item) => item.id === id);
+    if (!frame) return;
+    const category = frame.categoria || "Sem categoria";
+    const indexes = state.frames.map((item, index) => ({ item, index }))
+      .filter(({ item }) => (item.categoria || "Sem categoria") === category)
+      .map(({ index }) => index);
+    const localIndex = indexes.indexOf(state.frames.findIndex((item) => item.id === id));
+    const targetLocal = localIndex + direction;
+    if (localIndex < 0 || targetLocal < 0 || targetLocal >= indexes.length) return;
+    const from = indexes[localIndex];
+    const to = indexes[targetLocal];
+    [state.frames[from], state.frames[to]] = [state.frames[to], state.frames[from]];
+    markOrderDirty();
+  }
+
+  function moveFrameBefore(draggedId, targetId) {
+    if (!draggedId || !targetId || draggedId === targetId) return;
+    const dragged = state.frames.find((frame) => frame.id === draggedId);
+    const target = state.frames.find((frame) => frame.id === targetId);
+    if (!dragged || !target || (dragged.categoria || "Sem categoria") !== (target.categoria || "Sem categoria")) {
+      flash("As molduras só podem ser arrastadas dentro da mesma categoria. Use Editar para trocar a categoria.", "info");
+      return;
+    }
+    const from = state.frames.findIndex((frame) => frame.id === draggedId);
+    const [moved] = state.frames.splice(from, 1);
+    const adjustedTarget = state.frames.findIndex((frame) => frame.id === targetId);
+    state.frames.splice(adjustedTarget, 0, moved);
+    markOrderDirty();
   }
 
   function resetForm() {
@@ -460,6 +602,65 @@
   els.cancelEdit.addEventListener("click", resetForm);
   els.search.addEventListener("input", renderFrames);
 
+  els.saveOrder.addEventListener("click", async () => {
+    if (!state.orderDirty || state.operationInProgress) return;
+    const desiredOrder = state.frames.map((frame) => frame.id);
+    const desiredCategoryOrder = [...state.categoryOrder];
+    setBusy(true, "Salvando ordem...");
+    try {
+      await mutateFrames("Atualiza ordenação das categorias e molduras", (latestFrames) => {
+        const byId = new Map(latestFrames.map((frame) => [frame.id, frame]));
+        const ordered = [];
+        for (const id of desiredOrder) {
+          const frame = byId.get(id);
+          if (frame) {
+            ordered.push(frame);
+            byId.delete(id);
+          }
+        }
+        // Molduras adicionadas em outra sessão são preservadas na categoria correspondente.
+        const remaining = [...byId.values()];
+        for (const category of desiredCategoryOrder) {
+          const insertAt = ordered.reduce((last, frame, index) =>
+            (frame.categoria || "Sem categoria") === category ? index + 1 : last, 0);
+          const additions = remaining.filter((frame) => (frame.categoria || "Sem categoria") === category);
+          if (additions.length) ordered.splice(insertAt, 0, ...additions);
+        }
+        ordered.push(...remaining.filter((frame) => !ordered.some((item) => item.id === frame.id)));
+        return { frames: ordered };
+      });
+      state.originalOrder = state.frames.map((frame) => frame.id);
+      state.categoryOrder = getCategoryOrder(state.frames);
+      state.originalCategoryOrder = [...state.categoryOrder];
+      state.orderDirty = false;
+      renderFrames();
+      flash("Nova ordenação publicada com sucesso.", "success");
+    } catch (error) {
+      flash(`Não foi possível salvar a ordenação: ${error.message}`, "error");
+      try { await loadFrames(); } catch { /* mantém o erro original */ }
+    } finally {
+      setBusy(false);
+      setStatus("Conectado", "ok");
+      renderFrames();
+    }
+  });
+
+  els.cancelOrder.addEventListener("click", () => {
+    if (!state.orderDirty) return;
+    const byId = new Map(state.frames.map((frame) => [frame.id, frame]));
+    state.frames = state.originalOrder.map((id) => byId.get(id)).filter(Boolean);
+    for (const frame of byId.values()) {
+      if (!state.originalOrder.includes(frame.id)) state.frames.push(frame);
+    }
+    state.categoryOrder = [...state.originalCategoryOrder];
+    regroupFramesByCategories();
+    state.orderDirty = false;
+    state.draggedId = null;
+    state.draggedCategory = null;
+    renderFrames();
+    flash("Alterações de ordem descartadas.", "info");
+  });
+
   els.frameForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     clearFlash();
@@ -519,6 +720,7 @@
         else frames.push(frame);
       });
 
+      state.categoryOrder = getCategoryOrder(state.frames);
       renderCategories();
       renderFrames();
       resetForm();
@@ -534,6 +736,86 @@
     }
   });
 
+  els.categoriesOrderList.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-category-action]");
+    if (!button || state.operationInProgress || els.search.value.trim()) return;
+    const row = button.closest(".category-order-row");
+    const category = row?.dataset.category;
+    if (!category) return;
+    if (button.dataset.categoryAction === "up") moveCategory(category, -1);
+    if (button.dataset.categoryAction === "down") moveCategory(category, 1);
+  });
+
+  els.categoriesOrderList.addEventListener("dragstart", (event) => {
+    if (els.search.value.trim() || state.operationInProgress) {
+      event.preventDefault();
+      return;
+    }
+    const row = event.target.closest(".category-order-row");
+    if (!row) return;
+    state.draggedCategory = row.dataset.category;
+    row.classList.add("dragging");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", state.draggedCategory);
+  });
+
+  els.categoriesOrderList.addEventListener("dragover", (event) => {
+    if (!state.draggedCategory) return;
+    event.preventDefault();
+    const row = event.target.closest(".category-order-row");
+    els.categoriesOrderList.querySelectorAll(".drag-over").forEach((item) => item.classList.remove("drag-over"));
+    if (row && row.dataset.category !== state.draggedCategory) row.classList.add("drag-over");
+  });
+
+  els.categoriesOrderList.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const row = event.target.closest(".category-order-row");
+    if (row && state.draggedCategory) moveCategoryBefore(state.draggedCategory, row.dataset.category);
+    state.draggedCategory = null;
+    els.categoriesOrderList.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
+  });
+
+  els.categoriesOrderList.addEventListener("dragend", () => {
+    state.draggedCategory = null;
+    els.categoriesOrderList.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
+  });
+
+  els.list.addEventListener("dragstart", (event) => {
+    if (els.search.value.trim() || state.operationInProgress) {
+      event.preventDefault();
+      return;
+    }
+    const row = event.target.closest(".frame-row");
+    if (!row) return;
+    state.draggedId = row.dataset.id;
+    row.classList.add("dragging");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", state.draggedId);
+  });
+
+  els.list.addEventListener("dragover", (event) => {
+    if (!state.draggedId) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    const row = event.target.closest(".frame-row");
+    els.list.querySelectorAll(".drag-over").forEach((item) => item.classList.remove("drag-over"));
+    const draggedRow = els.list.querySelector(`.frame-row[data-id="${CSS.escape(state.draggedId)}"]`);
+    if (row && draggedRow && row.dataset.id !== state.draggedId && row.dataset.category === draggedRow.dataset.category) row.classList.add("drag-over");
+  });
+
+  els.list.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const row = event.target.closest(".frame-row");
+    if (row && state.draggedId) moveFrameBefore(state.draggedId, row.dataset.id);
+    state.draggedId = null;
+    els.list.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
+  });
+
+  els.list.addEventListener("dragend", () => {
+    state.draggedId = null;
+    els.list.querySelectorAll(".dragging,.drag-over").forEach((item) => item.classList.remove("dragging", "drag-over"));
+  });
+
   els.list.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button || state.operationInProgress) return;
@@ -542,6 +824,10 @@
     const id = row?.dataset.id;
     const frame = state.frames.find((item) => item.id === id);
     if (!frame) return;
+
+    if (button.dataset.action === "up") { moveFrame(id, -1); return; }
+    if (button.dataset.action === "down") { moveFrame(id, 1); return; }
+    if (button.dataset.action === "drag") return;
 
     if (button.dataset.action === "edit") {
       editFrame(id);
@@ -601,6 +887,7 @@
         }
       }
 
+      state.categoryOrder = getCategoryOrder(state.frames);
       renderCategories();
       renderFrames();
       resetForm();

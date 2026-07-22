@@ -1,16 +1,14 @@
-# Painel Administrativo v2 — Molduras Lions
+# Painel de Molduras Lions — categorias e molduras ordenáveis
 
-Versão configurada para:
+Atualização do painel administrativo para o repositório:
 
 - Organização: `lionsclubcandidomota`
 - Repositório: `molduras`
 - Branch: `main`
-- Arquivo de cadastro: `molduras.js`
-- Pasta das imagens: `assets/molduras/`
 
 ## Instalação
 
-Envie para a raiz do repositório, substituindo as versões anteriores:
+Substitua somente estes arquivos na raiz do repositório:
 
 - `admin.html`
 - `admin.css`
@@ -18,25 +16,19 @@ Envie para a raiz do repositório, substituindo as versões anteriores:
 
 Não substitua `molduras.js`, `app.js`, `index.html`, `styles.css` ou a pasta `assets`.
 
-Painel:
+Depois aguarde o GitHub Pages atualizar e abra:
 
 `https://lionsclubcandidomota.github.io/molduras/admin.html`
 
-Depois de atualizar, use `Ctrl + F5` para evitar cache antigo.
+Use `Ctrl + F5` no computador para evitar o cache da versão anterior.
 
-## Correções da versão 2
+## Como ordenar
 
-- Busca o SHA atual antes de toda alteração.
-- Repete automaticamente operações quando o GitHub informa conflito de SHA.
-- Nunca grava usando uma cópia antiga de `molduras.js`.
-- Sincroniza a lista novamente após erros.
-- Adicionar, editar, ocultar, exibir e excluir usam transações independentes.
-- Upload e exclusão de imagens também consultam o SHA atual.
+1. Conecte o painel ao GitHub.
+2. Na seção **Ordem das categorias**, arraste uma categoria ou use as setas.
+3. Na seção **Ordem das molduras**, organize cada moldura dentro da própria categoria.
+4. Clique em **Salvar ordenação**.
 
-## Token
+O painel grava uma lista única no `molduras.js`, agrupando as molduras pela ordem escolhida para as categorias e preservando a ordem interna de cada grupo.
 
-Use um token fine-grained limitado ao repositório `molduras`, com:
-
-`Repository permissions > Contents > Read and write`
-
-O token fica apenas na memória da aba e não é salvo pelo painel.
+Para mover uma moldura para outra categoria, use **Editar** e altere o campo Categoria. Depois, faça a ordenação novamente caso necessário.
