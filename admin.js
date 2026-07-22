@@ -184,13 +184,58 @@
   el.saveOrder.addEventListener("click",async()=>{setBusy(true,"Salvando ordenação...");try{renumber();await saveConfig("Atualiza ordem de categorias e molduras");render();flash("Ordenação salva e publicada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
   el.cancelOrder.addEventListener("click",()=>{const data=JSON.parse(state.originalSnapshot);state.categorias=data.categorias;state.molduras=data.molduras;render();flash("Alterações descartadas.","info");});
 
-  function moveCategory(id,delta){const a=state.categorias.sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(c=>c.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];renumber();render();}
+  function applyCategoryOrder(orderedCategories) {
+    orderedCategories.forEach((category, index) => {
+      category.ordem = index + 1;
+    });
+    state.categorias = orderedCategories;
+    render();
+  }
+
+  function moveCategory(id, delta) {
+    const ordered = [...state.categorias].sort((a, b) => a.ordem - b.ordem);
+    const currentIndex = ordered.findIndex(category => category.id === id);
+    const targetIndex = currentIndex + delta;
+
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= ordered.length) return;
+
+    const [moved] = ordered.splice(currentIndex, 1);
+    ordered.splice(targetIndex, 0, moved);
+    applyCategoryOrder(ordered);
+  }
   function moveFrame(id,delta){const f=state.molduras.find(x=>x.id===id);if(!f)return;const a=state.molduras.filter(x=>x.categoriaId===f.categoriaId).sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(x=>x.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;const oi=a[i].ordem;a[i].ordem=a[j].ordem;a[j].ordem=oi;renumber();render();}
 
   el.categories.addEventListener("click",e=>{const b=e.target.closest("button[data-category-action]");if(!b)return;const id=b.closest(".category-order-row")?.dataset.category,action=b.dataset.categoryAction,cat=state.categorias.find(c=>c.id===id);if(!cat)return;if(action==="up"||action==="down")return moveCategory(id,action==="up"?-1:1);if(action==="rename"){const name=prompt("Novo nome da categoria:",cat.nome)?.trim();if(name){cat.nome=name;render();}}if(action==="delete"){const used=state.molduras.filter(f=>f.categoriaId===id);if(used.length)return flash("Mova ou exclua as molduras desta categoria antes de apagá-la.","error");if(confirm(`Excluir a categoria “${cat.nome}”?`)){state.categorias=state.categorias.filter(c=>c.id!==id);render();}}});
   el.categories.addEventListener("dragstart",e=>{const row=e.target.closest(".category-order-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedCategory=row.dataset.category;row.classList.add("dragging");});
   el.categories.addEventListener("dragover",e=>{if(state.draggedCategory){e.preventDefault();e.target.closest(".category-order-row")?.classList.add("drag-over");}});
-  el.categories.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".category-order-row")?.dataset.category;if(target&&target!==state.draggedCategory){const a=state.categorias.sort((x,y)=>x.ordem-y.ordem),from=a.findIndex(c=>c.id===state.draggedCategory),to=a.findIndex(c=>c.id===target),[item]=a.splice(from,1);a.splice(to,0,item);renumber();render();}state.draggedCategory=null;});
+  el.categories.addEventListener("drop", e => {
+    e.preventDefault();
+    const targetId = e.target.closest(".category-order-row")?.dataset.category;
+
+    if (targetId && targetId !== state.draggedCategory) {
+      const ordered = [...state.categorias].sort((a, b) => a.ordem - b.ordem);
+      const fromIndex = ordered.findIndex(category => category.id === state.draggedCategory);
+      const targetIndex = ordered.findIndex(category => category.id === targetId);
+
+      if (fromIndex >= 0 && targetIndex >= 0) {
+        const [moved] = ordered.splice(fromIndex, 1);
+        ordered.splice(targetIndex, 0, moved);
+        applyCategoryOrder(ordered);
+      }
+    }
+
+    state.draggedCategory = null;
+    el.categories.querySelectorAll(".dragging, .drag-over").forEach(row => {
+      row.classList.remove("dragging", "drag-over");
+    });
+  });
+
+  el.categories.addEventListener("dragend", () => {
+    state.draggedCategory = null;
+    el.categories.querySelectorAll(".dragging, .drag-over").forEach(row => {
+      row.classList.remove("dragging", "drag-over");
+    });
+  });
 
   el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;const action=b.dataset.action;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.isNew.checked=f.novo===true;el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;updateDestination();el.form.scrollIntoView({behavior:"smooth"});return;}if(action==="toggle"){f.ativo=f.ativo===false;setBusy(true,"Publicando...");try{await saveConfig(`${f.ativo?"Exibe":"Oculta"} moldura ${f.nome}`);render();flash("Visibilidade atualizada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;}if(action==="delete"){state.pendingDelete=f;el.confirmText.textContent=`A moldura “${f.nome}” será removida.`;el.dialog.showModal();}});
   el.list.addEventListener("dragstart",e=>{const row=e.target.closest(".frame-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedFrame=row.dataset.id;row.classList.add("dragging");});
