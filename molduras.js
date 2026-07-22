@@ -230,5 +230,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/novo-associado.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "dia-d",
+    "nome": "Dia D",
+    "categoriaId": "lions",
+    "ordem": 2,
+    "arquivo": "assets/molduras/dia-d.png",
+    "ativo": true,
+    "novo": true
   }
 ];
