@@ -94,5 +94,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "primeiro-vice-presidente-de-clube",
+    "nome": "Primeiro Vice-Presidente de Clube",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
+    "ativo": true,
+    "novo": false
   }
 ];
