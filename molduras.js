@@ -1,13 +1,5 @@
 window.MOLDURAS = [
   {
-    "id": "comunidade",
-    "nome": "Comunidade",
-    "categoria": "Campanhas",
-    "arquivo": "assets/molduras/comunidade.svg",
-    "ativo": false,
-    "novo": false
-  },
-  {
     "id": "orgulho",
     "nome": "Orgulho de ser Leão",
     "categoria": "Institucional",
