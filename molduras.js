@@ -20,7 +20,7 @@ window.MOLDURAS = [
     "nome": "Comunidade",
     "categoria": "Campanhas",
     "arquivo": "assets/molduras/comunidade.svg",
-    "ativo": true,
+    "ativo": false,
     "novo": false
   },
   {
