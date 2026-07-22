@@ -4,7 +4,7 @@ window.MOLDURAS = [
     "nome": "Institucional",
     "categoria": "Institucional",
     "arquivo": "assets/molduras/institucional.svg",
-    "ativo": false,
+    "ativo": true,
     "novo": false
   },
   {
@@ -30,5 +30,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/orgulho.svg",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "nos-vamos-ircd",
+    "nome": "Nós Vamos IRCD",
+    "categoria": "Nós Vamos",
+    "arquivo": "assets/molduras/nos-vamos-ircd.png",
+    "ativo": true,
+    "novo": true
   }
 ];
