@@ -20,7 +20,14 @@
   function flash(message,type="info"){ els.flash.textContent=message; els.flash.className=`flash ${type}`; els.flash.hidden=false; els.flash.scrollIntoView({behavior:"smooth",block:"nearest"}); }
   function clearFlash(){ els.flash.hidden=true; }
   function headers(){ return { Accept:"application/vnd.github+json", Authorization:`Bearer ${state.token}`, "X-GitHub-Api-Version":API_VERSION }; }
-  function apiUrl(path){ return `https://api.github.com/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/contents/${path.split("/").map(encodeURIComponent).join("/")}`; }
+  function apiUrl(path){
+    const separatorIndex = path.indexOf("?");
+    const pathname = separatorIndex >= 0 ? path.slice(0, separatorIndex) : path;
+    const query = separatorIndex >= 0 ? path.slice(separatorIndex + 1) : "";
+    const encodedPath = pathname.split("/").map(encodeURIComponent).join("/");
+    const base = `https://api.github.com/repos/${encodeURIComponent(state.owner)}/${encodeURIComponent(state.repo)}/contents/${encodedPath}`;
+    return query ? `${base}?${query}` : base;
+  }
   async function api(path, options={}){
     const response=await fetch(apiUrl(path),{...options,headers:{...headers(),...(options.headers||{})}});
     let data=null; try{ data=await response.json(); }catch{}

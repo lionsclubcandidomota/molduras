@@ -25,3 +25,8 @@ Informe um token fine-grained com acesso somente a esse repositório e permissã
 ## Importante
 
 Não substitua o seu `molduras.js` atual pelo arquivo de demonstração de versões anteriores. O painel sempre lê e atualiza o `molduras.js` que já está no repositório.
+
+
+## Correção desta versão
+
+Corrige a montagem da URL da API do GitHub para que `?ref=main` seja enviado como parâmetro de consulta, e não como parte do nome do arquivo.
