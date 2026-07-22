@@ -28,7 +28,7 @@ window.MOLDURAS = [
     "nome": "Orgulho de ser Leão",
     "categoria": "Institucional",
     "arquivo": "assets/molduras/orgulho.svg",
-    "ativo": true,
+    "ativo": false,
     "novo": false
   },
   {
