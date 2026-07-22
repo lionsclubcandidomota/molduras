@@ -200,5 +200,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "juventude",
+    "nome": "Juventude",
+    "categoriaId": "causas-globais",
+    "ordem": 6,
+    "arquivo": "assets/molduras/juventude.png",
+    "ativo": true,
+    "novo": false
   }
 ];
