@@ -1,46 +1,33 @@
-# Molduras Lions Club
+# Molduras Lions Club — com painel administrativo
 
-Esta versão funciona tanto no GitHub Pages quanto abrindo o `index.html` diretamente no computador.
+## Publicação
+Envie todos os arquivos e pastas para a raiz do repositório do GitHub Pages, sem ZIP.
 
-## Adicionar uma moldura
+## Site público
+Abra `index.html` normalmente pelo endereço do GitHub Pages.
 
-1. Coloque o PNG em `assets/molduras/`.
-2. Abra `molduras.js`.
-3. Copie um bloco existente e altere os dados.
+## Painel administrativo
+Acesse:
 
-Exemplo:
+`https://SEU-USUARIO.github.io/SEU-REPOSITORIO/admin.html`
 
-```javascript
-{
-  id: "visao",
-  nome: "Visão",
-  categoria: "Causas Globais",
-  arquivo: "assets/molduras/visao.png",
-  ativo: true,
-  novo: true
-}
-```
+O painel permite adicionar, editar, ocultar, exibir e remover molduras diretamente no repositório.
 
-Importante: mantenha uma vírgula entre os blocos.
+## Token recomendado
+Crie um Fine-grained personal access token no GitHub:
 
-## Ocultar uma moldura
+- acesso somente ao repositório das molduras;
+- permissão `Contents: Read and write`;
+- defina uma data de expiração curta ou moderada;
+- nunca coloque o token dentro de `admin.js`, `molduras.js` ou qualquer arquivo do repositório.
 
-Altere:
+O painel não salva o token. Ele permanece apenas na memória da aba e é perdido ao fechar ou atualizar a página.
 
-```javascript
-ativo: true
-```
+## Arquivos importantes
+- `index.html`: site público;
+- `admin.html`: painel de manutenção;
+- `molduras.js`: cadastro das molduras;
+- `assets/molduras/`: arquivos das molduras.
 
-para:
-
-```javascript
-ativo: false
-```
-
-## Remover definitivamente
-
-Apague o bloco correspondente em `molduras.js` e também a imagem em `assets/molduras/`.
-
-## Publicar no GitHub Pages
-
-Envie os arquivos descompactados para a raiz do repositório. Em Settings → Pages, use `main` e `/(root)`.
+## Observação
+O painel utiliza a API oficial de conteúdo do GitHub. Cada manutenção cria commits na branch selecionada e o GitHub Pages republica o site automaticamente.

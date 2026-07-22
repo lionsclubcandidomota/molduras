@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f2d69" />
+  <title>Administração — Molduras Lions</title>
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <main class="admin-shell">
+    <header class="admin-hero">
+      <div class="brand">🦁</div>
+      <div>
+        <p class="eyebrow">Molduras Lions Club</p>
+        <h1>Painel de manutenção</h1>
+        <p>Adicione, edite, oculte ou remova molduras diretamente no GitHub.</p>
+      </div>
+      <a class="site-link" href="index.html">← Voltar ao site</a>
+    </header>
+
+    <section class="card" id="connectionCard">
+      <div class="heading-row">
+        <div>
+          <span class="step">Etapa 1</span>
+          <h2>Conectar ao repositório</h2>
+        </div>
+        <span id="connectionStatus" class="status neutral">Desconectado</span>
+      </div>
+
+      <div class="security-note">
+        <strong>Segurança:</strong> o token é mantido somente na memória desta aba. Ele não é salvo em arquivos, cookies ou armazenamento local.
+      </div>
+
+      <form id="connectionForm" class="form-grid">
+        <label>
+          <span>Usuário ou organização</span>
+          <input id="repoOwner" value="joaodepaula1995" required autocomplete="username" />
+        </label>
+        <label>
+          <span>Repositório</span>
+          <input id="repoName" value="molduras_lions_club" required />
+        </label>
+        <label>
+          <span>Branch</span>
+          <input id="repoBranch" value="main" required />
+        </label>
+        <label class="token-field">
+          <span>Token de acesso do GitHub</span>
+          <div class="input-action">
+            <input id="githubToken" type="password" required autocomplete="off" placeholder="github_pat_..." />
+            <button id="toggleToken" type="button" class="small-button">Mostrar</button>
+          </div>
+        </label>
+        <button id="connectBtn" class="button primary full" type="submit">Conectar e carregar molduras</button>
+      </form>
+      <p class="help">Use um token <em>fine-grained</em> limitado somente a este repositório, com permissão <strong>Contents: Read and write</strong>.</p>
+    </section>
+
+    <section class="card" id="managerCard" hidden>
+      <div class="heading-row">
+        <div>
+          <span class="step">Etapa 2</span>
+          <h2>Gerenciar molduras</h2>
+        </div>
+        <button id="refreshBtn" class="button light" type="button">↻ Atualizar lista</button>
+      </div>
+
+      <div id="flashMessage" class="flash" hidden></div>
+
+      <form id="frameForm" class="editor-panel">
+        <input id="editingOriginalId" type="hidden" />
+        <div class="editor-heading">
+          <div>
+            <span class="step">Nova moldura / edição</span>
+            <h3 id="formTitle">Adicionar nova moldura</h3>
+          </div>
+          <button id="cancelEditBtn" class="button light" type="button" hidden>Cancelar edição</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            <span>Nome exibido</span>
+            <input id="frameName" required placeholder="Ex.: Nós vamos na I RCD" />
+          </label>
+          <label>
+            <span>Identificador</span>
+            <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" />
+            <small>Somente letras minúsculas, números e hífens.</small>
+          </label>
+          <label>
+            <span>Categoria</span>
+            <input id="frameCategory" required list="categoryList" placeholder="Eventos" />
+            <datalist id="categoryList"></datalist>
+          </label>
+          <label>
+            <span>Arquivo PNG, JPG, WEBP ou SVG</span>
+            <input id="frameFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+            <small id="fileHint">Obrigatório para uma nova moldura.</small>
+          </label>
+        </div>
+
+        <div class="checks">
+          <label><input id="frameActive" type="checkbox" checked /> Exibir no site</label>
+          <label><input id="frameNew" type="checkbox" checked /> Mostrar selo “Nova”</label>
+        </div>
+
+        <div class="preview-area">
+          <div id="filePreview" class="file-preview"><span>Prévia da moldura</span></div>
+          <div class="upload-summary">
+            <p><strong>Destino:</strong> <code id="destinationPath">assets/molduras/arquivo.png</code></p>
+            <p>A publicação normalmente aparece no GitHub Pages após o novo commit ser processado.</p>
+          </div>
+        </div>
+
+        <button id="saveFrameBtn" class="button success full" type="submit">Adicionar e publicar moldura</button>
+      </form>
+
+      <div class="list-heading">
+        <div>
+          <h3>Molduras cadastradas</h3>
+          <p id="frameCount">0 molduras</p>
+        </div>
+        <input id="adminSearch" type="search" placeholder="Pesquisar moldura" />
+      </div>
+      <div id="framesList" class="frames-list"></div>
+    </section>
+  </main>
+
+  <dialog id="confirmDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Remover moldura?</h2>
+      <p id="confirmText"></p>
+      <label class="delete-file-option"><input id="deleteImageFile" type="checkbox" checked /> Apagar também o arquivo de imagem do repositório</label>
+      <div class="dialog-actions">
+        <button value="cancel" class="button light">Cancelar</button>
+        <button id="confirmDeleteBtn" value="confirm" class="button danger">Remover</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="admin.js"></script>
+</body>
+</html>
