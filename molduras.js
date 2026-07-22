@@ -21,7 +21,7 @@ window.MOLDURAS = [
     "categoria": "Aniversário",
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
-    "novo": true
+    "novo": false
   },
   {
     "id": "orgulho-de-ser-leao",
