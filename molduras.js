@@ -29,12 +29,6 @@ window.CATEGORIAS = [
     "nome": "Feliz Aniversário",
     "ordem": 5,
     "ativo": true
-  },
-  {
-    "id": "publicacao",
-    "nome": "Publicação",
-    "ordem": 6,
-    "ativo": true
   }
 ];
 
@@ -160,7 +154,7 @@ window.MOLDURAS = [
     "id": "visao",
     "nome": "Visão",
     "categoriaId": "causas-globais",
-    "ordem": 4,
+    "ordem": 7,
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "novo": false
@@ -169,7 +163,7 @@ window.MOLDURAS = [
     "id": "diabetes",
     "nome": "Diabetes",
     "categoriaId": "causas-globais",
-    "ordem": 1,
+    "ordem": 2,
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
     "novo": false
@@ -178,7 +172,7 @@ window.MOLDURAS = [
     "id": "fome",
     "nome": "Fome",
     "categoriaId": "causas-globais",
-    "ordem": 2,
+    "ordem": 3,
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
     "novo": false
@@ -187,7 +181,7 @@ window.MOLDURAS = [
     "id": "meio-ambiente",
     "nome": "Meio Ambiente",
     "categoriaId": "causas-globais",
-    "ordem": 3,
+    "ordem": 5,
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
     "novo": false
@@ -196,7 +190,7 @@ window.MOLDURAS = [
     "id": "cancer-infantil",
     "nome": "Câncer Infantil",
     "categoriaId": "causas-globais",
-    "ordem": 5,
+    "ordem": 1,
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
     "novo": false
@@ -205,7 +199,7 @@ window.MOLDURAS = [
     "id": "juventude",
     "nome": "Juventude",
     "categoriaId": "causas-globais",
-    "ordem": 6,
+    "ordem": 4,
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
     "novo": false
@@ -214,17 +208,8 @@ window.MOLDURAS = [
     "id": "socorro-a-catastrofes",
     "nome": "Socorro a Catástrofes",
     "categoriaId": "causas-globais",
-    "ordem": 7,
+    "ordem": 6,
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
-    "ativo": true,
-    "novo": false
-  },
-  {
-    "id": "esforcos-humanitarios",
-    "nome": "Esforços Humanitários",
-    "categoriaId": "causas-globais",
-    "ordem": 8,
-    "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
     "novo": false
   }
