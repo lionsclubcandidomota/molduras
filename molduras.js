@@ -221,5 +221,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "novo-associado",
+    "nome": "Novo Associado",
+    "categoriaId": "lions",
+    "ordem": 2,
+    "arquivo": "assets/molduras/novo-associado.png",
+    "ativo": true,
+    "novo": true
   }
 ];
