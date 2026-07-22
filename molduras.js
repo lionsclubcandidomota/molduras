@@ -12,8 +12,8 @@ window.MOLDURAS = [
     "nome": "Feliz Aniversário",
     "categoria": "Comemorações",
     "arquivo": "assets/molduras/aniversario.svg",
-    "ativo": true,
-    "novo": true
+    "ativo": false,
+    "novo": false
   },
   {
     "id": "comunidade",
