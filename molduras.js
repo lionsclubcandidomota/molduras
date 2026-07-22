@@ -164,5 +164,14 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "diabetes",
+    "nome": "Diabetes",
+    "categoriaId": "causas-globais",
+    "ordem": 2,
+    "arquivo": "assets/molduras/diabetes.png",
+    "ativo": true,
+    "novo": false
   }
 ];
