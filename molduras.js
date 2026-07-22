@@ -23,6 +23,12 @@ window.CATEGORIAS = [
     "nome": "Feliz Aniversário",
     "ordem": 4,
     "ativo": true
+  },
+  {
+    "id": "publicacao",
+    "nome": "Publicação",
+    "ordem": 5,
+    "ativo": true
   }
 ];
 
@@ -141,6 +147,15 @@ window.MOLDURAS = [
     "categoriaId": "cargos",
     "ordem": 9,
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
+    "ativo": true,
+    "novo": false
+  },
+  {
+    "id": "publicacao-de-doacao",
+    "nome": "Publicação de Doação",
+    "categoriaId": "publicacao",
+    "ordem": 1,
+    "arquivo": "assets/molduras/publicacao-de-doacao.png",
     "ativo": true,
     "novo": false
   }
