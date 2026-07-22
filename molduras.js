@@ -29,6 +29,12 @@ window.CATEGORIAS = [
     "nome": "Publicação",
     "ordem": 5,
     "ativo": true
+  },
+  {
+    "id": "causas-globais",
+    "nome": "Causas Globais",
+    "ordem": 6,
+    "ativo": true
   }
 ];
 
@@ -147,6 +153,15 @@ window.MOLDURAS = [
     "categoriaId": "cargos",
     "ordem": 9,
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
+    "ativo": true,
+    "novo": false
+  },
+  {
+    "id": "visao",
+    "nome": "Visão",
+    "categoriaId": "causas-globais",
+    "ordem": 1,
+    "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "novo": false
   }
