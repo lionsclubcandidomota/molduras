@@ -30,5 +30,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "novo": true
+  },
+  {
+    "id": "presidente-de-clube",
+    "nome": "Presidente de Clube",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/presidente-de-clube.png",
+    "ativo": true,
+    "novo": true
   }
 ];
