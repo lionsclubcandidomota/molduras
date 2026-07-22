@@ -70,5 +70,13 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diretor-de-clube.png",
     "ativo": true,
     "novo": false
+  },
+  {
+    "id": "assessor-de-socios-do-clube",
+    "nome": "Assessor de Sócios do Clube",
+    "categoria": "Cargos",
+    "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
+    "ativo": true,
+    "novo": false
   }
 ];
