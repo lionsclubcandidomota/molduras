@@ -300,7 +300,7 @@ window.MOLDURAS = [
     "ordem": 4,
     "arquivo": "assets/molduras/glt.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
