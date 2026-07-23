@@ -280,8 +280,8 @@ window.MOLDURAS = [
     "ordem": 3,
     "arquivo": "assets/molduras/get.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "gat",
