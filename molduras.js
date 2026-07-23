@@ -39,7 +39,7 @@ window.MOLDURAS = [
   },
   {
     "id": "eu-vou-ircd",
-    "nome": "Eu Vou no IRCD 26/27",
+    "nome": "Eu Vou no I RCD AL 26/27",
     "categoriaId": "ircd-26-27",
     "ordem": 2,
     "arquivo": "assets/molduras/eu-vou-ircd.png",
