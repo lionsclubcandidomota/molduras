@@ -315,7 +315,7 @@ window.MOLDURAS = [
   },
   {
     "id": "nos-vamos-porco-no-rolete",
-    "nome": "Nós Vamos Porco no Rolete",
+    "nome": "Nós Vamos no Porco no Rolete",
     "categoriaId": "porco-no-rolete-apae-02-08",
     "ordem": 1,
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
