@@ -25,6 +25,38 @@
   const mobileActionBar = byId('mobileActionBar');
   const newCreationBtn = byId('newCreationBtn');
 
+  // Controles numéricos editáveis, criados sem exigir alteração no index.html.
+  function createValueControl(range, options) {
+    if (!range || range.parentElement?.querySelector(`[data-value-for="${range.id}"]`)) return null;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'control-value';
+    wrapper.dataset.valueFor = range.id;
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.className = 'control-number';
+    input.min = String(options.min);
+    input.max = String(options.max);
+    input.step = String(options.step);
+    input.inputMode = options.inputMode || 'decimal';
+    input.setAttribute('aria-label', options.ariaLabel);
+
+    const suffix = document.createElement('span');
+    suffix.className = 'control-suffix';
+    suffix.textContent = options.suffix;
+    wrapper.append(input, suffix);
+    range.insertAdjacentElement('afterend', wrapper);
+    return input;
+  }
+
+  const zoomNumber = createValueControl(zoomRange, {
+    min: 20, max: 400, step: 1, suffix: '%', ariaLabel: 'Zoom em porcentagem', inputMode: 'numeric'
+  });
+  const rotationNumber = createValueControl(rotationRange, {
+    min: -180, max: 180, step: 1, suffix: '°', ariaLabel: 'Rotação em graus', inputMode: 'numeric'
+  });
+  const ROTATION_SNAP_DEGREES = 3;
+
   const state = {
     categories: [], frames: [], filteredFrames: [], selectedFrame: null, activeCategory: 'todas',
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
@@ -200,7 +232,7 @@
   }
 
   function setEnabled(enabled) {
-    [zoomRange, rotationRange, downloadBtn, shareBtn, fitBtn, centerBtn, resetBtn]
+    [zoomRange, rotationRange, zoomNumber, rotationNumber, downloadBtn, shareBtn, fitBtn, centerBtn, resetBtn]
       .filter(Boolean)
       .forEach(el => { el.disabled = !enabled; });
 
@@ -223,11 +255,35 @@
     document.body.classList.toggle('has-mobile-bar', Boolean(enabled && mobileActionBar));
   }
 
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
   const coverScale = img => Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+
+  function updateTransformControls() {
+    if (zoomRange) zoomRange.value = String(state.scale);
+    if (rotationRange) rotationRange.value = String(state.rotation);
+    if (zoomNumber) zoomNumber.value = String(Math.round(state.scale * 100));
+    if (rotationNumber) rotationNumber.value = String(Math.round(state.rotation));
+  }
+
+  function setZoom(value) {
+    state.scale = clamp(Number(value) || 1, 0.2, 4);
+    updateTransformControls();
+    draw();
+  }
+
+  function setRotation(value, allowSnap = false) {
+    let rotation = clamp(Number(value) || 0, -180, 180);
+    if (allowSnap && Math.abs(rotation) <= ROTATION_SNAP_DEGREES) rotation = 0;
+    state.rotation = rotation;
+    updateTransformControls();
+    wrap?.classList.toggle('is-rotation-snapped', rotation === 0 && allowSnap);
+    draw();
+  }
+
   function resetPhotoPosition() {
     if (!state.photo) return;
     state.baseScale = coverScale(state.photo); state.scale = 1; state.rotation = 0; state.x = 540; state.y = 540;
-    zoomRange.value = '1'; rotationRange.value = '0'; draw();
+    updateTransformControls(); draw();
   }
   function draw() {
     ctx.clearRect(0,0,1080,1080); ctx.fillStyle='#fff'; ctx.fillRect(0,0,1080,1080);
@@ -244,8 +300,22 @@
     if(!file.type.startsWith('image/')) return alert('Escolha um arquivo de imagem válido.');
     const reader=new FileReader(); reader.onload=()=>{const img=new Image();img.onload=()=>{state.photo=img;resetPhotoPosition();setEnabled(true);byId('editor').scrollIntoView({behavior:'smooth',block:'start'});};img.onerror=()=>alert('Não foi possível abrir esta imagem.');img.src=reader.result;}; reader.readAsDataURL(file);
   });
-  zoomRange?.addEventListener('input',()=>{state.scale=Number(zoomRange.value);draw();});
-  rotationRange?.addEventListener('input',()=>{state.rotation=Number(rotationRange.value);draw();});
+  zoomRange?.addEventListener('input', () => setZoom(zoomRange.value));
+  rotationRange?.addEventListener('input', () => setRotation(rotationRange.value, true));
+  rotationRange?.addEventListener('change', () => wrap?.classList.remove('is-rotation-snapped'));
+
+  zoomNumber?.addEventListener('input', () => {
+    if (zoomNumber.value === '') return;
+    setZoom(Number(zoomNumber.value) / 100);
+  });
+  zoomNumber?.addEventListener('change', () => setZoom(Number(zoomNumber.value || 100) / 100));
+
+  rotationNumber?.addEventListener('input', () => {
+    if (rotationNumber.value === '') return;
+    setRotation(rotationNumber.value, false);
+  });
+  rotationNumber?.addEventListener('change', () => setRotation(rotationNumber.value || 0, false));
+
   fitBtn?.addEventListener('click',resetPhotoPosition);
   centerBtn?.addEventListener('click',()=>{state.x=540;state.y=540;draw();});
   resetBtn?.addEventListener('click',clearPhoto); newCreationBtn?.addEventListener('click',()=>{clearPhoto();scrollTo({top:0,behavior:'smooth'});});
@@ -253,10 +323,10 @@
 
   function canvasPoint(event){const rect=canvas.getBoundingClientRect();return{x:(event.clientX-rect.left)*1080/rect.width,y:(event.clientY-rect.top)*1080/rect.height};}
   wrap?.addEventListener('pointerdown',event=>{if(!state.photo)return;wrap.setPointerCapture(event.pointerId);state.pointers.set(event.pointerId,canvasPoint(event));if(state.pointers.size===1)state.lastPointer=canvasPoint(event);if(state.pointers.size===2){const[a,b]=[...state.pointers.values()];state.pinchDistance=Math.hypot(b.x-a.x,b.y-a.y);state.pinchScale=state.scale;}});
-  wrap?.addEventListener('pointermove',event=>{if(!state.photo||!state.pointers.has(event.pointerId))return;const point=canvasPoint(event);state.pointers.set(event.pointerId,point);if(state.pointers.size===1&&state.lastPointer){state.x+=point.x-state.lastPointer.x;state.y+=point.y-state.lastPointer.y;state.lastPointer=point;draw();}else if(state.pointers.size===2&&state.pinchDistance){const[a,b]=[...state.pointers.values()];state.scale=Math.min(4,Math.max(.2,state.pinchScale*Math.hypot(b.x-a.x,b.y-a.y)/state.pinchDistance));zoomRange.value=String(state.scale);draw();}});
+  wrap?.addEventListener('pointermove',event=>{if(!state.photo||!state.pointers.has(event.pointerId))return;const point=canvasPoint(event);state.pointers.set(event.pointerId,point);if(state.pointers.size===1&&state.lastPointer){state.x+=point.x-state.lastPointer.x;state.y+=point.y-state.lastPointer.y;state.lastPointer=point;draw();}else if(state.pointers.size===2&&state.pinchDistance){const[a,b]=[...state.pointers.values()];state.scale=Math.min(4,Math.max(.2,state.pinchScale*Math.hypot(b.x-a.x,b.y-a.y)/state.pinchDistance));updateTransformControls();draw();}});
   function releasePointer(event){state.pointers.delete(event.pointerId);state.lastPointer=state.pointers.size===1?[...state.pointers.values()][0]:null;if(state.pointers.size<2)state.pinchDistance=null;}
   wrap?.addEventListener('pointerup',releasePointer);wrap?.addEventListener('pointercancel',releasePointer);
-  wrap?.addEventListener('wheel',event=>{if(!state.photo)return;event.preventDefault();state.scale=Math.min(4,Math.max(.2,state.scale*(event.deltaY<0?1.05:.95)));zoomRange.value=String(state.scale);draw();},{passive:false});
+  wrap?.addEventListener('wheel',event=>{if(!state.photo)return;event.preventDefault();state.scale=Math.min(4,Math.max(.2,state.scale*(event.deltaY<0?1.05:.95)));updateTransformControls();draw();},{passive:false});
 
   function makeBlob(){return new Promise((resolve,reject)=>{draw();canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Falha ao gerar a imagem.')),'image/png');});}
   function filename(){return `foto-${slug(state.selectedFrame?.nome)||'moldura-lions'}.png`;}
@@ -266,6 +336,7 @@
 
   // Carrega a galeria mesmo que algum controle opcional do editor não exista.
   loadFrames();
+  updateTransformControls();
   setEnabled(false);
   draw();
 })();
