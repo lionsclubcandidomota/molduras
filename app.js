@@ -108,7 +108,7 @@
       const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b)=>a.ordem-b.ordem);
       if (!frames.length) return '';
       const status = categoryStatus(category.id);
-      return `<section class="frame-group"><div class="frame-group-header"><div><span>🗂️</span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div><b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b></div><div class="frame-grid">${frames.map(frame => {
+      return `<section class="frame-group"><div class="frame-group-header"><div><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div><b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b></div><div class="frame-grid">${frames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id; const frameStatus = statusOf(frame);
         return `<button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button>`;
       }).join('')}</div></section>`;
@@ -182,28 +182,64 @@
   function setZoom(value) { state.scale=clamp(Number(value)||1,.2,4); updateTransformControls(); draw(); }
   function setRotation(value,snap=false) { let v=clamp(Number(value)||0,-180,180); if(snap && Math.abs(v)<=ROTATION_SNAP)v=0; state.rotation=v; updateTransformControls(); wrap.classList.toggle('is-rotation-snapped',snap&&v===0); draw(); }
 
-  function createCropPath(shape) {
-    if (shape === 'full') return;
-    ctx.beginPath();
-    if (shape === 'circle') ctx.arc(540,540,455,0,Math.PI*2);
-    else if (shape === 'square') ctx.rect(90,90,900,900);
-    else if (shape === 'rounded') {
-      const x=90,y=90,w=900,h=900,r=100;
-      ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);
+  function createCropPath(targetCtx, shape) {
+    if (shape === 'full') return false;
+
+    // Mantém uma margem clara para que o recorte seja perceptível,
+    // inclusive quando a moldura possui uma grande área transparente.
+    const x = 105;
+    const y = 105;
+    const size = 870;
+    const radius = 112;
+
+    targetCtx.beginPath();
+    if (shape === 'circle') {
+      targetCtx.arc(540, 540, size / 2, 0, Math.PI * 2);
+    } else if (shape === 'square') {
+      targetCtx.rect(x, y, size, size);
+    } else if (shape === 'rounded') {
+      targetCtx.roundRect(x, y, size, size, radius);
     }
-    ctx.closePath(); ctx.clip();
+    targetCtx.closePath();
+    return true;
+  }
+
+  function drawPhotoLayer() {
+    if (!state.photo) return;
+
+    ctx.save();
+    if (createCropPath(ctx, state.cropShape)) ctx.clip();
+
+    ctx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%) sepia(${state.warmth}%)`;
+    ctx.translate(state.x, state.y);
+    ctx.rotate(state.rotation * Math.PI / 180);
+
+    const scale = state.baseScale * state.scale;
+    const width = state.photo.naturalWidth * scale;
+    const height = state.photo.naturalHeight * scale;
+    ctx.drawImage(state.photo, -width / 2, -height / 2, width, height);
+    ctx.restore();
+    ctx.filter = 'none';
+  }
+
+  function drawCropGuide() {
+    if (!state.photo || state.cropShape === 'full' || !advancedPanel.open) return;
+    ctx.save();
+    createCropPath(ctx, state.cropShape);
+    ctx.lineWidth = 5;
+    ctx.setLineDash([16, 12]);
+    ctx.strokeStyle = 'rgba(7, 59, 122, .72)';
+    ctx.stroke();
+    ctx.restore();
   }
 
   function draw() {
-    ctx.clearRect(0,0,1080,1080); ctx.fillStyle='#fff'; ctx.fillRect(0,0,1080,1080);
-    if (state.photo) {
-      ctx.save(); createCropPath(state.cropShape);
-      ctx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%) sepia(${state.warmth}%)`;
-      ctx.translate(state.x,state.y); ctx.rotate(state.rotation*Math.PI/180);
-      const s=state.baseScale*state.scale,w=state.photo.naturalWidth*s,h=state.photo.naturalHeight*s;
-      ctx.drawImage(state.photo,-w/2,-h/2,w,h); ctx.restore(); ctx.filter='none';
-    }
-    if (state.frameImage) ctx.drawImage(state.frameImage,0,0,1080,1080);
+    ctx.clearRect(0, 0, 1080, 1080);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, 1080, 1080);
+    drawPhotoLayer();
+    if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
+    drawCropGuide();
   }
 
   function updateFilterOutputs() {
@@ -232,6 +268,7 @@
   document.querySelectorAll('#filterPresets button').forEach(button=>button.addEventListener('click',()=>applyPreset(button.dataset.preset)));
   [[brightnessRange,'brightness'],[contrastRange,'contrast'],[saturationRange,'saturation'],[warmthRange,'warmth']].forEach(([range,key])=>range.addEventListener('input',()=>{state[key]=Number(range.value);updateFilterOutputs();document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.remove('is-active'));draw();}));
   resetFiltersBtn.addEventListener('click',resetAdvanced);
+  advancedPanel.addEventListener('toggle', draw);
 
   frameGallery.addEventListener('click',event=>{const button=event.target.closest('[data-frame-id]');if(!button)return;const frame=state.frames.find(f=>f.id===button.dataset.frameId);if(frame)selectFrame(frame);});
   categoryFilters.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.activeCategory=button.dataset.category;categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));applyFilters();});
