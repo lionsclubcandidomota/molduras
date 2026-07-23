@@ -33,7 +33,7 @@
     busyOverlay: $("pageBusyOverlay"), busyText: $("pageBusyText"),
     singleModeBtn: $("singleModeBtn"), bulkModeBtn: $("bulkModeBtn"), singleModeContainer: $("singleModeContainer"), bulkModeContainer: $("bulkModeContainer"),
     diagnoseBtn: $("diagnoseBtn"), exportBackupBtn: $("exportBackupBtn"), importBackupInput: $("importBackupInput"), historyBtn: $("historyBtn"), utilityResult: $("utilityResult"),
-    pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), editorBackdrop: $("editorBackdrop"),
+    pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), discardPending: $("discardPendingBtn"), editorBackdrop: $("editorBackdrop"),
     nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
   };
 
@@ -135,12 +135,12 @@
   function snapshot() { return JSON.stringify({categorias:state.categorias,molduras:state.molduras}); }
   function markDirty() { state.dirty = snapshot() !== state.originalSnapshot; updateDirtyUI(); }
   function updateDirtyUI() {
-    if (!el.saveOrder) return;
-    el.saveOrder.disabled = state.busy || !state.dirty;
-    el.cancelOrder.disabled = state.busy || !state.dirty;
-    el.notice.hidden = !state.dirty;
-    if(el.pendingBar) el.pendingBar.hidden = !state.dirty;
-    if(el.publishPending) el.publishPending.disabled = state.busy || !state.dirty;
+    if (el.saveOrder) el.saveOrder.disabled = state.busy || !state.dirty;
+    if (el.cancelOrder) el.cancelOrder.disabled = state.busy || !state.dirty;
+    if (el.notice) el.notice.hidden = !state.dirty;
+    if (el.pendingBar) el.pendingBar.hidden = !state.dirty;
+    if (el.publishPending) el.publishPending.disabled = state.busy || !state.dirty;
+    if (el.discardPending) el.discardPending.disabled = state.busy || !state.dirty;
   }
 
   async function getFile(path) {
@@ -393,7 +393,19 @@
   });
 
   el.saveOrder.addEventListener("click",async()=>{setBusy(true,"Salvando ordenação...");try{renumber();await saveConfig("Atualiza ordem de categorias e molduras");render();flash("Ordenação salva e publicada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
-  el.cancelOrder.addEventListener("click",()=>{const data=JSON.parse(state.originalSnapshot);state.categorias=data.categorias;state.molduras=data.molduras;render();flash("Alterações descartadas.","info");});
+  function discardPendingChanges() {
+    if (!state.dirty || !state.originalSnapshot) return;
+    if (!confirm("Descartar todas as alterações ainda não publicadas?")) return;
+    const data = JSON.parse(state.originalSnapshot);
+    state.categorias = data.categorias;
+    state.molduras = data.molduras;
+    state.selectedIds.clear();
+    state.dirty = false;
+    render();
+    updateDirtyUI();
+    flash("Alterações descartadas. A última versão carregada foi restaurada.", "info");
+  }
+  el.cancelOrder?.addEventListener("click", discardPendingChanges);
 
   function applyCategoryOrder(orderedCategories) {
     orderedCategories.forEach((category, index) => {
@@ -581,6 +593,7 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   if (el.clearBulk) el.clearBulk.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   el.publishPending?.addEventListener("click",()=>el.saveOrder?.click());
+  el.discardPending?.addEventListener("click", discardPendingChanges);
   el.editorBackdrop?.addEventListener("click",()=>{if(!state.busy)resetForm();});
   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.body.classList.contains("editor-drawer-open")&&!state.busy)resetForm();});
 
@@ -611,6 +624,6 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
     el.utilityResult.hidden=false;el.utilityResult.innerHTML=issues.length?`<strong>Foram encontrados ${issues.length} ponto(s):</strong><ul>${issues.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<strong>✅ Nenhum problema estrutural encontrado.</strong><p>${state.molduras.length} molduras e ${state.categorias.length} categorias verificadas.</p>`;
   });
   el.exportBackupBtn?.addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),categorias:state.categorias,molduras:state.molduras},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-molduras-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);recordActivity("Backup exportado");});
-  el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Clique em salvar ordenação para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
+  el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
   el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
 })();

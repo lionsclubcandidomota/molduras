@@ -200,3 +200,11 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
   .frame-row{grid-template-columns:24px 46px minmax(0,1fr)}
   .order-controls{display:none}
 }
+
+/* v4.5 — barra única de publicação */
+.pending-changes-copy{display:grid;gap:2px;min-width:0}
+.pending-changes-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.pending-changes-bar .pending-discard{border:1px solid rgba(255,255,255,.34);background:transparent;color:#fff}
+.pending-changes-bar .pending-discard:hover{background:rgba(255,255,255,.1)}
+.order-compat-controls{display:none!important}
+@media(max-width:600px){.pending-changes-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.pending-changes-actions .button{width:100%;min-width:0;padding-left:10px;padding-right:10px}}

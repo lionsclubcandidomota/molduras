@@ -75,7 +75,13 @@
       <div class="sidebar-footer"><span class="sidebar-dot"></span><span>GitHub Pages</span></div>
     </section>
 
-    <div id="pendingChangesBar" class="pending-changes-bar" hidden><div><strong>Alterações pendentes</strong><small>Revise e publique para não perder seu trabalho.</small></div><button id="publishPendingBtn" class="button primary" type="button">Publicar alterações</button></div>
+    <div id="pendingChangesBar" class="pending-changes-bar" hidden>
+      <div class="pending-changes-copy"><strong>Alterações pendentes</strong><small>Revise, publique ou descarte para voltar à última versão carregada.</small></div>
+      <div class="pending-changes-actions">
+        <button id="discardPendingBtn" class="button pending-discard" type="button">Descartar alterações</button>
+        <button id="publishPendingBtn" class="button primary" type="button">Publicar alterações</button>
+      </div>
+    </div>
     <div id="editorBackdrop" class="editor-backdrop" hidden></div>
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
@@ -275,17 +281,11 @@
         </div>
       </div>
 
-      <div class="order-toolbar">
-        <div>
-          <strong>Ordenação das categorias e molduras</strong>
-          <p>Primeiro organize as categorias. Depois organize as molduras dentro de cada categoria.</p>
-        </div>
-        <div class="order-actions">
-          <button id="cancelOrderBtn" class="button light" type="button" disabled>Descartar</button>
-          <button id="saveOrderBtn" class="button primary" type="button" disabled>Salvar ordenação</button>
-        </div>
+      <div class="order-compat-controls" hidden aria-hidden="true">
+        <button id="cancelOrderBtn" type="button" disabled>Descartar</button>
+        <button id="saveOrderBtn" type="button" disabled>Publicar</button>
+        <div id="orderNotice" hidden></div>
       </div>
-      <div id="orderNotice" class="order-notice" hidden>Há alterações de ordem ainda não publicadas. Salve ou descarte antes de editar outras informações.</div>
 
       <section id="categoryManagerPanel" class="category-order-panel collapsible-admin-panel is-open" aria-labelledby="categoryOrderTitle">
         <div class="category-order-heading">
@@ -299,7 +299,7 @@
           <span id="categoryManagerSummary" class="panel-summary-pill">0 categorias</span>
         </div>
         <div id="categoryManagerBody" class="collapsible-panel-body">
-          <div class="category-panel-tip">Arraste pelo símbolo ☰ ou use as setas. As alterações de ordem serão publicadas ao clicar em <strong>Salvar ordenação</strong>.</div>
+          <div class="category-panel-tip">Arraste pelo símbolo ☰ ou use as setas. As alterações serão reunidas na barra inferior, onde você poderá <strong>publicar ou descartar</strong>.</div>
           <div id="categoriesOrderList" class="categories-order-list"></div>
         </div>
       </section>
