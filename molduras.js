@@ -1,4 +1,4 @@
-// Gerenciado pelo Painel de Molduras Lions v5
+// Gerenciado pelo Painel de Molduras Lions v7
 window.CATEGORIAS = [
   {
     "id": "ircd-26-27",
@@ -33,26 +33,6 @@ window.CATEGORIAS = [
 ];
 
 window.MOLDURAS = [
-  {
-    "id": "eu-vou-ircd",
-    "nome": "Eu vou IRCD",
-    "categoriaId": "ircd-26-27",
-    "ordem": 1,
-    "arquivo": "assets/molduras/eu-vou-ircd.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "nos-vamos-ircd",
-    "nome": "Nós Vamos IRCD",
-    "categoriaId": "ircd-26-27",
-    "ordem": 2,
-    "arquivo": "assets/molduras/nos-vamos-ircd.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
   {
     "id": "orgulho-de-ser-leao",
     "nome": "Orgulho de ser Leão",
