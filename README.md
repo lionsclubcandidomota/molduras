@@ -1,31 +1,24 @@
-# Molduras Lions v5 — Destaques e Admin moderno
+# Molduras Lions — site público v11
 
-## Arquivos para substituir
+Substitua na raiz do site:
 
-Na raiz do repositório:
-
-- `admin.html`
-- `admin.css`
-- `admin.js`
-- `app.js`
+- `index.html`
 - `styles.css`
+- `app.js`
 
-Adicione `logo-lions.png` na raiz **ou** ajuste o caminho no `admin.html` caso seu logo já esteja em `assets/logo-lions.png`.
+Mantenha o `molduras.js` atual e a pasta `assets/molduras/`.
+O arquivo `assets/logo-lions.png` está incluído por conveniência.
 
-## Destaques
+## Principais novidades
 
-Cada moldura pode ficar como:
-
-- Sem destaque
-- Novo
-- Atualizada
-
-O painel permite remover o destaque a qualquer momento, individualmente pelo botão **Destaque** ou em massa pelo botão **Limpar destaques** da categoria.
-
-O selo da categoria é calculado automaticamente:
-
-1. Se houver pelo menos uma moldura `Novo`, a categoria mostra `NOVO`.
-2. Caso contrário, se houver uma moldura `Atualizada`, mostra `ATUALIZADA`.
-3. Sem molduras destacadas, nenhum selo aparece.
-
-Depois de publicar, use `Ctrl + F5` no site e no painel.
+- fluxo guiado em três etapas;
+- nenhuma moldura selecionada ao iniciar, salvo link direto válido;
+- visual moderno e responsivo;
+- pesquisa e categorias mais claras;
+- modo avançado retrátil;
+- recorte completo, quadrado, arredondado ou circular;
+- filtros rápidos e ajustes de brilho, contraste, saturação e calor;
+- zoom e rotação por slider ou campo numérico;
+- encaixe da rotação em 0°;
+- download e compartilhamento;
+- processamento totalmente local no navegador.
