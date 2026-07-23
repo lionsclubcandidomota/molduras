@@ -15,8 +15,8 @@
       <div class="brand-logo-wrap"><img src="logo-lions.png" alt="Logo Lions Clubs International" class="admin-logo"></div>
       <div>
         <p class="eyebrow">Lions Clube de Cândido Mota · Administração</p>
-        <h1>Central Lions</h1>
-        <p>Organize, revise e publique as molduras do clube em um painel moderno e centralizado.</p>
+        <h1>Painel de Molduras</h1>
+        <p>Gerencie categorias, arquivos e publicações em um só lugar.</p>
       </div>
       <div class="hero-actions">
         <a id="returnToSiteBtn" class="site-link site-link-button return-site-button" href="./index.html" aria-label="Voltar ao site principal"><span aria-hidden="true">←</span><span>Voltar ao site</span></a>
@@ -62,11 +62,17 @@
       <p class="help">Use um token <em>fine-grained</em> limitado somente a este repositório, com permissão <strong>Contents: Read and write</strong>.</p>
     </section>
 
-    <section class="admin-quick-nav v10-sidebar" id="adminQuickNav" hidden aria-label="Navegação do painel"><div class="nav-title">Navegação</div><a href="#managerCard" class="nav-dashboard">📊 Visão geral</a>
-      <button type="button" data-admin-mode="single">🖼️ Nova moldura</button>
-      <button type="button" data-admin-mode="bulk">📚 Inclusão em lote</button>
-      <a href="#categoryManagerPanel">🗂️ Categorias</a>
-      <a href="#framesSection">🎞️ Molduras cadastradas</a>
+    <section class="admin-quick-nav v10-sidebar" id="adminQuickNav" hidden aria-label="Navegação do painel">
+      <div class="sidebar-brand"><img src="logo-lions.png" alt=""><div><strong>Central Lions</strong><small>Administração</small></div></div>
+      <div class="nav-title">Principal</div>
+      <a href="#managerCard" class="nav-dashboard is-active">🏠 <span>Dashboard</span></a>
+      <a href="#framesSection">🖼️ <span>Molduras</span></a>
+      <a href="#categoryManagerPanel">🗂️ <span>Categorias</span></a>
+      <div class="nav-title">Publicação</div>
+      <button type="button" data-admin-mode="single">➕ <span>Nova moldura</span></button>
+      <button type="button" data-admin-mode="bulk">📤 <span>Upload em lote</span></button>
+      <a href="#maintenancePanel">🧰 <span>Diagnóstico e backup</span></a>
+      <div class="sidebar-footer"><span class="sidebar-dot"></span><span>GitHub Pages</span></div>
     </section>
 
     <div id="pendingChangesBar" class="pending-changes-bar" hidden><div><strong>Alterações pendentes</strong><small>Revise e publique para não perder seu trabalho.</small></div><button id="publishPendingBtn" class="button primary" type="button">Publicar alterações</button></div>
@@ -74,8 +80,8 @@
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
         <div>
-          <span class="step">Painel administrativo</span>
-          <h2>Visão geral</h2>
+          <span class="step">Dashboard</span>
+          <h2>Visão geral da biblioteca</h2>
         </div>
         <button id="refreshBtn" class="button light" type="button">↻ Atualizar lista</button>
       </div>
@@ -83,10 +89,10 @@
       <div id="flashMessage" class="flash" hidden></div>
 
       <div class="dashboard-summary v10-dashboard" aria-label="Resumo da biblioteca">
-        <div class="summary-card"><span>Total</span><strong id="summaryTotal">0</strong><small>molduras</small></div>
-        <div class="summary-card"><span>Visíveis</span><strong id="summaryVisible">0</strong><small>no site</small></div>
-        <div class="summary-card"><span>Destaques</span><strong id="summaryHighlights">0</strong><small>ativos</small></div>
-        <div class="summary-card"><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
+        <div class="summary-card"><i>🖼️</i><span>Total</span><strong id="summaryTotal">0</strong><small>molduras</small></div>
+        <div class="summary-card"><i>👁️</i><span>Visíveis</span><strong id="summaryVisible">0</strong><small>no site</small></div>
+        <div class="summary-card"><i>⭐</i><span>Destaques</span><strong id="summaryHighlights">0</strong><small>ativos</small></div>
+        <div class="summary-card"><i>🗂️</i><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
       </div>
 
       <section class="creation-mode-switch v10-create-hub" aria-label="Escolha o tipo de inclusão">

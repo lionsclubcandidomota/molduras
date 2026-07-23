@@ -66,3 +66,21 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .trust-row{display:flex;flex-wrap:wrap}.trust-row span:first-child{flex-basis:100%;justify-content:center}
   .compare-panel{align-items:stretch;flex-direction:column}.compare-tool{width:100%;justify-content:center}
 }
+
+/* ===== V3 PREMIUM — HERO INTEGRADO ===== */
+.site-header{position:absolute;top:0;left:0;right:0;background:transparent!important;border:0!important;box-shadow:none!important;color:#fff}
+.header-inner{padding-top:20px;padding-bottom:20px}
+.brand img{width:66px;height:66px;background:rgba(255,255,255,.96);border-radius:18px;padding:7px;box-shadow:0 14px 35px rgba(0,0,0,.18)}
+.brand small,.brand strong,.site-header nav a,.nav-help{color:#fff!important}
+.brand small{opacity:.76}.brand strong{font-size:1.12rem}
+.site-header nav{padding:5px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);border-radius:16px;backdrop-filter:blur(14px)}
+.hero{padding-top:92px;background:radial-gradient(circle at 83% 8%,rgba(32,143,229,.5),transparent 30%),linear-gradient(135deg,#052d63 0%,#074c92 56%,#0868b9 100%)}
+.hero-grid{padding-top:68px;padding-bottom:104px}
+.hero-copy h1{max-width:850px;margin-inline:auto;font-size:clamp(2.8rem,5vw,5rem)}
+.hero-copy>p{font-size:1.18rem}
+.benefit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:34px;text-align:left}
+.benefit-card{display:flex;align-items:center;gap:13px;padding:15px 16px;border-radius:18px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);box-shadow:0 15px 35px rgba(0,25,65,.12);backdrop-filter:blur(12px)}
+.benefit-icon{width:46px;height:46px;display:grid;place-items:center;flex:0 0 auto;border-radius:14px;background:rgba(255,255,255,.15);font-size:1.2rem}
+.benefit-card div{display:flex;flex-direction:column}.benefit-card strong{color:#fff;font-size:.92rem}.benefit-card small{color:#dcecff;font-size:.76rem;margin-top:2px}
+.progress-shell{margin-top:-34px}
+@media(max-width:760px){.site-header{position:absolute}.header-inner{padding:13px 16px}.brand img{width:52px;height:52px}.brand div{display:none}.site-header nav a{display:none}.site-header nav{margin-left:auto}.hero{padding-top:75px}.hero-grid{padding-top:46px}.benefit-grid{grid-template-columns:1fr}.benefit-card{padding:13px 14px}.hero-copy h1{font-size:2.65rem}.hero-actions{flex-direction:column}.hero-actions .button{width:100%}}
