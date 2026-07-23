@@ -54,76 +54,6 @@ window.MOLDURAS = [
     "statusVisivel": true
   },
   {
-    "id": "visao",
-    "nome": "Visão",
-    "categoriaId": "causas-globais",
-    "ordem": 8,
-    "arquivo": "assets/molduras/visao.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "diabetes",
-    "nome": "Diabetes",
-    "categoriaId": "causas-globais",
-    "ordem": 2,
-    "arquivo": "assets/molduras/diabetes.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "fome",
-    "nome": "Fome",
-    "categoriaId": "causas-globais",
-    "ordem": 4,
-    "arquivo": "assets/molduras/fome.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "cancer-infantil",
-    "nome": "Câncer Infantil",
-    "categoriaId": "causas-globais",
-    "ordem": 1,
-    "arquivo": "assets/molduras/cancer-infantil.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "juventude",
-    "nome": "Juventude",
-    "categoriaId": "causas-globais",
-    "ordem": 5,
-    "arquivo": "assets/molduras/juventude.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "socorro-a-catastrofes",
-    "nome": "Socorro a Catástrofes",
-    "categoriaId": "causas-globais",
-    "ordem": 7,
-    "arquivo": "assets/molduras/socorro-a-catastrofes.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "esforcos-humanitarios",
-    "nome": "Esforços Humanitários",
-    "categoriaId": "causas-globais",
-    "ordem": 3,
-    "arquivo": "assets/molduras/esforcos-humanitarios.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
-  },
-  {
     "id": "dia-d",
     "nome": "Dia D",
     "categoriaId": "lions",
@@ -172,16 +102,6 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
-  },
-  {
-    "id": "meio-ambiente",
-    "nome": "Meio Ambiente",
-    "categoriaId": "causas-globais",
-    "ordem": 6,
-    "arquivo": "assets/molduras/meio-ambiente.webp",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
   },
   {
     "id": "nos-vamos-ircd",
