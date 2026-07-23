@@ -122,7 +122,7 @@
   }
 
   function serialize(categorias, molduras) {
-    return `// Gerenciado pelo Painel de Molduras Lions v8\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+    return `// Gerenciado pelo Painel de Molduras Lions v10\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
   }
   function renumber(categorias = state.categorias, molduras = state.molduras) {
     categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
@@ -479,11 +479,14 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
     return url.href;
   }
   if (el.returnToSite) {
-    // O retorno principal é um link HTML nativo para ./index.html.
-    // Este listener apenas marca a navegação como intencional, evitando
-    // que o aviso de saída bloqueie o clique quando houver edição aberta.
-    el.returnToSite.addEventListener("click", () => {
+    // Toda a área visual do botão é clicável. O redirecionamento explícito
+    // evita interferência de elementos decorativos, CSS antigo ou beforeunload.
+    el.returnToSite.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
       state.intentionalNavigation = true;
+      const target = new URL("./index.html", window.location.href);
+      window.location.assign(target.href);
     });
   }
 
