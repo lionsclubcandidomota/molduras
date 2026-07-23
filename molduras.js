@@ -215,7 +215,7 @@ window.MOLDURAS = [
   },
   {
     "id": "presidente-de-clube",
-    "nome": "Presidente De Clube",
+    "nome": "Presidente de Clube",
     "categoriaId": "cargos",
     "ordem": 6,
     "arquivo": "assets/molduras/presidente-de-clube.png",
