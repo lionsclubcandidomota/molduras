@@ -84,7 +84,6 @@
               <div class="empty-state" id="emptyState">
                 <span>🖼️</span><strong>Escolha uma moldura</strong><small>Depois você poderá adicionar sua foto.</small>
               </div>
-              <div class="snap-badge" aria-hidden="true">↕ 0° centralizado</div>
             </div>
             <p class="gesture-hint" id="adjustHint" hidden>☝️ Arraste a foto para posicionar. Use dois dedos para ampliar.</p>
           </div>
@@ -130,6 +129,11 @@
                   <button type="button" data-preset="warm" disabled>Quente</button>
                   <button type="button" data-preset="bw" disabled>P&B</button>
                   <button type="button" data-preset="soft" disabled>Suave</button>
+                  <button type="button" data-preset="bright" disabled>Iluminado</button>
+                  <button type="button" data-preset="dramatic" disabled>Dramático</button>
+                  <button type="button" data-preset="vintage" disabled>Vintage</button>
+                  <button type="button" data-preset="sepia" disabled>Sépia</button>
+                  <button type="button" data-preset="cool" disabled>Frio</button>
                 </div>
 
                 <div class="filter-controls">
@@ -152,13 +156,20 @@
         <p>Quando estiver satisfeito com o resultado, baixe ou compartilhe.</p>
         <button class="button success block large" id="downloadBtn" type="button" disabled>⬇ Baixar imagem</button>
         <button class="button secondary block" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
-        <div class="privacy-note">🔒 Sua foto não sai deste dispositivo.</div>
         <button class="text-button" id="newCreationBtn" type="button">Começar novamente</button>
       </aside>
     </section>
   </main>
 
-  <footer class="site-footer"><div><img src="assets/logo-lions.png" alt="Logo do Lions"><span><strong>Lions Clube de Cândido Mota</strong><small>Nós Servimos</small></span></div><p>Unidos para servir e transformar.</p></footer>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo-lions.png" alt="Logo do Lions">
+        <span><strong>Lions Clube de Cândido Mota</strong><small>Nós Servimos</small></span>
+      </div>
+      <p>Unidos para servir e transformar.</p>
+    </div>
+  </footer>
 
   <div class="mobile-action-bar" id="mobileActionBar" hidden><button class="button success block" id="mobileDownloadBtn" type="button">⬇ Baixar imagem</button></div>
 

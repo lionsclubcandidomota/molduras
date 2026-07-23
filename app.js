@@ -3,6 +3,9 @@
   const $ = id => document.getElementById(id);
   const canvas = $('editorCanvas');
   const ctx = canvas.getContext('2d');
+  const photoLayer = document.createElement('canvas');
+  photoLayer.width = photoLayer.height = 1080;
+  const photoCtx = photoLayer.getContext('2d');
   const wrap = $('canvasWrap');
   const controls = $('controls');
   const photoInput = $('photoInput');
@@ -43,7 +46,7 @@
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', selectedFrame: null,
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
-    cropShape: 'full', brightness: 100, contrast: 100, saturation: 100, warmth: 0,
+    cropShape: 'full', brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
     pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1
   };
 
@@ -180,57 +183,61 @@
   function coverScale(image) { return Math.max(1080/image.naturalWidth,1080/image.naturalHeight); }
   function resetPhotoPosition() { if (!state.photo) return; state.baseScale=coverScale(state.photo); state.scale=1; state.rotation=0; state.x=540; state.y=540; updateTransformControls(); draw(); }
   function setZoom(value) { state.scale=clamp(Number(value)||1,.2,4); updateTransformControls(); draw(); }
-  function setRotation(value,snap=false) { let v=clamp(Number(value)||0,-180,180); if(snap && Math.abs(v)<=ROTATION_SNAP)v=0; state.rotation=v; updateTransformControls(); wrap.classList.toggle('is-rotation-snapped',snap&&v===0); draw(); }
+  function setRotation(value,snap=false) { let v=clamp(Number(value)||0,-180,180); if(snap && Math.abs(v)<=ROTATION_SNAP)v=0; state.rotation=v; updateTransformControls(); draw(); }
 
   function createCropPath(targetCtx, shape) {
     if (shape === 'full') return false;
-
-    // Mantém uma margem clara para que o recorte seja perceptível,
-    // inclusive quando a moldura possui uma grande área transparente.
     const x = 105;
     const y = 105;
     const size = 870;
     const radius = 112;
-
     targetCtx.beginPath();
     if (shape === 'circle') {
       targetCtx.arc(540, 540, size / 2, 0, Math.PI * 2);
     } else if (shape === 'square') {
       targetCtx.rect(x, y, size, size);
     } else if (shape === 'rounded') {
-      targetCtx.roundRect(x, y, size, size, radius);
+      if (typeof targetCtx.roundRect === 'function') {
+        targetCtx.roundRect(x, y, size, size, radius);
+      } else {
+        targetCtx.moveTo(x + radius, y);
+        targetCtx.lineTo(x + size - radius, y);
+        targetCtx.quadraticCurveTo(x + size, y, x + size, y + radius);
+        targetCtx.lineTo(x + size, y + size - radius);
+        targetCtx.quadraticCurveTo(x + size, y + size, x + size - radius, y + size);
+        targetCtx.lineTo(x + radius, y + size);
+        targetCtx.quadraticCurveTo(x, y + size, x, y + size - radius);
+        targetCtx.lineTo(x, y + radius);
+        targetCtx.quadraticCurveTo(x, y, x + radius, y);
+      }
     }
     targetCtx.closePath();
     return true;
   }
 
   function drawPhotoLayer() {
+    photoCtx.clearRect(0, 0, 1080, 1080);
     if (!state.photo) return;
 
-    ctx.save();
-    if (createCropPath(ctx, state.cropShape)) ctx.clip();
-
-    ctx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%) sepia(${state.warmth}%)`;
-    ctx.translate(state.x, state.y);
-    ctx.rotate(state.rotation * Math.PI / 180);
-
+    photoCtx.save();
+    photoCtx.filter = `brightness(${state.brightness}%) contrast(${state.contrast}%) saturate(${state.saturation}%) sepia(${state.warmth}%) grayscale(${state.grayscale}%) hue-rotate(${state.hue}deg)`;
+    photoCtx.translate(state.x, state.y);
+    photoCtx.rotate(state.rotation * Math.PI / 180);
     const scale = state.baseScale * state.scale;
     const width = state.photo.naturalWidth * scale;
     const height = state.photo.naturalHeight * scale;
-    ctx.drawImage(state.photo, -width / 2, -height / 2, width, height);
-    ctx.restore();
-    ctx.filter = 'none';
-  }
+    photoCtx.drawImage(state.photo, -width / 2, -height / 2, width, height);
+    photoCtx.restore();
+    photoCtx.filter = 'none';
 
-  function drawCropGuide() {
-    if (!state.photo || state.cropShape === 'full' || !advancedPanel.open) return;
-    ctx.save();
-    createCropPath(ctx, state.cropShape);
-    ctx.lineWidth = 5;
-    ctx.setLineDash([16, 12]);
-    ctx.strokeStyle = 'rgba(7, 59, 122, .72)';
-    ctx.stroke();
-    ctx.restore();
+    if (state.cropShape !== 'full') {
+      photoCtx.save();
+      photoCtx.globalCompositeOperation = 'destination-in';
+      createCropPath(photoCtx, state.cropShape);
+      photoCtx.fillStyle = '#000';
+      photoCtx.fill();
+      photoCtx.restore();
+    }
   }
 
   function draw() {
@@ -238,18 +245,35 @@
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, 1080, 1080);
     drawPhotoLayer();
+    ctx.drawImage(photoLayer, 0, 0);
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
-    drawCropGuide();
   }
 
   function updateFilterOutputs() {
     $('brightnessOutput').textContent=`${state.brightness}%`; $('contrastOutput').textContent=`${state.contrast}%`; $('saturationOutput').textContent=`${state.saturation}%`; $('warmthOutput').textContent=`${state.warmth}%`;
   }
   function applyPreset(name) {
-    const presets={original:[100,100,100,0],vivid:[105,112,135,5],warm:[104,102,112,35],bw:[105,115,0,0],soft:[108,88,85,8]};
-    const p=presets[name]||presets.original; [state.brightness,state.contrast,state.saturation,state.warmth]=p;
-    [brightnessRange.value,contrastRange.value,saturationRange.value,warmthRange.value]=p.map(String); updateFilterOutputs();
-    document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.toggle('is-active',b.dataset.preset===name)); draw();
+    const presets = {
+      original: {brightness:100, contrast:100, saturation:100, warmth:0, grayscale:0, hue:0},
+      vivid: {brightness:105, contrast:112, saturation:138, warmth:5, grayscale:0, hue:0},
+      warm: {brightness:104, contrast:102, saturation:112, warmth:32, grayscale:0, hue:0},
+      bw: {brightness:105, contrast:118, saturation:0, warmth:0, grayscale:100, hue:0},
+      soft: {brightness:108, contrast:88, saturation:85, warmth:8, grayscale:0, hue:0},
+      bright: {brightness:120, contrast:96, saturation:108, warmth:2, grayscale:0, hue:0},
+      dramatic: {brightness:94, contrast:142, saturation:120, warmth:4, grayscale:0, hue:0},
+      vintage: {brightness:102, contrast:94, saturation:78, warmth:42, grayscale:0, hue:-8},
+      sepia: {brightness:103, contrast:104, saturation:70, warmth:78, grayscale:0, hue:-12},
+      cool: {brightness:103, contrast:106, saturation:108, warmth:0, grayscale:0, hue:172}
+    };
+    const p = presets[name] || presets.original;
+    Object.assign(state, p);
+    brightnessRange.value = String(p.brightness);
+    contrastRange.value = String(p.contrast);
+    saturationRange.value = String(p.saturation);
+    warmthRange.value = String(Math.min(70, p.warmth));
+    updateFilterOutputs();
+    document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.toggle('is-active',b.dataset.preset===name));
+    draw();
   }
   function resetAdvanced() { state.cropShape='full'; document.querySelector('input[name="cropShape"][value="full"]').checked=true; applyPreset('original'); }
 
@@ -259,14 +283,14 @@
     const reader=new FileReader(); reader.onload=()=>{const image=new Image(); image.onload=()=>{state.photo=image;resetPhotoPosition();setPhotoEnabled(true);};image.onerror=()=>alert('Não foi possível abrir esta imagem.');image.src=reader.result;};reader.readAsDataURL(file);
   });
   zoomRange.addEventListener('input',()=>setZoom(zoomRange.value)); zoomNumber.addEventListener('input',()=>{if(zoomNumber.value!=='')setZoom(Number(zoomNumber.value)/100);}); zoomNumber.addEventListener('change',()=>setZoom(Number(zoomNumber.value||100)/100));
-  rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,true)); rotationRange.addEventListener('change',()=>wrap.classList.remove('is-rotation-snapped')); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
+  rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,true)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
   fitBtn.addEventListener('click',resetPhotoPosition); centerBtn.addEventListener('click',()=>{state.x=540;state.y=540;draw();});
   resetBtn.addEventListener('click',clearPhoto); newCreationBtn.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
   function clearPhoto(){photoInput.value='';state.photo=null;resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}
 
   document.querySelectorAll('input[name="cropShape"]').forEach(input=>input.addEventListener('change',()=>{state.cropShape=input.value;draw();}));
   document.querySelectorAll('#filterPresets button').forEach(button=>button.addEventListener('click',()=>applyPreset(button.dataset.preset)));
-  [[brightnessRange,'brightness'],[contrastRange,'contrast'],[saturationRange,'saturation'],[warmthRange,'warmth']].forEach(([range,key])=>range.addEventListener('input',()=>{state[key]=Number(range.value);updateFilterOutputs();document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.remove('is-active'));draw();}));
+  [[brightnessRange,'brightness'],[contrastRange,'contrast'],[saturationRange,'saturation'],[warmthRange,'warmth']].forEach(([range,key])=>range.addEventListener('input',()=>{state[key]=Number(range.value); state.grayscale=0; state.hue=0; updateFilterOutputs();document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.remove('is-active'));draw();}));
   resetFiltersBtn.addEventListener('click',resetAdvanced);
   advancedPanel.addEventListener('toggle', draw);
 
