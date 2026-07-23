@@ -265,10 +265,16 @@
       const statusBadge=catStatus!=="normal"?`<span class="badge ${catStatus}">${statusLabel(catStatus)}</span>`:"";
       total+=frames.length;
       html+=`<section class="category-accordion ${isOpen?"is-open":""}" data-accordion-category="${esc(cat.id)}">
-        <button class="category-accordion-header" type="button" data-action="toggle-category" aria-expanded="${isOpen}" aria-controls="category-body-${esc(cat.id)}">
-          <span class="category-accordion-title"><span class="category-chevron" aria-hidden="true">›</span><span class="category-title-copy"><strong>${esc(cat.nome)}</strong><small>${allFrames.length} moldura(s)${q&&frames.length!==allFrames.length?` · ${frames.length} encontrada(s)`:""}</small></span></span>
-          <span class="category-accordion-meta"><label class="category-select-all" onclick="event.stopPropagation()"><input type="checkbox" data-select-category="${esc(cat.id)}" ${frames.every(f=>state.selectedIds.has(f.id))?"checked":""}> Selecionar</label>${q?`<span class="search-active-note">Resultado da busca</span>`:""}${statusBadge}<span class="badge active category-count-pill">${frames.length}</span></span>
-        </button>
+        <div class="category-accordion-header">
+          <button class="category-accordion-toggle" type="button" data-action="toggle-category" aria-expanded="${isOpen}" aria-controls="category-body-${esc(cat.id)}">
+            <span class="category-chevron" aria-hidden="true">›</span>
+            <span class="category-title-copy"><strong>${esc(cat.nome)}</strong><small>${allFrames.length} moldura(s)${q&&frames.length!==allFrames.length?` · ${frames.length} encontrada(s)`:""}</small></span>
+          </button>
+          <div class="category-accordion-meta">
+            <label class="category-select-all"><input type="checkbox" data-select-category="${esc(cat.id)}" ${frames.every(f=>state.selectedIds.has(f.id))?"checked":""}><span>Selecionar</span></label>
+            ${q?`<span class="search-active-note">Resultado da busca</span>`:""}${statusBadge}<span class="category-count-pill">${frames.length}</span>
+          </div>
+        </div>
         <div id="category-body-${esc(cat.id)}" class="category-accordion-body" ${isOpen?"":"hidden"}>`;
       frames.forEach((f,index)=>{const st=frameStatus(f);html+=`<article class="frame-row ${state.selectedIds.has(f.id)?"is-selected":""}" draggable="${!q&&!state.selectedIds.size}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
         <label class="frame-select-wrap"><input class="frame-select" type="checkbox" data-select-frame="${esc(f.id)}" ${state.selectedIds.has(f.id)?"checked":""} aria-label="Selecionar ${esc(f.nome)}"></label><div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar">☰</button><span class="order-number">${f.ordem}</span><button type="button" class="order-arrow" data-action="up" ${f.ordem===1?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${f.ordem===allFrames.length?"disabled":""}>↓</button></div>
@@ -480,7 +486,7 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
     el.categoryManagerToggle.addEventListener("click", () => setPanelOpen(el.categoryManagerPanel, el.categoryManagerToggle, !el.categoryManagerPanel.classList.contains("is-open"), "lions-admin-category-manager-open"));
   }
   if (el.editorToggle) {
-    setPanelOpen(el.form, el.editorToggle, getStoredPanelState("lions-admin-editor-open", true), "lions-admin-editor-open");
+    setPanelOpen(el.form, el.editorToggle, getStoredPanelState("lions-admin-editor-open", false), "lions-admin-editor-open");
     el.editorToggle.addEventListener("click", () => setPanelOpen(el.form, el.editorToggle, !el.form.classList.contains("is-open"), "lions-admin-editor-open"));
   }
   if (el.generateId) el.generateId.addEventListener("click", () => { el.id.value = slugify(el.name.value); updateDestination(); el.id.focus(); });
@@ -563,7 +569,7 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
     updateScrollButton();
   }
   if (el.bulkUploadToggle && el.bulkUploadPanel) {
-    setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, getStoredPanelState("lions-admin-bulk-upload-open", true), "lions-admin-bulk-upload-open");
+    setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, getStoredPanelState("lions-admin-bulk-upload-open", false), "lions-admin-bulk-upload-open");
     el.bulkUploadToggle.addEventListener("click", () => setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, !el.bulkUploadPanel.classList.contains("is-open"), "lions-admin-bulk-upload-open"));
   }
   const updateBulkSummary = () => {
