@@ -98,19 +98,15 @@
       <section class="creation-mode-switch v10-create-hub" aria-label="Escolha o tipo de inclusão">
         <div class="creation-mode-intro">
           <span class="step">Adicionar conteúdo</span>
-          <h3>Adicionar novas molduras</h3>
-          <p>Escolha entre cadastro individual ou importação em lote. Apenas o fluxo selecionado permanecerá aberto.</p>
+          <h3>Adicionar molduras</h3>
+          <p>Escolha o modo de inclusão. Apenas a área selecionada será exibida.</p>
         </div>
         <div class="creation-mode-options" role="tablist" aria-label="Modo de inclusão">
           <button id="singleModeBtn" class="creation-mode-card is-active" type="button" role="tab" aria-selected="true" aria-controls="frameForm">
-            <span class="mode-icon">🖼️</span>
-            <span><strong>Moldura avulsa</strong><small>Cadastre ou edite uma moldura por vez.</small></span>
-            <span class="mode-check">✓</span>
+            <span class="mode-icon">＋</span><span><strong>Nova moldura</strong><small>Cadastro individual</small></span>
           </button>
           <button id="bulkModeBtn" class="creation-mode-card" type="button" role="tab" aria-selected="false" aria-controls="bulkUploadPanel">
-            <span class="mode-icon">📚</span>
-            <span><strong>Inclusão em lote</strong><small>Envie e revise várias imagens de uma só vez.</small></span>
-            <span class="mode-check">✓</span>
+            <span class="mode-icon">⇧</span><span><strong>Upload em lote</strong><small>Vários arquivos</small></span>
           </button>
         </div>
       </section>
@@ -239,15 +235,27 @@
       </div>
 
       
-      <section class="admin-utilities" id="adminUtilities">
-        <div class="heading-row"><div><span class="step">🧰 Ferramentas</span><h2>Manutenção e segurança</h2><p>Diagnóstico, backup e histórico local do painel.</p></div></div>
-        <div class="utility-grid">
-          <button class="utility-card" id="diagnoseBtn" type="button"><span>🩺</span><strong>Diagnosticar biblioteca</strong><small>Localiza IDs, caminhos e categorias problemáticas.</small></button>
-          <button class="utility-card" id="exportBackupBtn" type="button"><span>⬇️</span><strong>Exportar backup</strong><small>Baixa categorias e molduras em JSON.</small></button>
-          <label class="utility-card utility-upload"><span>⬆️</span><strong>Importar backup</strong><small>Carrega um JSON para revisão antes de publicar.</small><input id="importBackupInput" type="file" accept="application/json,.json" hidden></label>
-          <button class="utility-card" id="historyBtn" type="button"><span>🕘</span><strong>Histórico local</strong><small>Exibe as últimas ações desta instalação.</small></button>
+      <section class="admin-utilities collapsible-admin-panel" id="maintenancePanel">
+        <div class="maintenance-heading">
+          <button id="maintenanceToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="maintenanceBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <span class="step">Ferramentas administrativas</span>
+              <strong>Diagnóstico e backup</strong>
+              <small>Abra somente quando precisar verificar, exportar ou restaurar dados.</small>
+            </span>
+          </button>
+          <span class="panel-summary-pill">4 ferramentas</span>
         </div>
-        <div id="utilityResult" class="utility-result" hidden></div>
+        <div id="maintenanceBody" class="collapsible-panel-body" hidden>
+          <div class="utility-grid">
+            <button class="utility-card" id="diagnoseBtn" type="button"><span>🩺</span><strong>Diagnosticar</strong><small>Verifica IDs, arquivos e categorias.</small></button>
+            <button class="utility-card" id="exportBackupBtn" type="button"><span>⬇️</span><strong>Exportar backup</strong><small>Baixa os dados em formato JSON.</small></button>
+            <label class="utility-card utility-upload"><span>⬆️</span><strong>Importar backup</strong><small>Carrega um JSON para revisão.</small><input id="importBackupInput" type="file" accept="application/json,.json" hidden></label>
+            <button class="utility-card" id="historyBtn" type="button"><span>🕘</span><strong>Histórico local</strong><small>Mostra as últimas ações do painel.</small></button>
+          </div>
+          <div id="utilityResult" class="utility-result" hidden></div>
+        </div>
       </section>
 
       <section id="framesSection" class="frames-section"><div class="list-heading">

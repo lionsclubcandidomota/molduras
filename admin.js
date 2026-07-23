@@ -526,7 +526,35 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   setCreationMode(initialCreationMode, { scroll: false });
   el.singleModeBtn?.addEventListener("click", () => setCreationMode("single"));
   el.bulkModeBtn?.addEventListener("click", () => setCreationMode("bulk"));
-  document.querySelectorAll("[data-admin-mode]").forEach(button => button.addEventListener("click", () => setCreationMode(button.dataset.adminMode)));
+  document.querySelectorAll("[data-admin-mode]").forEach(button => button.addEventListener("click", () => {
+    setCreationMode(button.dataset.adminMode);
+    document.querySelectorAll("#adminQuickNav a, #adminQuickNav button").forEach(nav => nav.classList.toggle("is-active", nav === button));
+  }));
+
+
+
+  // v4.2 — manutenção recolhida e navegação com foco coerente
+  const maintenancePanel = document.getElementById("maintenancePanel");
+  const maintenanceToggle = document.getElementById("maintenanceToggle");
+  const maintenanceBody = document.getElementById("maintenanceBody");
+  const setMaintenanceOpen = (open) => {
+    if (!maintenancePanel || !maintenanceToggle || !maintenanceBody) return;
+    maintenancePanel.classList.toggle("is-open", open);
+    maintenanceToggle.setAttribute("aria-expanded", String(open));
+    maintenanceBody.hidden = !open;
+    try { localStorage.setItem("lions-admin-maintenance-open", open ? "1" : "0"); } catch {}
+  };
+  let maintenanceOpen = false;
+  try { maintenanceOpen = localStorage.getItem("lions-admin-maintenance-open") === "1"; } catch {}
+  setMaintenanceOpen(maintenanceOpen);
+  maintenanceToggle?.addEventListener("click", () => setMaintenanceOpen(!maintenancePanel.classList.contains("is-open")));
+
+  const navItems = [...document.querySelectorAll("#adminQuickNav a, #adminQuickNav button")];
+  const activateNav = (item) => {
+    navItems.forEach(nav => nav.classList.toggle("is-active", nav === item));
+  };
+  navItems.forEach(item => item.addEventListener("click", () => activateNav(item)));
+  document.querySelector('#adminQuickNav a[href="#maintenancePanel"]')?.addEventListener("click", () => setMaintenanceOpen(true));
 
   if (el.scrollTop) {
     const updateScrollButton = () => { el.scrollTop.hidden = window.scrollY < 500; };
