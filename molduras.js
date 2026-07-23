@@ -265,7 +265,7 @@ window.MOLDURAS = [
   },
   {
     "id": "assessor-de-servicos-do-clube",
-    "nome": "Assessor De Servicos Do Clube",
+    "nome": "Assessor de Serviços do Clube",
     "categoriaId": "cargos",
     "ordem": 2,
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
