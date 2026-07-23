@@ -242,5 +242,65 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "orgulho-de-ser-leao",
+    "nome": "Orgulho de ser Leão",
+    "categoriaId": "causas-globais",
+    "ordem": 9,
+    "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "dia-d",
+    "nome": "Dia D",
+    "categoriaId": "causas-globais",
+    "ordem": 10,
+    "arquivo": "assets/molduras/dia-d.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "gat",
+    "nome": "GAT",
+    "categoriaId": "causas-globais",
+    "ordem": 11,
+    "arquivo": "assets/molduras/gat.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "get",
+    "nome": "GET",
+    "categoriaId": "causas-globais",
+    "ordem": 12,
+    "arquivo": "assets/molduras/get.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "glt",
+    "nome": "GLT",
+    "categoriaId": "causas-globais",
+    "ordem": 13,
+    "arquivo": "assets/molduras/glt.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "gmt",
+    "nome": "GMT",
+    "categoriaId": "causas-globais",
+    "ordem": 14,
+    "arquivo": "assets/molduras/gmt.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
