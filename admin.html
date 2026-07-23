@@ -75,25 +75,34 @@
         <div class="summary-card"><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
       </div>
 
-      <form id="frameForm" class="editor-panel">
+      <form id="frameForm" class="editor-panel is-open">
         <input id="editingOriginalId" type="hidden" />
-        <div class="editor-heading">
-          <div>
-            <span class="step">Nova moldura / edição</span>
-            <h3 id="formTitle">Adicionar nova moldura</h3>
-          </div>
+        <div class="editor-heading editor-toggle-heading">
+          <button id="editorToggleBtn" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="editorBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <span class="step">Nova moldura / edição</span>
+              <strong id="formTitle">Adicionar nova moldura</strong>
+              <small>Cadastre uma moldura ou altere informações já existentes.</small>
+            </span>
+          </button>
           <button id="cancelEditBtn" class="button light" type="button" hidden>Cancelar edição</button>
         </div>
 
-        <div class="form-grid">
+        <div id="editorBody" class="collapsible-panel-body">
+        <div class="form-section-title"><span>1</span><div><strong>Identificação</strong><small>Defina como a moldura aparecerá no site.</small></div></div>
+        <div class="form-grid enhanced-fields">
           <label>
             <span>Nome exibido</span>
             <input id="frameName" required placeholder="Ex.: Nós vamos na I RCD" />
           </label>
           <label>
-            <span>Identificador</span>
-            <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" />
-            <small>Somente letras minúsculas, números e hífens.</small>
+            <span>Identificador <em>URL</em></span>
+            <div class="input-action compact-action">
+              <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" />
+              <button id="generateIdBtn" class="small-button" type="button" title="Gerar pelo nome">Gerar</button>
+            </div>
+            <small>Usado no link direto da moldura. Somente letras minúsculas, números e hífens.</small>
           </label>
           <label>
             <span>Categoria</span>
@@ -107,6 +116,7 @@
           </label>
         </div>
 
+        <div class="form-section-title"><span>2</span><div><strong>Publicação</strong><small>Controle destaque, categoria e visibilidade.</small></div></div>
         <div class="form-grid status-form-grid">
           <label>
             <span>Destaque da moldura</span>
@@ -124,6 +134,7 @@
           </label>
         </div>
 
+        <div class="form-section-title"><span>3</span><div><strong>Imagem e prévia</strong><small>Confira o arquivo antes de publicar.</small></div></div>
         <div class="preview-area">
           <div id="filePreview" class="file-preview"><span>Prévia da moldura</span></div>
           <div class="upload-summary">
@@ -132,7 +143,11 @@
           </div>
         </div>
 
-        <button id="saveFrameBtn" class="button success full" type="submit">Adicionar e publicar moldura</button>
+        <div class="editor-footer-actions">
+          <span id="editorModeHint" class="editor-mode-hint">Modo de cadastro</span>
+          <button id="saveFrameBtn" class="button success" type="submit">Adicionar e publicar moldura</button>
+        </div>
+        </div>
       </form>
 
 
@@ -195,14 +210,21 @@
       </div>
       <div id="orderNotice" class="order-notice" hidden>Há alterações de ordem ainda não publicadas. Salve ou descarte antes de editar outras informações.</div>
 
-      <section class="category-order-panel" aria-labelledby="categoryOrderTitle">
+      <section id="categoryManagerPanel" class="category-order-panel collapsible-admin-panel is-open" aria-labelledby="categoryOrderTitle">
         <div class="category-order-heading">
-          <div>
-            <h3 id="categoryOrderTitle">Ordem das categorias</h3>
-            <p>Arraste pelo símbolo ☰ ou use as setas.</p>
-          </div>
+          <button id="categoryManagerToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="categoryManagerBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <strong id="categoryOrderTitle">Ordem e manutenção das categorias</strong>
+              <small>Expanda para renomear, limpar destaques, excluir ou reorganizar categorias.</small>
+            </span>
+          </button>
+          <span id="categoryManagerSummary" class="panel-summary-pill">0 categorias</span>
         </div>
-        <div id="categoriesOrderList" class="categories-order-list"></div>
+        <div id="categoryManagerBody" class="collapsible-panel-body">
+          <div class="category-panel-tip">Arraste pelo símbolo ☰ ou use as setas. As alterações de ordem serão publicadas ao clicar em <strong>Salvar ordenação</strong>.</div>
+          <div id="categoriesOrderList" class="categories-order-list"></div>
+        </div>
       </section>
 
       <div class="frames-order-heading collapsible-heading">

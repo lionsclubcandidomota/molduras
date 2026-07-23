@@ -24,6 +24,8 @@
     list: $("framesList"), count: $("frameCount"), search: $("adminSearch"), saveOrder: $("saveOrderBtn"), cancelOrder: $("cancelOrderBtn"),
     notice: $("orderNotice"), summaryTotal: $("summaryTotal"), summaryVisible: $("summaryVisible"), summaryHighlights: $("summaryHighlights"), summaryCategories: $("summaryCategories"), categories: $("categoriesOrderList"), dialog: $("confirmDialog"), confirmText: $("confirmText"), deleteFile: $("deleteImageFile"), confirmDelete: $("confirmDeleteBtn"),
     expandAll: $("expandAllCategoriesBtn"), collapseAll: $("collapseAllCategoriesBtn"),
+    categoryManagerPanel: $("categoryManagerPanel"), categoryManagerToggle: $("categoryManagerToggle"), categoryManagerSummary: $("categoryManagerSummary"),
+    editorToggle: $("editorToggleBtn"), editorModeHint: $("editorModeHint"), generateId: $("generateIdBtn"),
     bulkFiles: $("bulkFiles"), bulkCategory: $("bulkCategory"), bulkStatus: $("bulkStatus"), bulkActive: $("bulkActive"), bulkReview: $("bulkReview"), clearBulk: $("clearBulkBtn"), publishBulk: $("publishBulkBtn"),
     bulkBar: $("bulkActionBar"), bulkSelectedCount: $("bulkSelectedCount"), bulkAction: $("bulkActionSelect"), bulkMoveCategory: $("bulkMoveCategory"), applyBulk: $("applyBulkActionBtn"), clearSelection: $("clearSelectionBtn"),
   };
@@ -35,6 +37,15 @@
 
   function flash(message, type = "info") { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; }
   function status(message, type = "neutral") { el.status.textContent = message; el.status.className = `status ${type}`; }
+  function setPanelOpen(panel, button, open, storageKey) {
+    if (!panel || !button) return;
+    panel.classList.toggle("is-open", open);
+    button.setAttribute("aria-expanded", String(open));
+    try { localStorage.setItem(storageKey, open ? "1" : "0"); } catch {}
+  }
+  function getStoredPanelState(key, fallback = true) {
+    try { const value = localStorage.getItem(key); return value === null ? fallback : value === "1"; } catch { return fallback; }
+  }
   function setBusy(value, message = "Sincronizando...") {
     state.busy = value;
     [el.connect, el.refresh, el.save, el.confirmDelete, el.saveOrder, el.cancelOrder, el.publishBulk, el.applyBulk].forEach(x => { if (x) x.disabled = value; });
@@ -105,7 +116,7 @@
   }
 
   function serialize(categorias, molduras) {
-    return `// Gerenciado pelo Painel de Molduras Lions v7\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+    return `// Gerenciado pelo Painel de Molduras Lions v8\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
   }
   function renumber(categorias = state.categorias, molduras = state.molduras) {
     categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
@@ -218,6 +229,7 @@
     el.categoryList.innerHTML=state.categorias.sort((a,b)=>a.ordem-b.ordem).map(c=>`<option value="${esc(c.nome)}"></option>`).join("");
   }
   function renderCategories(){
+    if (el.categoryManagerSummary) el.categoryManagerSummary.textContent = `${state.categorias.length} ${state.categorias.length === 1 ? "categoria" : "categorias"}`;
     const q=el.search.value.trim();
     el.categories.innerHTML=state.categorias.sort((a,b)=>a.ordem-b.ordem).map((c,index)=>{
       const catStatus=categoryStatus(c.id);
@@ -419,7 +431,7 @@
       const shouldCollapse=section.classList.contains("is-open");
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
-    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;updateDestination();el.form.scrollIntoView({behavior:"smooth"});return;}if(action==="status-menu"){
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");if(el.editorModeHint)el.editorModeHint.textContent="Modo de edição — alterações serão publicadas no GitHub";setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 
@@ -436,6 +448,17 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   el.list.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".frame-row")?.dataset.id,from=state.molduras.find(f=>f.id===state.draggedFrame),to=state.molduras.find(f=>f.id===target);if(from&&to&&from.categoriaId===to.categoriaId&&from.id!==to.id){const a=state.molduras.filter(f=>f.categoriaId===from.categoriaId).sort((x,y)=>x.ordem-y.ordem),fi=a.findIndex(f=>f.id===from.id),ti=a.findIndex(f=>f.id===to.id),[item]=a.splice(fi,1);a.splice(ti,0,item);a.forEach((f,i)=>f.ordem=i+1);render();}state.draggedFrame=null;});
 
   el.dialog.addEventListener("close",async()=>{if(el.dialog.returnValue!=="confirm"||!state.pendingDelete)return;const f=state.pendingDelete;state.pendingDelete=null;setBusy(true,"Removendo...");try{state.molduras=state.molduras.filter(x=>x.id!==f.id);renumber();await saveConfig(`Remove moldura ${f.nome}`);if(el.deleteFile.checked)await removeImage(f.arquivo,`Remove imagem ${f.nome}`);render();resetForm();flash("Moldura removida.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
+
+  if (el.categoryManagerToggle) {
+    setPanelOpen(el.categoryManagerPanel, el.categoryManagerToggle, getStoredPanelState("lions-admin-category-manager-open", true), "lions-admin-category-manager-open");
+    el.categoryManagerToggle.addEventListener("click", () => setPanelOpen(el.categoryManagerPanel, el.categoryManagerToggle, !el.categoryManagerPanel.classList.contains("is-open"), "lions-admin-category-manager-open"));
+  }
+  if (el.editorToggle) {
+    setPanelOpen(el.form, el.editorToggle, getStoredPanelState("lions-admin-editor-open", true), "lions-admin-editor-open");
+    el.editorToggle.addEventListener("click", () => setPanelOpen(el.form, el.editorToggle, !el.form.classList.contains("is-open"), "lions-admin-editor-open"));
+  }
+  if (el.generateId) el.generateId.addEventListener("click", () => { el.id.value = slugify(el.name.value); updateDestination(); el.id.focus(); });
+  el.name.addEventListener("blur", () => { if (!state.editingId && !el.id.value.trim()) { el.id.value = slugify(el.name.value); updateDestination(); } });
 
   updateDestination();
 })();
