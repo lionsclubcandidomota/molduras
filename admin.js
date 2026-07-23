@@ -479,9 +479,11 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
     return url.href;
   }
   if (el.returnToSite) {
+    // O retorno principal é um link HTML nativo para ./index.html.
+    // Este listener apenas marca a navegação como intencional, evitando
+    // que o aviso de saída bloqueie o clique quando houver edição aberta.
     el.returnToSite.addEventListener("click", () => {
       state.intentionalNavigation = true;
-      window.location.assign(getPublicSiteUrl());
     });
   }
 
