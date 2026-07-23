@@ -250,8 +250,8 @@ window.MOLDURAS = [
     "ordem": 6,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "dia-d",
@@ -260,8 +260,8 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "gat",
@@ -270,8 +270,8 @@ window.MOLDURAS = [
     "ordem": 2,
     "arquivo": "assets/molduras/gat.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "get",
@@ -280,8 +280,8 @@ window.MOLDURAS = [
     "ordem": 3,
     "arquivo": "assets/molduras/get.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "glt",
@@ -290,8 +290,8 @@ window.MOLDURAS = [
     "ordem": 4,
     "arquivo": "assets/molduras/glt.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "gmt",
@@ -300,7 +300,7 @@ window.MOLDURAS = [
     "ordem": 5,
     "arquivo": "assets/molduras/gmt.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
