@@ -198,7 +198,7 @@ window.MOLDURAS = [
     "nome": "Meio Ambiente",
     "categoriaId": "causas-globais",
     "ordem": 6,
-    "arquivo": "assets/molduras/meio-ambiente.png",
+    "arquivo": "assets/molduras/meio-ambiente.webp",
     "ativo": true,
     "status": "novo",
     "statusVisivel": true
