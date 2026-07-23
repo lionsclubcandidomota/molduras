@@ -4,7 +4,7 @@
   const API_VERSION = "2022-11-28";
   const CONFIG_PATH = "molduras.js";
   const IMAGE_DIR = "assets/molduras";
-  const MAX_RETRIES = 4;
+  const MAX_RETRIES = 8;
 
   const state = {
     owner: "", repo: "", branch: "main", token: "",
@@ -47,7 +47,7 @@
     return query ? `${base}?${query}` : base;
   }
   async function api(path, options = {}) {
-    const response = await fetch(apiUrl(path), { ...options, headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, ...(options.headers || {}) } });
+    const response = await fetch(apiUrl(path), { ...options, cache: "no-store", headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, "Cache-Control": "no-cache", Pragma: "no-cache", ...(options.headers || {}) } });
     let data = null; try { data = await response.json(); } catch {}
     if (!response.ok) throw new GitHubError(data?.message || `Erro ${response.status}`, response.status);
     return data;
@@ -118,20 +118,44 @@
     el.notice.hidden = !state.dirty;
   }
 
-  async function getFile(path) { return api(`${path}?ref=${encodeURIComponent(state.branch)}`); }
+  async function getFile(path) {
+    const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return api(`${path}?ref=${encodeURIComponent(state.branch)}&_=${encodeURIComponent(nonce)}`);
+  }
   async function putFile(path, content, message, sha) { return api(path,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,content,branch:state.branch,...(sha?{sha}:{})})}); }
   async function deleteFile(path,message,sha){ return api(path,{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({message,sha,branch:state.branch})}); }
 
-  async function saveConfig(message) {
-    let last;
-    for(let attempt=1;attempt<=MAX_RETRIES;attempt++){
-      try {
-        const latest=await getFile(CONFIG_PATH);
-        await putFile(CONFIG_PATH,textToB64(serialize(state.categorias,state.molduras)),message,latest.sha);
-        state.originalSnapshot=snapshot(); state.dirty=false; updateDirtyUI(); return;
-      } catch(e){ last=e; if(!isConflict(e)||attempt===MAX_RETRIES)throw e; await wait(300*attempt); }
-    }
-    throw last;
+  let configSaveQueue = Promise.resolve();
+
+  function saveConfig(message) {
+    const content = textToB64(serialize(state.categorias, state.molduras));
+    const savedSnapshot = snapshot();
+
+    const operation = async () => {
+      let last;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          // O SHA é buscado imediatamente antes de cada PUT, sem cache.
+          const latest = await getFile(CONFIG_PATH);
+          await putFile(CONFIG_PATH, content, message, latest.sha);
+          state.originalSnapshot = savedSnapshot;
+          state.dirty = snapshot() !== savedSnapshot;
+          updateDirtyUI();
+          return;
+        } catch (e) {
+          last = e;
+          if (!isConflict(e) || attempt === MAX_RETRIES) throw e;
+          // Aguarda a API do GitHub refletir o commit mais recente e tenta novamente.
+          await wait(Math.min(5000, 450 * attempt));
+        }
+      }
+      throw last;
+    };
+
+    // Serializa alterações para impedir dois PUTs simultâneos usando o mesmo SHA.
+    const queued = configSaveQueue.then(operation, operation);
+    configSaveQueue = queued.catch(() => {});
+    return queued;
   }
   async function uploadImage(file,path,message){
     let sha; try{sha=(await getFile(path)).sha;}catch(e){if(e.status!==404)throw e;}
