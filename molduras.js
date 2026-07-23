@@ -34,66 +34,6 @@ window.CATEGORIAS = [
 
 window.MOLDURAS = [
   {
-    "id": "orgulho-de-ser-leao",
-    "nome": "Orgulho de ser Leão",
-    "categoriaId": "lions",
-    "ordem": 6,
-    "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
-    "ativo": true,
-    "status": "atualizada",
-    "statusVisivel": true
-  },
-  {
-    "id": "dia-d",
-    "nome": "Dia D",
-    "categoriaId": "lions",
-    "ordem": 1,
-    "arquivo": "assets/molduras/dia-d.png",
-    "ativo": true,
-    "status": "atualizada",
-    "statusVisivel": true
-  },
-  {
-    "id": "gmt",
-    "nome": "GMT",
-    "categoriaId": "lions",
-    "ordem": 5,
-    "arquivo": "assets/molduras/gmt.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
-  },
-  {
-    "id": "get",
-    "nome": "GET",
-    "categoriaId": "lions",
-    "ordem": 3,
-    "arquivo": "assets/molduras/get.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
-  },
-  {
-    "id": "gat",
-    "nome": "GAT",
-    "categoriaId": "lions",
-    "ordem": 2,
-    "arquivo": "assets/molduras/gat.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
-  },
-  {
-    "id": "glt",
-    "nome": "GLT",
-    "categoriaId": "lions",
-    "ordem": 4,
-    "arquivo": "assets/molduras/glt.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
-  },
-  {
     "id": "nos-vamos-ircd",
     "nome": "Nos Vamos IRCD 26/27",
     "categoriaId": "ircd-26-27",
