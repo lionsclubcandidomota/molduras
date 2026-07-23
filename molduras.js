@@ -60,7 +60,7 @@ window.MOLDURAS = [
     "ordem": 6,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
-    "status": "normal",
+    "status": "atualizada",
     "statusVisivel": true
   },
   {
@@ -170,7 +170,7 @@ window.MOLDURAS = [
     "ordem": 8,
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -180,7 +180,7 @@ window.MOLDURAS = [
     "ordem": 2,
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -190,7 +190,7 @@ window.MOLDURAS = [
     "ordem": 4,
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -200,7 +200,7 @@ window.MOLDURAS = [
     "ordem": 6,
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -210,7 +210,7 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -220,7 +220,7 @@ window.MOLDURAS = [
     "ordem": 5,
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -230,7 +230,7 @@ window.MOLDURAS = [
     "ordem": 7,
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
@@ -240,7 +240,7 @@ window.MOLDURAS = [
     "ordem": 3,
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
-    "status": "normal",
+    "status": "novo",
     "statusVisivel": true
   },
   {
