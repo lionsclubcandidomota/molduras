@@ -178,6 +178,7 @@
       .filter(Boolean)
       .forEach(el => { el.disabled = !enabled; });
 
+    if (wrap) wrap.classList.toggle('is-awaiting-photo', !enabled);
     if (emptyState) emptyState.hidden = enabled;
     if (adjustHint) adjustHint.hidden = !enabled;
     if (photoStatus) {
