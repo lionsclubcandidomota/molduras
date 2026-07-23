@@ -295,7 +295,7 @@ window.MOLDURAS = [
   },
   {
     "id": "tesoureiro-de-clube",
-    "nome": "Tesoureiro De Clube",
+    "nome": "Tesoureiro de Clube",
     "categoriaId": "cargos",
     "ordem": 10,
     "arquivo": "assets/molduras/tesoureiro-de-clube.png",
