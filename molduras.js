@@ -292,5 +292,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "meio-ambiente",
+    "nome": "Meio Ambiente",
+    "categoriaId": "causas-globais",
+    "ordem": 8,
+    "arquivo": "assets/molduras/meio-ambiente.webp",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
