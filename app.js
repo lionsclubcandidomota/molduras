@@ -318,7 +318,20 @@
   advancedPanel.addEventListener('toggle', draw);
 
   frameGallery.addEventListener('click',event=>{const favorite=event.target.closest('[data-favorite-id]');if(favorite){event.stopPropagation();toggleFavorite(favorite.dataset.favoriteId);return;}const button=event.target.closest('[data-frame-id]');if(!button)return;const frame=state.frames.find(f=>f.id===button.dataset.frameId);if(frame)selectFrame(frame);});
-  categoryFilters.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.activeCategory=button.dataset.category;categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));applyFilters();});
+  categoryFilters.addEventListener('click',event=>{
+    const button=event.target.closest('[data-category]');
+    if(!button)return;
+
+    // Ao navegar por uma categoria, sai automaticamente dos filtros pessoais.
+    // Assim Favoritas e Recentes não deixam a galeria presa em um estado oculto.
+    state.personalFilter='all';
+    favoritesFilterBtn?.classList.remove('is-active');
+    recentFilterBtn?.classList.remove('is-active');
+
+    state.activeCategory=button.dataset.category;
+    categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));
+    applyFilters();
+  });
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
 
   favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});
