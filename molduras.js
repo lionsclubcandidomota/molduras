@@ -323,7 +323,7 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 5,
     "arquivo": "assets/molduras/eu-vou-no-treinamento.png",
-    "ativo": true,
+    "ativo": false,
     "status": "novo",
     "statusVisivel": true
   }
