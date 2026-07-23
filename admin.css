@@ -301,3 +301,8 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
 .category-editor-footer .button{min-width:180px}
 .category-order-row .category-main{min-width:0}
 @media(max-width:600px){.category-editor-drawer{width:100vw;border-radius:0}.category-editor-header{flex-direction:column}.category-editor-header .button,.category-editor-footer .button{width:100%}}
+
+/* v4.8.4 — diálogos e editores */
+.delete-file-option{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#f8fbfe;line-height:1.35}.delete-file-option input[type="checkbox"]{appearance:auto!important;-webkit-appearance:checkbox!important;width:18px!important;height:18px!important;min-width:18px!important;margin:0!important;accent-color:var(--blue-700)}
+.category-editor-footer{justify-content:space-between;gap:12px}.category-editor-footer .button{min-width:0}.category-editor-footer .button.success{margin-left:auto}
+@media(max-width:600px){.category-editor-footer{flex-direction:column-reverse}.category-editor-footer .button{width:100%}}

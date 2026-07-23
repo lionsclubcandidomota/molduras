@@ -99,7 +99,10 @@
         <div class="form-section-title"><span>2</span><div><strong>Destaques</strong><small>Aplique ou remova o destaque de todas as molduras desta categoria.</small></div></div>
         <label><span>Ação para os destaques</span><select id="categoryHighlight"><option value="manter">Manter como está</option><option value="novo">Marcar todas como Novo</option><option value="atualizada">Marcar todas como Atualizada</option><option value="normal">Remover todos os destaques</option></select><small>Os prazos configurados em Controle gerencial serão aplicados ao escolher Novo ou Atualizada.</small></label>
       </div>
-      <div class="category-editor-footer"><button id="categoryEditorSave" class="button success" type="button">Aplicar alterações</button></div>
+      <div class="category-editor-footer">
+        <button id="categoryEditorDelete" class="button danger" type="button">Excluir categoria</button>
+        <button id="categoryEditorSave" class="button success" type="button">Aplicar alterações</button>
+      </div>
     </aside>
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
@@ -200,11 +203,6 @@
             </span>
           </label>
         </div>
-        <div class="schedule-grid">
-          <label><span>Disponível a partir de</span><input id="framePublishAt" type="datetime-local" /><small>Deixe vazio para disponibilizar imediatamente.</small></label>
-          <label><span>Ocultar automaticamente em</span><input id="frameHideAt" type="datetime-local" /><small>Deixe vazio para permanecer disponível sem prazo.</small></label>
-        </div>
-
         <div class="form-section-title"><span>3</span><div><strong>Imagem e prévia</strong><small>Confira o arquivo antes de publicar.</small></div></div>
         <div class="preview-area">
           <div id="filePreview" class="file-preview"><span>Prévia da moldura</span></div>
@@ -283,7 +281,7 @@
       <section class="admin-utilities collapsible-admin-panel" id="managementPanel">
         <div class="maintenance-heading">
           <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="managementBody">
-            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Durações e agendamentos</strong><small>Configure os prazos dos selos e a disponibilidade das molduras.</small></span>
+            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Duração dos destaques</strong><small>Configure por quanto tempo os selos Novo e Atualizada permanecem visíveis.</small></span>
           </button><span class="panel-summary-pill">Configurações</span>
         </div>
         <div id="managementBody" class="collapsible-panel-body" hidden>
@@ -396,8 +394,8 @@
       <p id="confirmText"></p>
       <label class="delete-file-option"><input id="deleteImageFile" type="checkbox" checked /> Apagar também o arquivo de imagem do repositório</label>
       <div class="dialog-actions">
-        <button value="cancel" class="button light">Cancelar</button>
-        <button id="confirmDeleteBtn" value="confirm" class="button danger">Remover</button>
+        <button type="submit" value="cancel" class="button light">Cancelar</button>
+        <button id="confirmDeleteBtn" type="submit" value="confirm" class="button danger">Remover</button>
       </div>
     </form>
   </dialog>

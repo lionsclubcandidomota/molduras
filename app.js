@@ -46,6 +46,7 @@
   const STORAGE_KEY = 'lions-molduras-editor-v13';
   const FAVORITES_KEY = 'lions-molduras-favoritas';
   const RECENTS_KEY = 'lions-molduras-recentes';
+  const PUBLIC_CONFIG = window.CONFIGURACOES || {};
   const favoritesFilterBtn = $('favoritesFilterBtn');
   const recentFilterBtn = $('recentFilterBtn');
   const restoreNotice = $('restoreNotice');
@@ -70,9 +71,28 @@
   const slug = value => normalizeSearchText(value).replace(/\s+/g, '-');
   const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value)));
   const categoryName = frame => state.categories.find(c => c.id === frame.categoriaId)?.nome || frame.categoriaNome || frame.categoria || 'Outras';
-  const statusOf = frame => frame.statusVisivel === false ? 'normal' : (['novo','atualizada'].includes(frame.status) ? frame.status : frame.novo ? 'novo' : 'normal');
+  const toTime = value => { const time = value ? Date.parse(value) : NaN; return Number.isFinite(time) ? time : null; };
+  const durationMs = (value, unit) => Math.max(0, Number(value) || 0) * (unit === 'horas' ? 3600000 : 86400000);
+  const isFrameAvailable = (frame, now = Date.now()) => {
+    if (frame.ativo === false) return false;
+    const publishAt = toTime(frame.publicarEm);
+    const hideAt = toTime(frame.ocultarEm);
+    return !(publishAt && now < publishAt) && !(hideAt && now >= hideAt);
+  };
+  const statusOf = frame => {
+    if (frame.statusVisivel === false) return 'normal';
+    const status = ['novo','atualizada'].includes(frame.status) ? frame.status : frame.novo ? 'novo' : 'normal';
+    if (status === 'normal') return status;
+    const explicitEnd = toTime(frame.statusAte);
+    if (explicitEnd && Date.now() >= explicitEnd) return 'normal';
+    if (!explicitEnd && frame.statusDesde) {
+      const cfg = status === 'novo' ? PUBLIC_CONFIG.duracaoNovo : PUBLIC_CONFIG.duracaoAtualizada;
+      const start = toTime(frame.statusDesde);
+      if (start && cfg && Date.now() >= start + durationMs(cfg.valor, cfg.unidade)) return 'normal';
+    }
+    return status;
+  };
   const statusLabel = status => status === 'novo' ? 'NOVO' : status === 'atualizada' ? 'ATUALIZADA' : '';
-
   function readJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || '') || fallback; } catch { return fallback; } }
   function savePersonalLists() {
     try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...state.favorites])); localStorage.setItem(RECENTS_KEY, JSON.stringify(state.recents.slice(0,12))); } catch {}
@@ -100,7 +120,7 @@
     const rawCategories = Array.isArray(window.CATEGORIAS) ? window.CATEGORIAS : [];
     const rawFrames = Array.isArray(window.MOLDURAS) ? window.MOLDURAS : [];
     state.categories = rawCategories.filter(c => c && c.ativo !== false).map((c,i) => ({id:String(c.id || slug(c.nome) || `categoria-${i+1}`), nome:String(c.nome || 'Outras'), ordem:Number(c.ordem) || i+1})).sort((a,b)=>a.ordem-b.ordem);
-    state.frames = rawFrames.filter(f => f && f.ativo !== false && f.id && f.nome && (f.arquivo || f.imagem || f.src)).map((f,i) => ({...f, arquivo:f.arquivo || f.imagem || f.src, categoriaId:String(f.categoriaId || ''), ordem:Number(f.ordem) || i+1}));
+    state.frames = rawFrames.filter(f => f && isFrameAvailable(f) && f.id && f.nome && (f.arquivo || f.imagem || f.src)).map((f,i) => ({...f, arquivo:f.arquivo || f.imagem || f.src, categoriaId:String(f.categoriaId || ''), ordem:Number(f.ordem) || i+1}));
     const byId = new Map(state.categories.map(c => [c.id,c]));
     const byName = new Map(state.categories.map(c => [c.nome.toLowerCase(),c]));
     state.frames.forEach(frame => {
@@ -345,7 +365,7 @@
   function makeBlob(){return new Promise((resolve,reject)=>{draw();canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Falha ao gerar a imagem.')),'image/png');});}
   function filename(){return `foto-${slug(state.selectedFrame?.nome)||'moldura-lions'}.png`;}
   async function downloadImage(){if(!state.photo)return;const text=downloadBtn.innerHTML;downloadBtn.disabled=true;mobileDownloadBtn.disabled=true;downloadBtn.textContent='Gerando…';try{const blob=await makeBlob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}catch(e){alert(e.message);}finally{downloadBtn.disabled=false;mobileDownloadBtn.disabled=false;downloadBtn.innerHTML=text;}}
-  async function shareImage(){if(!state.photo)return;try{const blob=await makeBlob(),file=new File([blob],filename(),{type:'image/png'});if(navigator.canShare?.({files:[file]}))await navigator.share({files:[file],title:'Minha foto com moldura do Lions'});else await downloadImage();}catch(e){if(e.name!=='AbortError')await downloadImage();}}
+  async function shareImage(){if(!state.photo)return;try{const blob=await makeBlob(),file=new File([blob],filename(),{type:'image/png'});if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Minha foto com moldura do Lions'});}else await downloadImage();}catch(e){if(e.name!=='AbortError')await downloadImage();}}
   downloadBtn.addEventListener('click',downloadImage);mobileDownloadBtn.addEventListener('click',downloadImage);shareBtn.addEventListener('click',shareImage);
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}
