@@ -262,5 +262,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "atualizada",
     "statusVisivel": true
+  },
+  {
+    "id": "gmt",
+    "nome": "GMT",
+    "categoriaId": "cargos",
+    "ordem": 11,
+    "arquivo": "assets/molduras/gmt.png",
+    "ativo": true,
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
