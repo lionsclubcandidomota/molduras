@@ -272,5 +272,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "get",
+    "nome": "GET",
+    "categoriaId": "lions",
+    "ordem": 4,
+    "arquivo": "assets/molduras/get.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
