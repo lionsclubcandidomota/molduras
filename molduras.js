@@ -1,26 +1,26 @@
 // Gerenciado pelo Painel de Molduras Lions v5
 window.CATEGORIAS = [
   {
+    "id": "ircd-26-27",
+    "nome": "IRCD 26/27",
+    "ordem": 1,
+    "ativo": true
+  },
+  {
     "id": "cargos",
     "nome": "Cargos de Clube",
-    "ordem": 1,
+    "ordem": 2,
     "ativo": true
   },
   {
     "id": "causas-globais",
     "nome": "Causas Globais",
-    "ordem": 2,
+    "ordem": 3,
     "ativo": true
   },
   {
     "id": "aniversario",
     "nome": "Feliz Aniversário",
-    "ordem": 3,
-    "ativo": true
-  },
-  {
-    "id": "ircd-26-27",
-    "nome": "IRCD 26/27",
     "ordem": 4,
     "ativo": true
   },
