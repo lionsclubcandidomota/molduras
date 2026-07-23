@@ -1,4 +1,4 @@
-// Gerenciado pelo Painel de Molduras Lions v8
+// Gerenciado pelo Painel de Molduras Lions v10
 window.CATEGORIAS = [
   {
     "id": "ircd-26-27",
@@ -313,6 +313,16 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 4,
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "eu-vou-no-treinamento",
+    "nome": "Eu vou no treinamento",
+    "categoriaId": "ircd-26-27",
+    "ordem": 5,
+    "arquivo": "assets/molduras/eu-vou-no-treinamento.png",
     "ativo": true,
     "status": "novo",
     "statusVisivel": true
