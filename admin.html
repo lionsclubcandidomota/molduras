@@ -17,7 +17,7 @@
         <p>Gerencie molduras, categorias, destaques e a ordem de exibição em um só lugar.</p>
       </div>
       <div class="hero-actions">
-        <a id="returnToSiteBtn" class="site-link" href="./" aria-label="Voltar ao site principal">← Voltar ao site</a>
+        <button id="returnToSiteBtn" class="site-link site-link-button return-site-button" type="button" aria-label="Voltar ao site principal">← Voltar ao site</button>
         <button id="scrollTopBtn" class="site-link site-link-button" type="button" hidden>↑ Topo</button>
       </div>
     </header>
@@ -61,16 +61,16 @@
     </section>
 
     <section class="admin-quick-nav" id="adminQuickNav" hidden aria-label="Atalhos do painel">
-      <a href="#frameForm">＋ Nova moldura</a>
-      <a href="#bulkUploadPanel">▦ Inclusão em lote</a>
-      <a href="#categoryManagerPanel">☰ Categorias</a>
-      <a href="#framesSection">▣ Molduras cadastradas</a>
+      <button type="button" data-admin-mode="single">🖼️ Nova moldura</button>
+      <button type="button" data-admin-mode="bulk">📚 Inclusão em lote</button>
+      <a href="#categoryManagerPanel">🗂️ Categorias</a>
+      <a href="#framesSection">🎞️ Molduras cadastradas</a>
     </section>
 
     <section class="card" id="managerCard" hidden>
       <div class="heading-row">
         <div>
-          <span class="step">Biblioteca</span>
+          <span class="step">🎛️ Biblioteca</span>
           <h2>Gerenciar conteúdo</h2>
         </div>
         <button id="refreshBtn" class="button light" type="button">↻ Atualizar lista</button>
@@ -85,13 +85,34 @@
         <div class="summary-card"><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
       </div>
 
+      <section class="creation-mode-switch" aria-label="Escolha o tipo de inclusão">
+        <div class="creation-mode-intro">
+          <span class="step">Adicionar conteúdo</span>
+          <h3>Como você deseja incluir as molduras?</h3>
+          <p>Escolha um modo por vez. Isso mantém a tela organizada e reduz erros durante o cadastro.</p>
+        </div>
+        <div class="creation-mode-options" role="tablist" aria-label="Modo de inclusão">
+          <button id="singleModeBtn" class="creation-mode-card is-active" type="button" role="tab" aria-selected="true" aria-controls="frameForm">
+            <span class="mode-icon">🖼️</span>
+            <span><strong>Moldura avulsa</strong><small>Cadastre ou edite uma moldura por vez.</small></span>
+            <span class="mode-check">✓</span>
+          </button>
+          <button id="bulkModeBtn" class="creation-mode-card" type="button" role="tab" aria-selected="false" aria-controls="bulkUploadPanel">
+            <span class="mode-icon">📚</span>
+            <span><strong>Inclusão em lote</strong><small>Envie e revise várias imagens de uma só vez.</small></span>
+            <span class="mode-check">✓</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="singleModeContainer" class="creation-mode-content is-active">
       <form id="frameForm" class="editor-panel is-open">
         <input id="editingOriginalId" type="hidden" />
         <div class="editor-heading editor-toggle-heading">
           <button id="editorToggleBtn" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="editorBody">
             <span class="section-chevron">›</span>
             <span>
-              <span class="step">Nova moldura / edição</span>
+              <span class="step">🖼️ Moldura avulsa / edição</span>
               <strong id="formTitle">Adicionar nova moldura</strong>
               <small>Cadastre uma moldura ou altere informações já existentes.</small>
             </span>
@@ -159,15 +180,15 @@
         </div>
         </div>
       </form>
+      </div>
 
-
-
+      <div id="bulkModeContainer" class="creation-mode-content" hidden>
       <section id="bulkUploadPanel" class="bulk-upload-panel collapsible-admin-panel is-open" aria-labelledby="bulkUploadTitle">
         <div class="editor-heading bulk-toggle-heading">
           <button id="bulkUploadToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="bulkUploadBody">
             <span class="section-chevron">›</span>
             <span>
-              <span class="step">Inclusão em lote</span>
+              <span class="step">📚 Inclusão em lote</span>
               <strong id="bulkUploadTitle">Adicionar várias molduras</strong>
               <small>Selecione diversos arquivos, revise os dados e publique tudo de uma vez.</small>
             </span>
@@ -205,10 +226,11 @@
         </div>
         </div>
       </section>
+      </div>
 
       <section id="framesSection" class="frames-section"><div class="list-heading">
         <div>
-          <h3>Molduras cadastradas</h3>
+          <h3>🎞️ Molduras cadastradas</h3>
           <p id="frameCount">0 molduras</p>
         </div>
         <div class="search-control">

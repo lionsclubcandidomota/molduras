@@ -9,7 +9,7 @@
   const state = {
     owner: "", repo: "", branch: "main", token: "",
     categorias: [], molduras: [], originalSnapshot: "",
-    busy: false, dirty: false, editingId: "", pendingDelete: null,
+    busy: false, dirty: false, editingId: "", pendingDelete: null, intentionalNavigation: false,
     draggedCategory: null, draggedFrame: null,
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
   };
@@ -31,6 +31,7 @@
     returnToSite: $("returnToSiteBtn"), quickNav: $("adminQuickNav"), scrollTop: $("scrollTopBtn"), clearSearch: $("clearSearchBtn"),
     bulkUploadPanel: $("bulkUploadPanel"), bulkUploadToggle: $("bulkUploadToggle"), bulkUploadSummary: $("bulkUploadSummary"),
     busyOverlay: $("pageBusyOverlay"), busyText: $("pageBusyText"),
+    singleModeBtn: $("singleModeBtn"), bulkModeBtn: $("bulkModeBtn"), singleModeContainer: $("singleModeContainer"), bulkModeContainer: $("bulkModeContainer"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -437,7 +438,7 @@
       const shouldCollapse=section.classList.contains("is-open");
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
-    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");if(el.editorModeHint)el.editorModeHint.textContent="Modo de edição — alterações serão publicadas no GitHub";setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");if(el.editorModeHint)el.editorModeHint.textContent="Modo de edição — alterações serão publicadas no GitHub";setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 
@@ -467,13 +468,42 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   el.name.addEventListener("blur", () => { if (!state.editingId && !el.id.value.trim()) { el.id.value = slugify(el.name.value); updateDestination(); } });
 
 
-  // v9 — navegação confiável e atalhos de produtividade
-  if (el.returnToSite) {
-    const siteUrl = new URL("./", window.location.href);
-    siteUrl.search = "";
-    siteUrl.hash = "";
-    el.returnToSite.href = siteUrl.href;
+  // v9.2 — navegação confiável e modos de inclusão separados
+  function getPublicSiteUrl() {
+    const url = new URL(window.location.href);
+    url.search = "";
+    url.hash = "";
+    const parts = url.pathname.split("/").filter(Boolean);
+    if (parts.length && /^(admin|painel)(?:[-_.].*)?(?:\.html?)?$/i.test(parts[parts.length - 1])) parts.pop();
+    url.pathname = `/${parts.join("/")}${parts.length ? "/" : ""}`;
+    return url.href;
   }
+  if (el.returnToSite) {
+    el.returnToSite.addEventListener("click", () => {
+      state.intentionalNavigation = true;
+      window.location.assign(getPublicSiteUrl());
+    });
+  }
+
+  function setCreationMode(mode, options = {}) {
+    const bulk = mode === "bulk";
+    if (el.singleModeContainer) { el.singleModeContainer.hidden = bulk; el.singleModeContainer.classList.toggle("is-active", !bulk); }
+    if (el.bulkModeContainer) { el.bulkModeContainer.hidden = !bulk; el.bulkModeContainer.classList.toggle("is-active", bulk); }
+    if (el.singleModeBtn) { el.singleModeBtn.classList.toggle("is-active", !bulk); el.singleModeBtn.setAttribute("aria-selected", String(!bulk)); }
+    if (el.bulkModeBtn) { el.bulkModeBtn.classList.toggle("is-active", bulk); el.bulkModeBtn.setAttribute("aria-selected", String(bulk)); }
+    try { localStorage.setItem("lions-admin-creation-mode", bulk ? "bulk" : "single"); } catch {}
+    if (options.scroll !== false) {
+      const target = bulk ? el.bulkModeContainer : el.singleModeContainer;
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  let initialCreationMode = "single";
+  try { initialCreationMode = localStorage.getItem("lions-admin-creation-mode") === "bulk" ? "bulk" : "single"; } catch {}
+  setCreationMode(initialCreationMode, { scroll: false });
+  el.singleModeBtn?.addEventListener("click", () => setCreationMode("single"));
+  el.bulkModeBtn?.addEventListener("click", () => setCreationMode("bulk"));
+  document.querySelectorAll("[data-admin-mode]").forEach(button => button.addEventListener("click", () => setCreationMode(button.dataset.adminMode)));
+
   if (el.scrollTop) {
     const updateScrollButton = () => { el.scrollTop.hidden = window.scrollY < 500; };
     window.addEventListener("scroll", updateScrollButton, { passive: true });
@@ -493,6 +523,7 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   if (el.clearBulk) el.clearBulk.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   window.addEventListener("beforeunload", event => {
+    if (state.intentionalNavigation) return;
     if (!state.dirty && !state.editingId && !state.bulkFiles.length) return;
     event.preventDefault();
     event.returnValue = "";
