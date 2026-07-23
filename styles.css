@@ -199,3 +199,99 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .gallery-toolbar{margin:0 0 20px!important;padding:12px!important;border-radius:16px!important}
   .category-strip{margin-right:0!important}
 }
+
+/* =========================================================
+   V3.2 — benefícios informativos e comparação acessível
+   ========================================================= */
+.benefit-grid{display:none!important}
+.benefit-list{
+  list-style:none;
+  padding:0;
+  margin:30px auto 0;
+  max-width:850px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px 0;
+  color:#e8f3ff;
+}
+.benefit-list li{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:3px 20px;
+  min-width:0;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  cursor:default;
+  position:relative;
+}
+.benefit-list li+li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  width:1px;
+  height:24px;
+  background:rgba(255,255,255,.28);
+}
+.benefit-list span{font-size:1.05rem;line-height:1}
+.benefit-list strong{font-size:.88rem;color:#fff;white-space:nowrap}
+.benefit-list small{font-size:.78rem;color:#cfe3f8;white-space:nowrap}
+
+.compare-panel{
+  padding:14px!important;
+  gap:12px!important;
+  background:#f6f9fd!important;
+}
+.compare-copy{min-width:0}
+.compare-tool{
+  min-height:46px;
+  padding:10px 14px!important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.compare-tool span{display:inline!important;font-size:1.2rem!important}
+.compare-tool b{font-size:.78rem}
+
+@media(max-width:760px){
+  .benefit-list{
+    max-width:360px;
+    margin-top:25px;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:8px;
+  }
+  .benefit-list li{
+    width:100%;
+    padding:2px 0;
+    display:grid;
+    grid-template-columns:28px auto 1fr;
+    gap:6px;
+  }
+  .benefit-list li+li::before{display:none}
+  .benefit-list span{text-align:center}
+  .benefit-list strong{font-size:.86rem}
+  .benefit-list small{font-size:.75rem;white-space:normal}
+
+  .advanced-content{padding:12px!important;gap:12px!important}
+  .compare-panel{
+    order:-10;
+    padding:10px!important;
+    gap:8px!important;
+    border-radius:13px!important;
+  }
+  .compare-copy small{display:none}
+  .compare-copy strong{font-size:.82rem}
+  .compare-tool{
+    width:100%;
+    min-height:52px;
+    border-color:#bfcfe1!important;
+    background:#fff!important;
+    font-size:.9rem!important;
+  }
+  .compare-tool b{font-size:.88rem}
+}

@@ -37,20 +37,11 @@
             <a class="button primary large" href="#galeria">Começar agora</a>
             <button class="button ghost large" id="heroHelpBtn" type="button">Ver como funciona</button>
           </div>
-          <div class="benefit-grid" aria-label="Vantagens do gerador">
-            <article class="benefit-card">
-              <span class="benefit-icon device-icons" aria-hidden="true"><i>📱</i><i>💻</i></span>
-              <div><strong>Celular e computador</strong><small>Use também em tablets</small></div>
-            </article>
-            <article class="benefit-card">
-              <span class="benefit-icon" aria-hidden="true">⚡</span>
-              <div><strong>Sem cadastro</strong><small>Comece na mesma hora</small></div>
-            </article>
-            <article class="benefit-card">
-              <span class="benefit-icon" aria-hidden="true">🎨</span>
-              <div><strong>Fácil de personalizar</strong><small>Ajustes simples e rápidos</small></div>
-            </article>
-          </div>
+          <ul class="benefit-list" aria-label="Vantagens do gerador">
+            <li><span aria-hidden="true">📱💻</span><strong>Celular e computador</strong><small>também funciona em tablets</small></li>
+            <li><span aria-hidden="true">⚡</span><strong>Sem cadastro</strong><small>comece na mesma hora</small></li>
+            <li><span aria-hidden="true">🎨</span><strong>Fácil de personalizar</strong><small>com ajustes simples e rápidos</small></li>
+          </ul>
         </div>
       </div>
     </section>
@@ -135,8 +126,8 @@
               <summary><span><b>🎛️ Ajustes avançados</b><small>Filtros e ajustes de imagem</small></span><i>⌄</i></summary>
               <div class="advanced-content">
                 <div class="compare-panel">
-                  <div><strong>Comparar filtros</strong><small>Pressione e segure para visualizar a foto sem os filtros aplicados.</small></div>
-                  <button class="tool-button compare-tool" id="compareBtn" type="button" disabled><span>◐</span> Antes / Depois</button>
+                  <div class="compare-copy"><strong>Antes e depois dos filtros</strong><small>Pressione e segure o botão para comparar.</small></div>
+                  <button class="tool-button compare-tool" id="compareBtn" type="button" disabled><span>◐</span><b>Pressione para ver o antes</b></button>
                 </div>
 
                 <div class="filter-presets" id="filterPresets" aria-label="Filtros rápidos">
