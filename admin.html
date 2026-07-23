@@ -67,6 +67,8 @@
       <a href="#framesSection">🎞️ Molduras cadastradas</a>
     </section>
 
+    <div id="pendingChangesBar" class="pending-changes-bar" hidden><div><strong>Alterações pendentes</strong><small>Revise e publique para não perder seu trabalho.</small></div><button id="publishPendingBtn" class="button primary" type="button">Publicar alterações</button></div>
+    <div id="editorBackdrop" class="editor-backdrop" hidden></div>
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
         <div>
@@ -125,19 +127,19 @@
         <div class="form-grid enhanced-fields">
           <label>
             <span>Nome exibido</span>
-            <input id="frameName" required placeholder="Ex.: Nós vamos na I RCD" />
+            <input id="frameName" required placeholder="Ex.: Nós vamos na I RCD" aria-describedby="frameNameError" /><small class="field-error" id="frameNameError"></small>
           </label>
           <label>
             <span>Identificador <em>URL</em></span>
             <div class="input-action compact-action">
-              <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" />
+              <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" aria-describedby="frameIdError" /><small class="field-error" id="frameIdError"></small>
               <button id="generateIdBtn" class="small-button" type="button" title="Gerar pelo nome">Gerar</button>
             </div>
             <small>Usado no link direto da moldura. Somente letras minúsculas, números e hífens.</small>
           </label>
           <label>
             <span>Categoria</span>
-            <input id="frameCategory" required list="categoryList" placeholder="Eventos" />
+            <input id="frameCategory" required list="categoryList" placeholder="Eventos" aria-describedby="frameCategoryError" /><small class="field-error" id="frameCategoryError"></small>
             <datalist id="categoryList"></datalist>
           </label>
           <label>

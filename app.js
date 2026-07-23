@@ -43,12 +43,20 @@
   const saturationRange = $('saturationRange');
   const warmthRange = $('warmthRange');
   const ROTATION_SNAP = 3;
+  const STORAGE_KEY = 'lions-molduras-editor-v13';
+  const FAVORITES_KEY = 'lions-molduras-favoritas';
+  const RECENTS_KEY = 'lions-molduras-recentes';
+  const favoritesFilterBtn = $('favoritesFilterBtn');
+  const recentFilterBtn = $('recentFilterBtn');
+  const restoreNotice = $('restoreNotice');
+  const dismissRestoreBtn = $('dismissRestoreBtn');
 
   const state = {
-    categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', selectedFrame: null,
+    categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
     brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
-    pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1
+    pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1,
+    favorites: new Set(), recents: [], history: [], future: [], comparing: false
   };
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -64,6 +72,29 @@
   const categoryName = frame => state.categories.find(c => c.id === frame.categoriaId)?.nome || frame.categoriaNome || frame.categoria || 'Outras';
   const statusOf = frame => frame.statusVisivel === false ? 'normal' : (['novo','atualizada'].includes(frame.status) ? frame.status : frame.novo ? 'novo' : 'normal');
   const statusLabel = status => status === 'novo' ? 'NOVO' : status === 'atualizada' ? 'ATUALIZADA' : '';
+
+  function readJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || '') || fallback; } catch { return fallback; } }
+  function savePersonalLists() {
+    try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...state.favorites])); localStorage.setItem(RECENTS_KEY, JSON.stringify(state.recents.slice(0,12))); } catch {}
+  }
+  function saveEditorState() {
+    if (!state.selectedFrame) return;
+    const data = { frameId: state.selectedFrame.id, activeCategory: state.activeCategory, transform: transformSnapshot(), savedAt: Date.now() };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+  }
+  let saveTimer = 0;
+  function scheduleSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveEditorState, 180); }
+  function restoreEditorState() {
+    const saved = readJson(STORAGE_KEY, null); if (!saved?.frameId) return false;
+    const frame = state.frames.find(f => f.id === saved.frameId); if (!frame) return false;
+    selectFrame(frame, false, false);
+    if (saved.transform) Object.assign(state, saved.transform);
+    updateTransformControls(); updateFilterOutputs();
+    if (restoreNotice) restoreNotice.hidden = false;
+    return true;
+  }
+  function toggleFavorite(id) { state.favorites.has(id) ? state.favorites.delete(id) : state.favorites.add(id); savePersonalLists(); renderFrames(); }
+  function addRecent(id) { state.recents = [id, ...state.recents.filter(x => x !== id)].slice(0,12); savePersonalLists(); }
 
   function normalizeData() {
     const rawCategories = Array.isArray(window.CATEGORIAS) ? window.CATEGORIAS : [];
@@ -106,6 +137,7 @@
 
     state.filteredFrames = state.frames.filter(frame => {
       const inCategory = state.activeCategory === 'todas' || frame.categoriaId === state.activeCategory;
+      const inPersonal = state.personalFilter === 'favorites' ? state.favorites.has(frame.id) : state.personalFilter === 'recent' ? state.recents.includes(frame.id) : true;
       const searchableText = normalizeSearchText([
         frame.nome,
         categoryName(frame),
@@ -115,7 +147,7 @@
       ].join(' '));
 
       const matchesSearch = !queryTerms.length || queryTerms.every(term => searchableText.includes(term));
-      return inCategory && matchesSearch;
+      return inCategory && inPersonal && matchesSearch;
     });
     renderFrames();
   }
@@ -127,12 +159,12 @@
     frameMessage.hidden = true;
     const categories = state.activeCategory === 'todas' ? state.categories : state.categories.filter(c => c.id === state.activeCategory);
     frameGallery.innerHTML = categories.map(category => {
-      const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b)=>a.ordem-b.ordem);
+      const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b)=> state.personalFilter === 'recent' ? state.recents.indexOf(a.id)-state.recents.indexOf(b.id) : a.ordem-b.ordem);
       if (!frames.length) return '';
       const status = categoryStatus(category.id);
       return `<section class="frame-group"><div class="frame-group-header"><div><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div><b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b></div><div class="frame-grid">${frames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id; const frameStatus = statusOf(frame);
-        return `<button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button>`;
+        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'♥':'♡'}</button></div>`;
       }).join('')}</div></section>`;
     }).join('');
   }
@@ -178,12 +210,14 @@
     updateProgress();
   }
 
-  function selectFrame(frame, scroll=true) {
+  function selectFrame(frame, scroll=true, trackRecent=true) {
     state.selectedFrame = frame;
+    if (trackRecent) addRecent(frame.id);
     selectedFrameName.textContent = `✓ ${frame.nome}`;
     loadFrame(frame.arquivo);
     renderFrames(); setFrameReady(true);
     const url = new URL(location.href); url.searchParams.set('moldura',frame.id); history.replaceState({},'',url);
+    scheduleSave();
     if (scroll) $('editor').scrollIntoView({behavior:'smooth',block:'start'});
   }
 
@@ -232,6 +266,7 @@
     if(state.comparing){const keep={brightness:state.brightness,contrast:state.contrast,saturation:state.saturation,warmth:state.warmth,grayscale:state.grayscale,hue:state.hue};Object.assign(state,{brightness:100,contrast:100,saturation:100,warmth:0,grayscale:0,hue:0});drawPhotoLayer();Object.assign(state,keep);}else drawPhotoLayer();
     ctx.drawImage(photoLayer, 0, 0);
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
+    if (state.selectedFrame) scheduleSave();
   }
 
   function updateFilterOutputs() {
@@ -282,9 +317,13 @@
   resetFiltersBtn.addEventListener('click',resetAdvanced);
   advancedPanel.addEventListener('toggle', draw);
 
-  frameGallery.addEventListener('click',event=>{const button=event.target.closest('[data-frame-id]');if(!button)return;const frame=state.frames.find(f=>f.id===button.dataset.frameId);if(frame)selectFrame(frame);});
+  frameGallery.addEventListener('click',event=>{const favorite=event.target.closest('[data-favorite-id]');if(favorite){event.stopPropagation();toggleFavorite(favorite.dataset.favoriteId);return;}const button=event.target.closest('[data-frame-id]');if(!button)return;const frame=state.frames.find(f=>f.id===button.dataset.frameId);if(frame)selectFrame(frame);});
   categoryFilters.addEventListener('click',event=>{const button=event.target.closest('[data-category]');if(!button)return;state.activeCategory=button.dataset.category;categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));applyFilters();});
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
+
+  favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});
+  recentFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='recent'?'all':'recent';recentFilterBtn.classList.toggle('is-active',state.personalFilter==='recent');favoritesFilterBtn?.classList.remove('is-active');applyFilters();});
+  dismissRestoreBtn?.addEventListener('click',()=>{restoreNotice.hidden=true;});
 
   function canvasPoint(event){const rect=canvas.getBoundingClientRect();return{x:(event.clientX-rect.left)*1080/rect.width,y:(event.clientY-rect.top)*1080/rect.height};}
   wrap.addEventListener('pointerdown',event=>{if(!state.photo)return;wrap.setPointerCapture(event.pointerId);const p=canvasPoint(event);state.pointers.set(event.pointerId,p);if(state.pointers.size===1)state.lastPointer=p;if(state.pointers.size===2){const[a,b]=[...state.pointers.values()];state.pinchDistance=Math.hypot(b.x-a.x,b.y-a.y);state.pinchScale=state.scale;}});
@@ -302,7 +341,7 @@
   $('openHelpBtn').addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
 
   function init(){
-    try{normalizeData();if(!state.frames.length)throw new Error('Nenhuma moldura ativa encontrada.');buildCategories();applyFilters();const requested=new URLSearchParams(location.search).get('moldura');const frame=requested?state.frames.find(f=>f.id===requested):null;if(frame)selectFrame(frame,false);else setFrameReady(false);}catch(error){console.error(error);frameMessage.hidden=false;frameMessage.textContent='Não foi possível carregar as molduras. Confira o arquivo molduras.js.';selectedFrameName.textContent='Erro ao carregar';}
+    try{normalizeData();state.favorites=new Set(readJson(FAVORITES_KEY,[]));state.recents=readJson(RECENTS_KEY,[]);if(!state.frames.length)throw new Error('Nenhuma moldura ativa encontrada.');buildCategories();applyFilters();const requested=new URLSearchParams(location.search).get('moldura');const frame=requested?state.frames.find(f=>f.id===requested):null;if(frame)selectFrame(frame,false);else if(!restoreEditorState())setFrameReady(false);}catch(error){console.error(error);frameMessage.hidden=false;frameMessage.textContent='Não foi possível carregar as molduras. Confira o arquivo molduras.js.';selectedFrameName.textContent='Erro ao carregar';}
     updateTransformControls();updateFilterOutputs();setPhotoEnabled(false);draw();
   }
   init();

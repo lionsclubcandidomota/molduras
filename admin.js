@@ -33,6 +33,8 @@
     busyOverlay: $("pageBusyOverlay"), busyText: $("pageBusyText"),
     singleModeBtn: $("singleModeBtn"), bulkModeBtn: $("bulkModeBtn"), singleModeContainer: $("singleModeContainer"), bulkModeContainer: $("bulkModeContainer"),
     diagnoseBtn: $("diagnoseBtn"), exportBackupBtn: $("exportBackupBtn"), importBackupInput: $("importBackupInput"), historyBtn: $("historyBtn"), utilityResult: $("utilityResult"),
+    pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), editorBackdrop: $("editorBackdrop"),
+    nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -137,6 +139,8 @@
     el.saveOrder.disabled = state.busy || !state.dirty;
     el.cancelOrder.disabled = state.busy || !state.dirty;
     el.notice.hidden = !state.dirty;
+    if(el.pendingBar) el.pendingBar.hidden = !state.dirty;
+    if(el.publishPending) el.publishPending.disabled = state.busy || !state.dirty;
   }
 
   async function getFile(path) {
@@ -279,12 +283,25 @@
   async function load(){
     const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false;if(el.quickNav)el.quickNav.hidden=false; status("Conectado","ok");
   }
-  function resetForm(){state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
+  function resetForm(){document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
   function categoryFromInput(name){
     const clean=String(name).trim(); let cat=state.categorias.find(c=>c.nome.toLowerCase()===clean.toLowerCase());
     if(!cat){cat={id:slugify(clean)||`categoria-${state.categorias.length+1}`,nome:clean,ordem:state.categorias.length+1,ativo:true};state.categorias.push(cat);} return cat;
   }
+
+  function setFieldError(input, output, message){ if(!input||!output)return; output.textContent=message||""; input.classList.toggle("is-invalid",Boolean(message)); input.setAttribute("aria-invalid",String(Boolean(message))); }
+  function validateFrameForm(){
+    const name=el.name.value.trim(), id=slugify(el.id.value), category=el.category.value.trim();
+    const duplicate=state.molduras.some(f=>f.id===id && f.id!==state.editingId);
+    setFieldError(el.name,el.nameError,name.length<3?"Informe um nome com pelo menos 3 caracteres.":"");
+    setFieldError(el.id,el.idError,!id?"Informe um identificador.":duplicate?"Este identificador já está sendo usado.":el.id.value!==id?"Use apenas letras minúsculas, números e hífens.":"");
+    setFieldError(el.category,el.categoryError,!category?"Escolha ou informe uma categoria.":"");
+    const valid=name.length>=3 && id && !duplicate && el.id.value===id && category;
+    if(el.save)el.save.disabled=state.busy||!valid;
+    return Boolean(valid);
+  }
+  [el.name,el.id,el.category].forEach(input=>input?.addEventListener("input",validateFrameForm));
 
   el.formConnect.addEventListener("submit",async e=>{e.preventDefault();state.owner=el.owner.value.trim();state.repo=el.repo.value.trim();state.branch=el.branch.value.trim();state.token=el.token.value.trim();setBusy(true,"Conectando...");try{await load();flash("Dados carregados. O formato antigo será migrado ao salvar.","success");}catch(err){status("Erro","error");flash(err.message,"error");}finally{setBusy(false);if(!el.manager.hidden)status("Conectado","ok");}});
   el.toggleToken.addEventListener("click",()=>{el.token.type=el.token.type==="password"?"text":"password";el.toggleToken.textContent=el.token.type==="password"?"Mostrar":"Ocultar";});
@@ -440,7 +457,7 @@
       const shouldCollapse=section.classList.contains("is-open");
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
-    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");if(el.editorModeHint)el.editorModeHint.textContent="Modo de edição — alterações serão publicadas no GitHub";setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");document.body.classList.add("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=false;validateFrameForm();if(el.editorModeHint)el.editorModeHint.textContent="Modo de edição — alterações serão publicadas no GitHub";setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 
@@ -529,6 +546,10 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   if (el.bulkFiles) el.bulkFiles.addEventListener("change", () => setTimeout(updateBulkSummary, 0));
   if (el.clearBulk) el.clearBulk.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
+  el.publishPending?.addEventListener("click",()=>el.saveOrder?.click());
+  el.editorBackdrop?.addEventListener("click",()=>{if(!state.busy)resetForm();});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.body.classList.contains("editor-drawer-open")&&!state.busy)resetForm();});
+
   window.addEventListener("beforeunload", event => {
     if (state.intentionalNavigation) return;
     if (!state.dirty && !state.editingId && !state.bulkFiles.length) return;
