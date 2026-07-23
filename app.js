@@ -99,7 +99,17 @@
       buildCategories();
       applyFilters();
       const requested = new URLSearchParams(location.search).get('moldura');
-      selectFrame(state.frames.find(f => f.id === requested) || state.frames[0], false);
+      const requestedFrame = requested
+        ? state.frames.find(frame => frame.id === requested)
+        : null;
+
+      // Nenhuma moldura é selecionada automaticamente.
+      // Um deep link válido (?moldura=id) continua funcionando quando usado.
+      if (requestedFrame) {
+        selectFrame(requestedFrame, false);
+      } else {
+        clearFrameSelection();
+      }
     } catch (error) {
       console.error(error);
       frameMessage.hidden = false;
@@ -164,6 +174,22 @@
     state.selectedFrame = frame; selectedFrameName.textContent = `Selecionada: ${frame.nome}`; renderFrames(); loadFrame(frame.arquivo);
     const url = new URL(location.href); url.searchParams.set('moldura', frame.id); history.replaceState({}, '', url);
     if (scroll && matchMedia('(max-width: 780px)').matches) byId('editor').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  function clearFrameSelection() {
+    state.selectedFrame = null;
+    state.frameImage = null;
+
+    if (selectedFrameName) {
+      selectedFrameName.textContent = 'Nenhuma moldura selecionada';
+    }
+
+    const url = new URL(location.href);
+    url.searchParams.delete('moldura');
+    history.replaceState({}, '', url);
+
+    renderFrames();
+    draw();
   }
 
   function loadFrame(source) {
