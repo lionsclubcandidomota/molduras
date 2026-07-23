@@ -260,7 +260,7 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
+    "status": "atualizada",
+    "statusVisivel": true
   }
 ];
