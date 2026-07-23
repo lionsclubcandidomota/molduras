@@ -94,3 +94,49 @@
   .control-number{padding-left:7px}
   .control-suffix{padding-right:7px}
 }
+
+/* v7.3 — correção do cartão de apresentação no celular */
+@media (max-width: 430px){
+  .hero-visual{
+    min-height:360px;
+    padding-bottom:10px;
+  }
+
+  .hero-card{
+    width:min(260px,82vw);
+  }
+
+  .hero-card-main{
+    padding:18px;
+  }
+
+  .hero-card-top img{
+    width:48px;
+    height:48px;
+  }
+
+  .hero-photo-placeholder{
+    height:auto;
+    min-height:205px;
+    margin:15px 0;
+  }
+
+  .hero-card-bottom{
+    min-height:24px;
+    padding-bottom:2px;
+  }
+}
+
+@media (max-width: 360px){
+  .hero-visual{
+    min-height:342px;
+  }
+
+  .hero-card{
+    width:min(246px,82vw);
+  }
+
+  .hero-photo-placeholder{
+    min-height:190px;
+  }
+}
