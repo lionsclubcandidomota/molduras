@@ -292,5 +292,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "glt",
+    "nome": "GLT",
+    "categoriaId": "lions",
+    "ordem": 6,
+    "arquivo": "assets/molduras/glt.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
