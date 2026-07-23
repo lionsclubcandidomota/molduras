@@ -1,4 +1,15 @@
-// Gerenciado pelo Painel de Molduras Lions v10
+// Gerenciado pelo Painel de Molduras Lions v48
+window.CONFIGURACOES = {
+  "duracaoNovo": {
+    "valor": 7,
+    "unidade": "dias"
+  },
+  "duracaoAtualizada": {
+    "valor": 7,
+    "unidade": "dias"
+  }
+};
+
 window.CATEGORIAS = [
   {
     "id": "ircd-26-27",
@@ -235,7 +246,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "publicarEm": "",
+    "ocultarEm": "2026-07-23T23:50:00.000Z"
   },
   {
     "id": "orgulho-de-ser-leao",
