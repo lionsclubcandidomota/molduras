@@ -255,7 +255,7 @@ window.MOLDURAS = [
   },
   {
     "id": "assessor-de-marketing",
-    "nome": "Assessor De Marketing",
+    "nome": "Assessor de Marketing",
     "categoriaId": "cargos",
     "ordem": 1,
     "arquivo": "assets/molduras/assessor-de-marketing.png",
