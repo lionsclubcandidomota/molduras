@@ -44,16 +44,6 @@ window.MOLDURAS = [
     "statusVisivel": true
   },
   {
-    "id": "feliz-aniversario",
-    "nome": "Feliz Aniversário",
-    "categoriaId": "aniversario",
-    "ordem": 1,
-    "arquivo": "assets/molduras/feliz-aniversario.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
     "id": "dia-d",
     "nome": "Dia D",
     "categoriaId": "lions",
