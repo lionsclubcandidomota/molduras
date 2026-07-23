@@ -1,4 +1,4 @@
-// Gerenciado pelo Painel de Molduras Lions v7
+// Gerenciado pelo Painel de Molduras Lions v8
 window.CATEGORIAS = [
   {
     "id": "ircd-26-27",
@@ -236,8 +236,8 @@ window.MOLDURAS = [
   {
     "id": "feliz-aniversario",
     "nome": "Feliz Aniversário",
-    "categoriaId": "aniversario",
-    "ordem": 1,
+    "categoriaId": "lions",
+    "ordem": 7,
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
     "status": "normal",
