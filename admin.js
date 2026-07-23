@@ -47,7 +47,7 @@
     return query ? `${base}?${query}` : base;
   }
   async function api(path, options = {}) {
-    const response = await fetch(apiUrl(path), { ...options, cache: "no-store", headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, "Cache-Control": "no-cache", Pragma: "no-cache", ...(options.headers || {}) } });
+    const response = await fetch(apiUrl(path), { ...options, cache: "no-store", headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, ...(options.headers || {}) } });
     let data = null; try { data = await response.json(); } catch {}
     if (!response.ok) throw new GitHubError(data?.message || `Erro ${response.status}`, response.status);
     return data;
