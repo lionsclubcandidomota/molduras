@@ -312,5 +312,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "novo",
     "statusVisivel": true
+  },
+  {
+    "id": "nos-vamos-porco-no-rolete",
+    "nome": "Nós Vamos Porco no Rolete",
+    "categoriaId": "porco-no-rolete-apae-02-08",
+    "ordem": 2,
+    "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
