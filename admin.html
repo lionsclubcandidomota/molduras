@@ -83,6 +83,24 @@
       </div>
     </div>
     <div id="editorBackdrop" class="editor-backdrop" hidden></div>
+    <div id="categoryEditorBackdrop" class="editor-backdrop" hidden></div>
+    <aside id="categoryEditor" class="category-editor-drawer" hidden aria-labelledby="categoryEditorTitle">
+      <div class="category-editor-header">
+        <div><span class="step">📁 Categoria / edição</span><h2 id="categoryEditorTitle">Editar categoria</h2><p id="categoryEditorCount">0 molduras</p></div>
+        <button id="categoryEditorCancel" class="button light" type="button">Cancelar edição</button>
+      </div>
+      <div class="category-editor-body">
+        <div class="form-section-title"><span>1</span><div><strong>Identificação</strong><small>Altere o nome e a visibilidade da categoria.</small></div></div>
+        <label><span>Nome da categoria</span><input id="categoryNameInput" type="text" required /></label>
+        <label class="switch-card visibility-card category-visibility-card">
+          <span class="visibility-copy"><strong>Visibilidade da categoria</strong><small>Quando oculta, a categoria deixa de aparecer no site.</small></span>
+          <span class="toggle-control"><input id="categoryActiveInput" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span><span class="toggle-label">Exibir no site</span></span>
+        </label>
+        <div class="form-section-title"><span>2</span><div><strong>Destaques</strong><small>Aplique ou remova o destaque de todas as molduras desta categoria.</small></div></div>
+        <label><span>Ação para os destaques</span><select id="categoryHighlight"><option value="manter">Manter como está</option><option value="novo">Marcar todas como Novo</option><option value="atualizada">Marcar todas como Atualizada</option><option value="normal">Remover todos os destaques</option></select><small>Os prazos configurados em Controle gerencial serão aplicados ao escolher Novo ou Atualizada.</small></label>
+      </div>
+      <div class="category-editor-footer"><button id="categoryEditorSave" class="button success" type="button">Aplicar alterações</button></div>
+    </aside>
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
         <div>

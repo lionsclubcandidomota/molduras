@@ -10,7 +10,7 @@
     owner: "", repo: "", branch: "main", token: "",
     categorias: [], molduras: [], configuracoes: {}, originalSnapshot: "",
     busy: false, dirty: false, editingId: "", pendingDelete: null, intentionalNavigation: false,
-    draggedCategory: null, draggedFrame: null,
+    draggedCategory: null, draggedFrame: null, editorReturnScrollY: 0, editingCategoryId: "",
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
   };
 
@@ -37,6 +37,7 @@
     nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
     framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
     managementToggle: $("managementToggle"), managementBody: $("managementBody"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), saveManagement: $("saveManagementBtn"),
+    categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorCount: $("categoryEditorCount"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -125,7 +126,7 @@
       }
       const n = (counters.get(categoriaId) || 0) + 1; counters.set(categoriaId,n);
       const legacyStatus = f.status || (f.novo===true ? "novo" : "normal");
-      return { id:String(f.id||`moldura-${index+1}`), nome:String(f.nome||f.id||"Moldura"), categoriaId, ordem:Number.isFinite(Number(f.ordem))?Number(f.ordem):n, arquivo:f.arquivo, ativo:f.ativo!==false, status:["novo","atualizada"].includes(legacyStatus) && f.statusVisivel!==false ? legacyStatus : "normal", statusVisivel:f.statusVisivel!==false };
+      return { id:String(f.id||`moldura-${index+1}`), nome:String(f.nome||f.id||"Moldura"), categoriaId, ordem:Number.isFinite(Number(f.ordem))?Number(f.ordem):n, arquivo:f.arquivo, ativo:f.ativo!==false, status:["novo","atualizada"].includes(legacyStatus) && f.statusVisivel!==false ? legacyStatus : "normal", statusVisivel:f.statusVisivel!==false, statusDesde:f.statusDesde||"", statusAte:f.statusAte||"", publicarEm:f.publicarEm||"", ocultarEm:f.ocultarEm||"" };
     });
     renumber(categorias, molduras);
     const configMatch = source.match(/window\.CONFIGURACOES\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
@@ -199,7 +200,13 @@
   async function removeImage(path,message){ try{const f=await getFile(path); await deleteFile(path,message,f.sha);}catch(e){if(e.status!==404)throw e;} }
 
   function catName(id){ return state.categorias.find(c=>c.id===id)?.nome || "Sem categoria"; }
-  function frameStatus(f){ return f?.statusVisivel===false ? "normal" : (["novo","atualizada"].includes(f?.status) ? f.status : "normal"); }
+  function frameStatus(f){
+    if(f?.statusVisivel===false) return "normal";
+    const value=["novo","atualizada"].includes(f?.status) ? f.status : "normal";
+    if(value==="normal") return value;
+    const end=f?.statusAte ? Date.parse(f.statusAte) : NaN;
+    return Number.isFinite(end) && Date.now()>=end ? "normal" : value;
+  }
   function categoryStatus(id){
     const frames=state.molduras.filter(f=>f.categoriaId===id && f.ativo!==false);
     if(frames.some(f=>frameStatus(f)==="novo")) return "novo";
@@ -302,7 +309,15 @@
   const localDateTime = value => { if(!value)return ""; const d=new Date(value); if(Number.isNaN(d.getTime()))return ""; const z=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; };
   const isoOrEmpty = value => value ? new Date(value).toISOString() : "";
   const addDuration = (status) => { const cfg=status==="novo"?state.configuracoes.duracaoNovo:state.configuracoes.duracaoAtualizada; const amount=Math.max(1,Number(cfg?.valor)||7); return new Date(Date.now()+amount*(cfg?.unidade==="horas"?3600000:86400000)).toISOString(); };
-  function applyStatusTiming(target,status){ target.status=status; target.statusVisivel=status!=="normal"; if(status==="normal"){delete target.statusDesde;delete target.statusAte;}else{target.statusDesde=new Date().toISOString();target.statusAte=addDuration(status);} }
+  function applyStatusTiming(target,status){
+    const previous=frameStatus(target);
+    target.status=status;
+    target.statusVisivel=status!=="normal";
+    if(status==="normal"){delete target.statusDesde;delete target.statusAte;return;}
+    if(previous===status && target.statusDesde && target.statusAte) return;
+    target.statusDesde=new Date().toISOString();
+    target.statusAte=addDuration(status);
+  }
   function fillManagementForm(){ const c=state.configuracoes||{}; if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7; if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias"; if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7; if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias"; }
   function resetForm(){document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";if(el.framePublishAt)el.framePublishAt.value="";if(el.frameHideAt)el.frameHideAt.value="";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
@@ -444,7 +459,39 @@
   }
   function moveFrame(id,delta){const f=state.molduras.find(x=>x.id===id);if(!f)return;const a=state.molduras.filter(x=>x.categoriaId===f.categoriaId).sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(x=>x.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;const oi=a[i].ordem;a[i].ordem=a[j].ordem;a[j].ordem=oi;renumber();render();}
 
-  el.categories.addEventListener("click",e=>{const b=e.target.closest("button[data-category-action]");if(!b)return;const id=b.closest(".category-order-row")?.dataset.category,action=b.dataset.categoryAction,cat=state.categorias.find(c=>c.id===id);if(!cat)return;if(action==="up"||action==="down")return moveCategory(id,action==="up"?-1:1);if(action==="clear-status"){const affected=state.molduras.filter(f=>f.categoriaId===id&&frameStatus(f)!=="normal");if(!affected.length)return;if(confirm(`Remover todos os destaques da categoria “${cat.nome}”?`)){affected.forEach(f=>{f.status="normal";f.statusVisivel=false;});setBusy(true,"Publicando...");saveConfig(`Remove destaques da categoria ${cat.nome}`).then(()=>{render();flash("Destaques da categoria removidos.","success");}).catch(e=>flash(e.message,"error")).finally(()=>{setBusy(false);status("Conectado","ok");});}return;}if(action==="rename"){const name=prompt("Novo nome da categoria:",cat.nome)?.trim();if(name){cat.nome=name;render();}}if(action==="delete"){const used=state.molduras.filter(f=>f.categoriaId===id);if(used.length)return flash("Mova ou exclua as molduras desta categoria antes de apagá-la.","error");if(confirm(`Excluir a categoria “${cat.nome}”?`)){state.categorias=state.categorias.filter(c=>c.id!==id);render();}}});
+  function closeCategoryEditor(){
+    document.body.classList.remove("category-drawer-open");
+    if(el.categoryEditorBackdrop) el.categoryEditorBackdrop.hidden=true;
+    if(el.categoryEditor) el.categoryEditor.hidden=true;
+    state.editingCategoryId="";
+  }
+  function openCategoryEditor(cat){
+    state.editingCategoryId=cat.id;
+    if(el.categoryEditorTitle) el.categoryEditorTitle.textContent=`Editar: ${cat.nome}`;
+    if(el.categoryNameInput) el.categoryNameInput.value=cat.nome;
+    if(el.categoryActiveInput) el.categoryActiveInput.checked=cat.ativo!==false;
+    if(el.categoryHighlight) el.categoryHighlight.value="manter";
+    if(el.categoryEditorCount) el.categoryEditorCount.textContent=`${state.molduras.filter(f=>f.categoriaId===cat.id).length} moldura(s) nesta categoria`;
+    if(el.categoryEditor) el.categoryEditor.hidden=false;
+    if(el.categoryEditorBackdrop) el.categoryEditorBackdrop.hidden=false;
+    document.body.classList.add("category-drawer-open");
+    setTimeout(()=>el.categoryNameInput?.focus({preventScroll:true}),200);
+  }
+  el.categoryEditorCancel?.addEventListener("click",closeCategoryEditor);
+  el.categoryEditorBackdrop?.addEventListener("click",()=>{if(!state.busy)closeCategoryEditor();});
+  el.categoryEditorSave?.addEventListener("click",()=>{
+    const cat=state.categorias.find(c=>c.id===state.editingCategoryId);
+    if(!cat)return closeCategoryEditor();
+    const name=el.categoryNameInput?.value.trim();
+    if(!name)return flash("Informe o nome da categoria.","error");
+    if(state.categorias.some(c=>c.id!==cat.id&&c.nome.toLowerCase()===name.toLowerCase()))return flash("Já existe uma categoria com esse nome.","error");
+    cat.nome=name;cat.ativo=el.categoryActiveInput?.checked!==false;
+    const highlight=el.categoryHighlight?.value||"manter";
+    if(highlight!=="manter") state.molduras.filter(f=>f.categoriaId===cat.id).forEach(f=>applyStatusTiming(f,highlight));
+    render();closeCategoryEditor();flash("Alterações da categoria prontas para publicação.","success");
+  });
+
+  el.categories.addEventListener("click",e=>{const b=e.target.closest("button[data-category-action]");if(!b)return;const id=b.closest(".category-order-row")?.dataset.category,action=b.dataset.categoryAction,cat=state.categorias.find(c=>c.id===id);if(!cat)return;if(action==="up"||action==="down")return moveCategory(id,action==="up"?-1:1);if(action==="clear-status"){const affected=state.molduras.filter(f=>f.categoriaId===id&&frameStatus(f)!=="normal");if(!affected.length)return;if(confirm(`Remover todos os destaques da categoria “${cat.nome}”?`)){affected.forEach(f=>{f.status="normal";f.statusVisivel=false;});setBusy(true,"Publicando...");saveConfig(`Remove destaques da categoria ${cat.nome}`).then(()=>{render();flash("Destaques da categoria removidos.","success");}).catch(e=>flash(e.message,"error")).finally(()=>{setBusy(false);status("Conectado","ok");});}return;}if(action==="edit"){openCategoryEditor(cat);return;}if(action==="delete"){const used=state.molduras.filter(f=>f.categoriaId===id);if(used.length)return flash("Mova ou exclua as molduras desta categoria antes de apagá-la.","error");if(confirm(`Excluir a categoria “${cat.nome}”?`)){state.categorias=state.categorias.filter(c=>c.id!==id);render();}}});
   el.categories.addEventListener("dragstart",e=>{const row=e.target.closest(".category-order-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedCategory=row.dataset.category;row.classList.add("dragging");});
   el.categories.addEventListener("dragover",e=>{if(state.draggedCategory){e.preventDefault();e.target.closest(".category-order-row")?.classList.add("drag-over");}});
   el.categories.addEventListener("drop", e => {
@@ -491,7 +538,7 @@
       const shouldCollapse=section.classList.contains("is-open");
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
-    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);if(el.framePublishAt)el.framePublishAt.value=localDateTime(f.publicarEm);if(el.frameHideAt)el.frameHideAt.value=localDateTime(f.ocultarEm);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");document.body.classList.add("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=false;validateFrameForm();if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editorReturnScrollY=window.scrollY;state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);if(el.framePublishAt)el.framePublishAt.value=localDateTime(f.publicarEm);if(el.frameHideAt)el.frameHideAt.value=localDateTime(f.ocultarEm);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");document.body.classList.add("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=false;validateFrameForm();if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();setTimeout(()=>el.name.focus({preventScroll:true}),250);return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 
@@ -611,7 +658,7 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   el.publishPending?.addEventListener("click",()=>el.saveOrder?.click());
   el.discardPending?.addEventListener("click", discardPendingChanges);
   el.editorBackdrop?.addEventListener("click",()=>{if(!state.busy)resetForm();});
-  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&document.body.classList.contains("editor-drawer-open")&&!state.busy)resetForm();});
+  document.addEventListener("keydown",event=>{if(event.key!=="Escape"||state.busy)return;if(document.body.classList.contains("category-drawer-open"))closeCategoryEditor();else if(document.body.classList.contains("editor-drawer-open"))resetForm();});
 
   window.addEventListener("beforeunload", event => {
     if (state.intentionalNavigation) return;
