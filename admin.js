@@ -11,7 +11,7 @@
     categorias: [], molduras: [], originalSnapshot: "",
     busy: false, dirty: false, editingId: "", pendingDelete: null,
     draggedCategory: null, draggedFrame: null,
-    collapsedCategories: new Set(),
+    collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
   };
 
   const $ = (id) => document.getElementById(id);
@@ -24,6 +24,8 @@
     list: $("framesList"), count: $("frameCount"), search: $("adminSearch"), saveOrder: $("saveOrderBtn"), cancelOrder: $("cancelOrderBtn"),
     notice: $("orderNotice"), summaryTotal: $("summaryTotal"), summaryVisible: $("summaryVisible"), summaryHighlights: $("summaryHighlights"), summaryCategories: $("summaryCategories"), categories: $("categoriesOrderList"), dialog: $("confirmDialog"), confirmText: $("confirmText"), deleteFile: $("deleteImageFile"), confirmDelete: $("confirmDeleteBtn"),
     expandAll: $("expandAllCategoriesBtn"), collapseAll: $("collapseAllCategoriesBtn"),
+    bulkFiles: $("bulkFiles"), bulkCategory: $("bulkCategory"), bulkStatus: $("bulkStatus"), bulkActive: $("bulkActive"), bulkReview: $("bulkReview"), clearBulk: $("clearBulkBtn"), publishBulk: $("publishBulkBtn"),
+    bulkBar: $("bulkActionBar"), bulkSelectedCount: $("bulkSelectedCount"), bulkAction: $("bulkActionSelect"), bulkMoveCategory: $("bulkMoveCategory"), applyBulk: $("applyBulkActionBtn"), clearSelection: $("clearSelectionBtn"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -35,7 +37,7 @@
   function status(message, type = "neutral") { el.status.textContent = message; el.status.className = `status ${type}`; }
   function setBusy(value, message = "Sincronizando...") {
     state.busy = value;
-    [el.connect, el.refresh, el.save, el.confirmDelete, el.saveOrder, el.cancelOrder].forEach(x => { if (x) x.disabled = value; });
+    [el.connect, el.refresh, el.save, el.confirmDelete, el.saveOrder, el.cancelOrder, el.publishBulk, el.applyBulk].forEach(x => { if (x) x.disabled = value; });
     if (value) status(message);
     updateDirtyUI();
   }
@@ -103,7 +105,7 @@
   }
 
   function serialize(categorias, molduras) {
-    return `// Gerenciado pelo Painel de Molduras Lions v5\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+    return `// Gerenciado pelo Painel de Molduras Lions v7\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
   }
   function renumber(categorias = state.categorias, molduras = state.molduras) {
     categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
@@ -186,6 +188,26 @@
     if(collapsed) state.collapsedCategories.add(id); else state.collapsedCategories.delete(id);
     saveCollapsedCategories();
   }
+  function displayNameFromFile(filename){
+    const base=String(filename).replace(/\.[^.]+$/,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim();
+    return base.replace(/\b\w/g,c=>c.toUpperCase()) || 'Moldura';
+  }
+  function extensionFromFile(file){
+    const match=String(file?.name||'').match(/\.([a-zA-Z0-9]+)$/);
+    return (match?.[1]||'png').toLowerCase();
+  }
+  function updateBulkBar(){
+    const count=state.selectedIds.size;
+    if(el.bulkBar) el.bulkBar.hidden=count===0;
+    if(el.bulkSelectedCount) el.bulkSelectedCount.textContent=`${count} moldura${count===1?'':'s'} selecionada${count===1?'':'s'}`;
+  }
+  function clearSelection(){ state.selectedIds.clear(); updateBulkBar(); renderFrames(); }
+  function renderBulkReview(){
+    if(!el.bulkReview)return;
+    if(!state.bulkFiles.length){el.bulkReview.hidden=true;el.bulkReview.innerHTML='';el.clearBulk.disabled=true;el.publishBulk.disabled=true;return;}
+    el.bulkReview.hidden=false;el.clearBulk.disabled=false;el.publishBulk.disabled=false;
+    el.bulkReview.innerHTML=`<table><thead><tr><th>Prévia</th><th>Arquivo</th><th>Nome exibido</th><th>Identificador</th><th>Destino</th><th></th></tr></thead><tbody>${state.bulkFiles.map((item,i)=>`<tr data-bulk-index="${i}"><td><img src="${esc(item.url)}" alt=""></td><td>${esc(item.file.name)}</td><td><input data-bulk-field="name" value="${esc(item.name)}"></td><td><input data-bulk-field="id" value="${esc(item.id)}" pattern="[a-z0-9-]+"></td><td><code>${esc(`${IMAGE_DIR}/${item.id}.${item.ext}`)}</code></td><td><button class="button danger" type="button" data-bulk-remove="${i}">Remover</button></td></tr>`).join('')}</tbody></table>`;
+  }
   function renderSummary(){
     if(el.summaryTotal) el.summaryTotal.textContent=state.molduras.length;
     if(el.summaryVisible) el.summaryVisible.textContent=state.molduras.filter(f=>f.ativo!==false).length;
@@ -221,21 +243,21 @@
       html+=`<section class="category-accordion ${isOpen?"is-open":""}" data-accordion-category="${esc(cat.id)}">
         <button class="category-accordion-header" type="button" data-action="toggle-category" aria-expanded="${isOpen}" aria-controls="category-body-${esc(cat.id)}">
           <span class="category-accordion-title"><span class="category-chevron" aria-hidden="true">›</span><span class="category-title-copy"><strong>${esc(cat.nome)}</strong><small>${allFrames.length} moldura(s)${q&&frames.length!==allFrames.length?` · ${frames.length} encontrada(s)`:""}</small></span></span>
-          <span class="category-accordion-meta">${q?`<span class="search-active-note">Resultado da busca</span>`:""}${statusBadge}<span class="badge active category-count-pill">${frames.length}</span></span>
+          <span class="category-accordion-meta"><label class="category-select-all" onclick="event.stopPropagation()"><input type="checkbox" data-select-category="${esc(cat.id)}" ${frames.every(f=>state.selectedIds.has(f.id))?"checked":""}> Selecionar</label>${q?`<span class="search-active-note">Resultado da busca</span>`:""}${statusBadge}<span class="badge active category-count-pill">${frames.length}</span></span>
         </button>
         <div id="category-body-${esc(cat.id)}" class="category-accordion-body" ${isOpen?"":"hidden"}>`;
-      frames.forEach((f,index)=>{const st=frameStatus(f);html+=`<article class="frame-row" draggable="${!q}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
-        <div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar">☰</button><span class="order-number">${f.ordem}</span><button type="button" class="order-arrow" data-action="up" ${f.ordem===1?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${f.ordem===allFrames.length?"disabled":""}>↓</button></div>
+      frames.forEach((f,index)=>{const st=frameStatus(f);html+=`<article class="frame-row ${state.selectedIds.has(f.id)?"is-selected":""}" draggable="${!q&&!state.selectedIds.size}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
+        <label class="frame-select-wrap"><input class="frame-select" type="checkbox" data-select-frame="${esc(f.id)}" ${state.selectedIds.has(f.id)?"checked":""} aria-label="Selecionar ${esc(f.nome)}"></label><div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar">☰</button><span class="order-number">${f.ordem}</span><button type="button" class="order-arrow" data-action="up" ${f.ordem===1?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${f.ordem===allFrames.length?"disabled":""}>↓</button></div>
         <img class="frame-thumb" src="${esc(f.arquivo)}?v=${Date.now()}" alt=""><div class="frame-info"><h4>${esc(f.nome)}</h4><p>${esc(f.id)} · ordem ${f.ordem}</p><div class="badges"><span class="badge ${f.ativo!==false?"active":"inactive"}">${f.ativo!==false?"Visível":"Oculta"}</span>${st!=="normal"?`<span class="badge ${st}">${statusLabel(st)}</span>`:""}</div></div>
         <div class="row-actions frame-actions"><button class="button light" data-action="edit">Editar</button><button class="button light" data-action="status-menu">Destaque</button><button class="button light" data-action="toggle">${f.ativo!==false?"Ocultar":"Exibir"}</button><button class="button danger" data-action="delete">Excluir</button></div></article>`;});
       html+=`</div></section>`;
     }
-    el.list.innerHTML=html||'<p class="category-empty">Nenhuma moldura encontrada.</p>'; el.count.textContent=`${total} moldura(s)`;
+    el.list.innerHTML=html||'<p class="category-empty">Nenhuma moldura encontrada.</p>'; el.count.textContent=`${total} moldura(s)`; updateBulkBar();
   }
   function render(){renumber();renderCategoryOptions();renderCategories();renderFrames();renderSummary();markDirty();}
 
   async function load(){
-    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; loadCollapsedCategories(); render(); el.manager.hidden=false; status("Conectado","ok");
+    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false; status("Conectado","ok");
   }
   function resetForm(){state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
@@ -252,6 +274,60 @@
   el.collapseAll?.addEventListener("click",()=>{state.collapsedCategories=new Set(state.categorias.map(c=>c.id));saveCollapsedCategories();renderFrames();});
   el.name.addEventListener("input",()=>{if(!state.editingId)el.id.value=slugify(el.name.value);updateDestination();}); el.id.addEventListener("input",updateDestination); el.file.addEventListener("change",()=>{updateDestination();const f=el.file.files[0];if(f){el.preview.innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Prévia">`;}});
   el.cancelEdit.addEventListener("click",resetForm);
+
+  el.bulkFiles?.addEventListener("change",()=>{
+    state.bulkFiles=[...el.bulkFiles.files].map(file=>{const ext=extensionFromFile(file),name=displayNameFromFile(file.name),id=slugify(name);return{file,ext,name,id,url:URL.createObjectURL(file)};});
+    renderBulkReview();
+  });
+  el.bulkReview?.addEventListener("input",e=>{
+    const row=e.target.closest("tr[data-bulk-index]");if(!row)return;const item=state.bulkFiles[Number(row.dataset.bulkIndex)];if(!item)return;
+    if(e.target.dataset.bulkField==="name")item.name=e.target.value;
+    if(e.target.dataset.bulkField==="id")item.id=slugify(e.target.value);
+    const code=row.querySelector("code");if(code)code.textContent=`${IMAGE_DIR}/${item.id}.${item.ext}`;
+  });
+  el.bulkReview?.addEventListener("click",e=>{const b=e.target.closest("button[data-bulk-remove]");if(!b)return;const i=Number(b.dataset.bulkRemove);URL.revokeObjectURL(state.bulkFiles[i]?.url);state.bulkFiles.splice(i,1);renderBulkReview();});
+  el.clearBulk?.addEventListener("click",()=>{state.bulkFiles.forEach(x=>URL.revokeObjectURL(x.url));state.bulkFiles=[];el.bulkFiles.value="";renderBulkReview();});
+  el.publishBulk?.addEventListener("click",async()=>{
+    const categoryName=el.bulkCategory.value.trim();if(!categoryName)return flash("Escolha a categoria das molduras em lote.","error");
+    if(!state.bulkFiles.length)return flash("Selecione pelo menos um arquivo.","error");
+    const invalid=state.bulkFiles.find(x=>!x.name.trim()||!slugify(x.id));if(invalid)return flash("Revise os nomes e identificadores.","error");
+    const ids=state.bulkFiles.map(x=>slugify(x.id));if(new Set(ids).size!==ids.length)return flash("Existem identificadores repetidos na seleção.","error");
+    if(ids.some(id=>state.molduras.some(f=>f.id===id)))return flash("Um ou mais identificadores já estão cadastrados.","error");
+    setBusy(true,`Enviando ${state.bulkFiles.length} molduras...`);
+    try{
+      const cat=categoryFromInput(categoryName),statusValue=["novo","atualizada"].includes(el.bulkStatus.value)?el.bulkStatus.value:"normal";
+      let order=state.molduras.filter(f=>f.categoriaId===cat.id).length;
+      for(let i=0;i<state.bulkFiles.length;i++){
+        const item=state.bulkFiles[i],id=slugify(item.id),path=`${IMAGE_DIR}/${id}.${item.ext}`;
+        status(`Enviando ${i+1} de ${state.bulkFiles.length}...`);
+        await uploadImage(item.file,path,`Adiciona imagem ${item.name}`);
+        state.molduras.push({id,nome:item.name.trim(),categoriaId:cat.id,ordem:++order,arquivo:path,ativo:el.bulkActive.checked,status:statusValue,statusVisivel:statusValue!=="normal"});
+      }
+      renumber();await saveConfig(`Adiciona ${state.bulkFiles.length} molduras em lote`);render();el.clearBulk.click();flash("Molduras adicionadas e publicadas em lote.","success");
+    }catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}
+  });
+  el.bulkAction?.addEventListener("change",()=>{el.bulkMoveCategory.hidden=el.bulkAction.value!=="move";});
+  el.clearSelection?.addEventListener("click",clearSelection);
+  el.applyBulk?.addEventListener("click",async()=>{
+    const ids=[...state.selectedIds],action=el.bulkAction.value;if(!ids.length||!action)return flash("Selecione uma ação em lote.","error");
+    const selected=state.molduras.filter(f=>state.selectedIds.has(f.id));
+    if(!selected.length)return;
+    if(action.startsWith("delete")&&!confirm(`Excluir ${selected.length} moldura(s)?${action==="delete-files"?" Os arquivos também serão apagados do repositório.":""}`))return;
+    setBusy(true,"Aplicando manutenção em lote...");
+    try{
+      if(action==="move"){
+        const name=el.bulkMoveCategory.value.trim();if(!name)throw new Error("Informe a categoria de destino.");const cat=categoryFromInput(name);let order=state.molduras.filter(f=>f.categoriaId===cat.id&&!state.selectedIds.has(f.id)).length;selected.forEach(f=>{f.categoriaId=cat.id;f.ordem=++order;});
+      } else if(action.startsWith("status-")){
+        const next=action.replace("status-","");selected.forEach(f=>{f.status=next;f.statusVisivel=next!=="normal";});
+      } else if(action==="show"||action==="hide") selected.forEach(f=>f.ativo=action==="show");
+      else if(action==="delete-records"||action==="delete-files"){
+        state.molduras=state.molduras.filter(f=>!state.selectedIds.has(f.id));
+      }
+      renumber();await saveConfig(`Manutenção em lote em ${selected.length} molduras`);
+      if(action==="delete-files")for(let i=0;i<selected.length;i++){status(`Apagando arquivo ${i+1} de ${selected.length}...`);await removeImage(selected[i].arquivo,`Remove imagem ${selected[i].nome}`);}
+      clearSelection();render();flash(`Operação aplicada a ${selected.length} moldura(s).`,"success");
+    }catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}
+  });
 
   el.form.addEventListener("submit",async e=>{
     e.preventDefault();
@@ -326,6 +402,13 @@
     el.categories.querySelectorAll(".dragging, .drag-over").forEach(row => {
       row.classList.remove("dragging", "drag-over");
     });
+  });
+
+  el.list.addEventListener("change",e=>{
+    const frameBox=e.target.closest("input[data-select-frame]");
+    if(frameBox){if(frameBox.checked)state.selectedIds.add(frameBox.dataset.selectFrame);else state.selectedIds.delete(frameBox.dataset.selectFrame);renderFrames();return;}
+    const catBox=e.target.closest("input[data-select-category]");
+    if(catBox){const id=catBox.dataset.selectCategory;state.molduras.filter(f=>f.categoriaId===id).forEach(f=>catBox.checked?state.selectedIds.add(f.id):state.selectedIds.delete(f.id));renderFrames();}
   });
 
   el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const action=b.dataset.action;

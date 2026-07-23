@@ -101,8 +101,8 @@
             <datalist id="categoryList"></datalist>
           </label>
           <label>
-            <span>Arquivo PNG, JPG, WEBP ou SVG</span>
-            <input id="frameFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+            <span>Arquivo de imagem</span>
+            <input id="frameFile" type="file" accept="image/*,.svg,.avif,.gif,.bmp" />
             <small id="fileHint">Obrigatório para uma nova moldura.</small>
           </label>
         </div>
@@ -134,6 +134,46 @@
 
         <button id="saveFrameBtn" class="button success full" type="submit">Adicionar e publicar moldura</button>
       </form>
+
+
+
+      <section class="bulk-upload-panel" aria-labelledby="bulkUploadTitle">
+        <div class="editor-heading">
+          <div>
+            <span class="step">Inclusão em lote</span>
+            <h3 id="bulkUploadTitle">Adicionar várias molduras</h3>
+            <p>Selecione diversos arquivos de imagem, revise os nomes e publique tudo de uma vez.</p>
+          </div>
+        </div>
+        <div class="form-grid bulk-settings-grid">
+          <label>
+            <span>Arquivos</span>
+            <input id="bulkFiles" type="file" multiple accept="image/*,.svg,.avif,.gif,.bmp" />
+            <small>Compatível com formatos de imagem aceitos pelo navegador, como PNG, JPG, JPEG, WEBP, SVG, GIF, AVIF e BMP.</small>
+          </label>
+          <label>
+            <span>Categoria para todas</span>
+            <input id="bulkCategory" list="categoryList" placeholder="Eventos" />
+          </label>
+          <label>
+            <span>Destaque inicial</span>
+            <select id="bulkStatus">
+              <option value="normal">Sem destaque</option>
+              <option value="novo" selected>Novo</option>
+              <option value="atualizada">Atualizada</option>
+            </select>
+          </label>
+          <label class="switch-card">
+            <span>Visibilidade inicial</span>
+            <span class="switch-line"><input id="bulkActive" type="checkbox" checked /> <strong>Exibir no site</strong></span>
+          </label>
+        </div>
+        <div id="bulkReview" class="bulk-review" hidden></div>
+        <div class="bulk-upload-actions">
+          <button id="clearBulkBtn" class="button light" type="button" disabled>Limpar seleção</button>
+          <button id="publishBulkBtn" class="button success" type="button" disabled>Publicar molduras em lote</button>
+        </div>
+      </section>
 
       <div class="list-heading">
         <div>
@@ -175,6 +215,27 @@
           <button id="collapseAllCategoriesBtn" class="button light" type="button">Contrair todas</button>
         </div>
       </div>
+
+      <div id="bulkActionBar" class="bulk-action-bar" hidden>
+        <div><strong id="bulkSelectedCount">0 selecionadas</strong><small>As ações abaixo serão aplicadas em uma única atualização do molduras.js.</small></div>
+        <div class="bulk-action-controls">
+          <select id="bulkActionSelect" aria-label="Ação em lote">
+            <option value="">Escolha uma ação</option>
+            <option value="move">Mover para categoria</option>
+            <option value="status-normal">Remover destaque</option>
+            <option value="status-novo">Marcar como Novo</option>
+            <option value="status-atualizada">Marcar como Atualizada</option>
+            <option value="show">Exibir no site</option>
+            <option value="hide">Ocultar no site</option>
+            <option value="delete-records">Excluir registros</option>
+            <option value="delete-files">Excluir registros e arquivos</option>
+          </select>
+          <input id="bulkMoveCategory" list="categoryList" placeholder="Categoria de destino" hidden />
+          <button id="applyBulkActionBtn" class="button primary" type="button">Aplicar</button>
+          <button id="clearSelectionBtn" class="button light" type="button">Cancelar seleção</button>
+        </div>
+      </div>
+
       <div id="framesList" class="frames-list accordion-list"></div>
     </section>
   </main>
