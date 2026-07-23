@@ -232,10 +232,17 @@
               <option value="atualizada">Atualizada</option>
             </select>
           </label>
-          <label class="switch-card">
-            <span>Visibilidade inicial</span>
-            <span class="switch-line"><input id="bulkActive" type="checkbox" checked /> <strong>Exibir no site</strong></span>
-          </label>
+          <div class="switch-card visibility-card bulk-visibility-card">
+            <span class="visibility-copy">
+              <strong>Visibilidade inicial</strong>
+              <small>Desative para cadastrar as molduras ocultas.</small>
+            </span>
+            <label class="toggle-control" for="bulkActive">
+              <input id="bulkActive" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+              <span class="toggle-label">Exibir no site</span>
+            </label>
+          </div>
         </div>
         <div id="bulkReview" class="bulk-review" hidden></div>
         <div class="bulk-upload-actions">

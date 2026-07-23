@@ -208,3 +208,73 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
 .pending-changes-bar .pending-discard:hover{background:rgba(255,255,255,.1)}
 .order-compat-controls{display:none!important}
 @media(max-width:600px){.pending-changes-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}.pending-changes-actions .button{width:100%;min-width:0;padding-left:10px;padding-right:10px}}
+
+
+/* v4.6 — upload em lote, destaques e alças de ordenação */
+.bulk-settings-grid{
+  align-items:stretch;
+  gap:14px;
+}
+.bulk-settings-grid>label,
+.bulk-settings-grid>.bulk-visibility-card{
+  min-width:0;
+}
+.bulk-settings-grid input[type="text"],
+.bulk-settings-grid input[list],
+.bulk-settings-grid select,
+.bulk-settings-grid input[type="file"]{
+  min-height:44px;
+  height:44px;
+}
+.bulk-visibility-card{
+  min-height:88px;
+  align-self:stretch;
+}
+.bulk-upload-actions{
+  padding-top:2px;
+  border-top:0;
+}
+
+/* Novo e Atualizada mantêm identidades visuais próprias */
+.badge.novo{
+  background:#dff6ec;
+  color:#087154;
+  box-shadow:inset 0 0 0 1px rgba(8,113,84,.08);
+}
+.badge.atualizada{
+  background:#fff0c9;
+  color:#8a5700;
+  box-shadow:inset 0 0 0 1px rgba(138,87,0,.08);
+}
+
+/* Alça única e consistente para categorias e molduras */
+.category-drag-handle,
+.drag-handle{
+  display:grid;
+  place-items:center;
+  width:30px;
+  height:30px;
+  min-width:30px;
+  min-height:30px;
+  padding:0;
+  border:1px solid var(--line);
+  border-radius:7px;
+  background:#f7faff;
+  color:#667b92;
+  cursor:grab;
+}
+.category-drag-handle:hover,
+.drag-handle:hover{
+  background:#e7f1fb;
+  color:var(--blue-700);
+}
+.category-drag-handle:active,
+.drag-handle:active{cursor:grabbing}
+.drag-icon{width:18px;height:18px;display:block}
+.category-order-controls{flex-wrap:nowrap}
+.category-name-line{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.category-name-line .badge{flex:0 0 auto}
+
+@media(max-width:860px){
+  .bulk-visibility-card{min-height:auto}
+}
