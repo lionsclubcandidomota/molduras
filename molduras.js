@@ -35,7 +35,7 @@ window.CATEGORIAS = [
 window.MOLDURAS = [
   {
     "id": "nos-vamos-ircd",
-    "nome": "Nos Vamos IRCD 26/27",
+    "nome": "Nós Vamos IRCD 26/27",
     "categoriaId": "ircd-26-27",
     "ordem": 1,
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
