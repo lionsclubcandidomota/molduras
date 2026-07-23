@@ -282,5 +282,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "novo",
     "statusVisivel": true
+  },
+  {
+    "id": "gat",
+    "nome": "GAT",
+    "categoriaId": "lions",
+    "ordem": 5,
+    "arquivo": "assets/molduras/gat.png",
+    "ativo": true,
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
