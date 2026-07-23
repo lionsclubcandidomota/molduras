@@ -46,7 +46,7 @@
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', selectedFrame: null,
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
-    cropShape: 'full', brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
+    brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
     pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1
   };
 
@@ -185,35 +185,6 @@
   function setZoom(value) { state.scale=clamp(Number(value)||1,.2,4); updateTransformControls(); draw(); }
   function setRotation(value,snap=false) { let v=clamp(Number(value)||0,-180,180); if(snap && Math.abs(v)<=ROTATION_SNAP)v=0; state.rotation=v; updateTransformControls(); draw(); }
 
-  function createCropPath(targetCtx, shape) {
-    if (shape === 'full') return false;
-    const x = 105;
-    const y = 105;
-    const size = 870;
-    const radius = 112;
-    targetCtx.beginPath();
-    if (shape === 'circle') {
-      targetCtx.arc(540, 540, size / 2, 0, Math.PI * 2);
-    } else if (shape === 'square') {
-      targetCtx.rect(x, y, size, size);
-    } else if (shape === 'rounded') {
-      if (typeof targetCtx.roundRect === 'function') {
-        targetCtx.roundRect(x, y, size, size, radius);
-      } else {
-        targetCtx.moveTo(x + radius, y);
-        targetCtx.lineTo(x + size - radius, y);
-        targetCtx.quadraticCurveTo(x + size, y, x + size, y + radius);
-        targetCtx.lineTo(x + size, y + size - radius);
-        targetCtx.quadraticCurveTo(x + size, y + size, x + size - radius, y + size);
-        targetCtx.lineTo(x + radius, y + size);
-        targetCtx.quadraticCurveTo(x, y + size, x, y + size - radius);
-        targetCtx.lineTo(x, y + radius);
-        targetCtx.quadraticCurveTo(x, y, x + radius, y);
-      }
-    }
-    targetCtx.closePath();
-    return true;
-  }
 
   function drawPhotoLayer() {
     photoCtx.clearRect(0, 0, 1080, 1080);
@@ -229,15 +200,6 @@
     photoCtx.drawImage(state.photo, -width / 2, -height / 2, width, height);
     photoCtx.restore();
     photoCtx.filter = 'none';
-
-    if (state.cropShape !== 'full') {
-      photoCtx.save();
-      photoCtx.globalCompositeOperation = 'destination-in';
-      createCropPath(photoCtx, state.cropShape);
-      photoCtx.fillStyle = '#000';
-      photoCtx.fill();
-      photoCtx.restore();
-    }
   }
 
   function draw() {
@@ -275,7 +237,7 @@
     document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.toggle('is-active',b.dataset.preset===name));
     draw();
   }
-  function resetAdvanced() { state.cropShape='full'; document.querySelector('input[name="cropShape"][value="full"]').checked=true; applyPreset('original'); }
+  function resetAdvanced() { applyPreset('original'); }
 
   photoInput.addEventListener('change', event => {
     const file=event.target.files?.[0]; if(!file)return;
@@ -288,7 +250,6 @@
   resetBtn.addEventListener('click',clearPhoto); newCreationBtn.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
   function clearPhoto(){photoInput.value='';state.photo=null;resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}
 
-  document.querySelectorAll('input[name="cropShape"]').forEach(input=>input.addEventListener('change',()=>{state.cropShape=input.value;draw();}));
   document.querySelectorAll('#filterPresets button').forEach(button=>button.addEventListener('click',()=>applyPreset(button.dataset.preset)));
   [[brightnessRange,'brightness'],[contrastRange,'contrast'],[saturationRange,'saturation'],[warmthRange,'warmth']].forEach(([range,key])=>range.addEventListener('input',()=>{state[key]=Number(range.value); state.grayscale=0; state.hue=0; updateFilterOutputs();document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.remove('is-active'));draw();}));
   resetFiltersBtn.addEventListener('click',resetAdvanced);
