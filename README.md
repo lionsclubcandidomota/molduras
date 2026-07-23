@@ -1,24 +1,12 @@
-# Molduras Lions — site público v11
+# Molduras Lions v11.4 — busca sem acentos
 
-Substitua na raiz do site:
+Substitua somente o arquivo `app.js` da página principal.
 
-- `index.html`
-- `styles.css`
-- `app.js`
+A pesquisa agora normaliza acentos, pontuação, maiúsculas/minúsculas e espaços. Exemplos equivalentes:
 
-Mantenha o `molduras.js` atual e a pasta `assets/molduras/`.
-O arquivo `assets/logo-lions.png` está incluído por conveniência.
+- `nos` encontra `nós`
+- `candido` encontra `Cândido`
+- `cancer infantil` encontra `Câncer Infantil`
+- `vice presidente` encontra `Vice-Presidente`
 
-## Principais novidades
-
-- fluxo guiado em três etapas;
-- nenhuma moldura selecionada ao iniciar, salvo link direto válido;
-- visual moderno e responsivo;
-- pesquisa e categorias mais claras;
-- modo avançado retrátil;
-- recorte completo, quadrado, arredondado ou circular;
-- filtros rápidos e ajustes de brilho, contraste, saturação e calor;
-- zoom e rotação por slider ou campo numérico;
-- encaixe da rotação em 0°;
-- download e compartilhamento;
-- processamento totalmente local no navegador.
+A busca também aceita várias palavras em qualquer parte do nome, categoria, tags, identificador e arquivo.

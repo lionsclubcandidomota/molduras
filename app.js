@@ -51,7 +51,14 @@
   };
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-  const slug = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const normalizeSearchText = value => String(value ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('pt-BR')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+  const slug = value => normalizeSearchText(value).replace(/\s+/g, '-');
   const clamp = (value, min, max) => Math.min(max, Math.max(min, Number(value)));
   const categoryName = frame => state.categories.find(c => c.id === frame.categoriaId)?.nome || frame.categoriaNome || frame.categoria || 'Outras';
   const statusOf = frame => frame.statusVisivel === false ? 'normal' : (['novo','atualizada'].includes(frame.status) ? frame.status : frame.novo ? 'novo' : 'normal');
@@ -91,12 +98,23 @@
   }
 
   function applyFilters() {
-    const query = frameSearch.value.trim().toLocaleLowerCase('pt-BR');
-    clearSearchBtn.hidden = !query;
+    const rawQuery = frameSearch.value.trim();
+    const query = normalizeSearchText(rawQuery);
+    clearSearchBtn.hidden = !rawQuery;
+    const queryTerms = query.split(' ').filter(Boolean);
+
     state.filteredFrames = state.frames.filter(frame => {
       const inCategory = state.activeCategory === 'todas' || frame.categoriaId === state.activeCategory;
-      const text = `${frame.nome} ${categoryName(frame)} ${(frame.tags || []).join(' ')}`.toLocaleLowerCase('pt-BR');
-      return inCategory && (!query || text.includes(query));
+      const searchableText = normalizeSearchText([
+        frame.nome,
+        categoryName(frame),
+        frame.id,
+        frame.arquivo,
+        ...(Array.isArray(frame.tags) ? frame.tags : [frame.tags || ''])
+      ].join(' '));
+
+      const matchesSearch = !queryTerms.length || queryTerms.every(term => searchableText.includes(term));
+      return inCategory && matchesSearch;
     });
     renderFrames();
   }
