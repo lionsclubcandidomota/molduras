@@ -74,7 +74,11 @@
   async function api(path, options = {}) {
     const response = await fetch(apiUrl(path), { ...options, cache: "no-store", headers: { Accept: "application/vnd.github+json", Authorization: `Bearer ${state.token}`, "X-GitHub-Api-Version": API_VERSION, ...(options.headers || {}) } });
     let data = null; try { data = await response.json(); } catch {}
-    if (!response.ok) throw new GitHubError(data?.message || `Erro ${response.status}`, response.status);
+    if (!response.ok) {
+      const details = data?.message || `Erro ${response.status}`;
+      console.error("[Lions Admin] Erro da API GitHub", { status: response.status, path, details, response: data });
+      throw new GitHubError(details, response.status);
+    }
     return data;
   }
   const isConflict = e => e instanceof GitHubError && (e.status === 409 || e.status === 422 || /sha|does not match/i.test(e.message));
@@ -124,7 +128,7 @@
       return { id:String(f.id||`moldura-${index+1}`), nome:String(f.nome||f.id||"Moldura"), categoriaId, ordem:Number.isFinite(Number(f.ordem))?Number(f.ordem):n, arquivo:f.arquivo, ativo:f.ativo!==false, status:["novo","atualizada"].includes(legacyStatus) && f.statusVisivel!==false ? legacyStatus : "normal", statusVisivel:f.statusVisivel!==false };
     });
     renumber(categorias, molduras);
-    const configMatch = text.match(/window\.CONFIGURACOES\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
+    const configMatch = source.match(/window\.CONFIGURACOES\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
     let configuracoes = {};
     if (configMatch) { try { configuracoes = JSON.parse(configMatch[1]); } catch {} }
     configuracoes = { duracaoNovo:{valor:7,unidade:"dias"}, duracaoAtualizada:{valor:7,unidade:"dias"}, ...configuracoes };
@@ -320,7 +324,7 @@
   }
   [el.name,el.id,el.category].forEach(input=>input?.addEventListener("input",validateFrameForm));
 
-  el.formConnect.addEventListener("submit",async e=>{e.preventDefault();state.owner=el.owner.value.trim();state.repo=el.repo.value.trim();state.branch=el.branch.value.trim();state.token=el.token.value.trim();setBusy(true,"Conectando...");try{await load();flash("Dados carregados. O formato antigo será migrado ao salvar.","success");}catch(err){status("Erro","error");flash(err.message,"error");}finally{setBusy(false);if(!el.manager.hidden)status("Conectado","ok");}});
+  el.formConnect.addEventListener("submit",async e=>{e.preventDefault();state.owner=el.owner.value.trim();state.repo=el.repo.value.trim();state.branch=el.branch.value.trim();state.token=el.token.value.trim();setBusy(true,"Conectando...");try{await load();flash("Dados carregados. O formato antigo será migrado ao salvar.","success");}catch(err){console.error("[Lions Admin] Falha ao conectar",err);status("Erro","error");let message=err?.message||"Não foi possível conectar ao GitHub.";if(err?.status===401)message="Token inválido, expirado ou sem autorização.";else if(err?.status===403)message="Acesso negado. Verifique as permissões do token e o acesso ao repositório.";else if(err?.status===404)message="Repositório, branch ou arquivo molduras.js não encontrado. Confira proprietário, repositório e branch.";flash(message,"error");}finally{setBusy(false);if(!el.manager.hidden)status("Conectado","ok");}});
   el.toggleToken.addEventListener("click",()=>{el.token.type=el.token.type==="password"?"text":"password";el.toggleToken.textContent=el.token.type==="password"?"Mostrar":"Ocultar";});
   el.refresh.addEventListener("click",async()=>{if(state.dirty&&!confirm("Descartar alterações não salvas?"))return;setBusy(true);try{await load();flash("Lista atualizada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
   el.search.addEventListener("input",()=>{if(el.clearSearch)el.clearSearch.hidden=!el.search.value;renderCategories();renderFrames();});
