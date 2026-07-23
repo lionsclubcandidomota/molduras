@@ -54,96 +54,6 @@ window.MOLDURAS = [
     "statusVisivel": true
   },
   {
-    "id": "presidente-de-clube",
-    "nome": "Presidente de Clube",
-    "categoriaId": "cargos",
-    "ordem": 6,
-    "arquivo": "assets/molduras/presidente-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "primeiro-vice-presidente-de-clube",
-    "nome": "Primeiro Vice-Presidente de Clube",
-    "categoriaId": "cargos",
-    "ordem": 7,
-    "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "segundo-vice-presidente-de-clube",
-    "nome": "Segundo Vice-Presidente de Clube",
-    "categoriaId": "cargos",
-    "ordem": 9,
-    "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "secretario-de-clube",
-    "nome": "Secretário de Clube",
-    "categoriaId": "cargos",
-    "ordem": 8,
-    "arquivo": "assets/molduras/secretario-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "tesoureiro-de-clube",
-    "nome": "Tesoureiro de Clube",
-    "categoriaId": "cargos",
-    "ordem": 10,
-    "arquivo": "assets/molduras/tesoureiro-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "diretor-de-clube",
-    "nome": "Diretor de Clube",
-    "categoriaId": "cargos",
-    "ordem": 4,
-    "arquivo": "assets/molduras/diretor-de-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "assessor-de-socios-do-clube",
-    "nome": "Assessor de Sócios do Clube",
-    "categoriaId": "cargos",
-    "ordem": 3,
-    "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "assessor-de-marketing",
-    "nome": "Assessor de Marketing",
-    "categoriaId": "cargos",
-    "ordem": 1,
-    "arquivo": "assets/molduras/assessor-de-marketing.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
-    "id": "assessor-de-servicos-do-clube",
-    "nome": "Assessor de Serviços do Clube",
-    "categoriaId": "cargos",
-    "ordem": 2,
-    "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
-    "ativo": true,
-    "status": "normal",
-    "statusVisivel": true
-  },
-  {
     "id": "visao",
     "nome": "Visão",
     "categoriaId": "causas-globais",
@@ -211,16 +121,6 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
-  },
-  {
-    "id": "novo-associado",
-    "nome": "Novo Associado",
-    "categoriaId": "cargos",
-    "ordem": 5,
-    "arquivo": "assets/molduras/novo-associado.png",
-    "ativo": true,
-    "status": "normal",
     "statusVisivel": true
   },
   {
