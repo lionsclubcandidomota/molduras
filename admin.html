@@ -182,6 +182,10 @@
             </span>
           </label>
         </div>
+        <div class="schedule-grid">
+          <label><span>Disponível a partir de</span><input id="framePublishAt" type="datetime-local" /><small>Deixe vazio para disponibilizar imediatamente.</small></label>
+          <label><span>Ocultar automaticamente em</span><input id="frameHideAt" type="datetime-local" /><small>Deixe vazio para permanecer disponível sem prazo.</small></label>
+        </div>
 
         <div class="form-section-title"><span>3</span><div><strong>Imagem e prévia</strong><small>Confira o arquivo antes de publicar.</small></div></div>
         <div class="preview-area">
@@ -244,6 +248,10 @@
             </label>
           </div>
         </div>
+        <div class="schedule-grid bulk-schedule-grid">
+          <label><span>Disponibilizar todas em</span><input id="bulkPublishAt" type="datetime-local" /><small>Opcional.</small></label>
+          <label><span>Ocultar todas em</span><input id="bulkHideAt" type="datetime-local" /><small>Opcional.</small></label>
+        </div>
         <div id="bulkReview" class="bulk-review" hidden></div>
         <div class="bulk-upload-actions">
           <button id="clearBulkBtn" class="button light" type="button" disabled>Limpar seleção</button>
@@ -254,6 +262,29 @@
       </div>
 
       
+      <section class="admin-utilities collapsible-admin-panel" id="managementPanel">
+        <div class="maintenance-heading">
+          <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="managementBody">
+            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Durações, agendamentos e estatísticas</strong><small>Configure os selos e acompanhe downloads e compartilhamentos.</small></span>
+          </button><span class="panel-summary-pill">Configurações</span>
+        </div>
+        <div id="managementBody" class="collapsible-panel-body" hidden>
+          <div class="management-grid">
+            <div class="management-card"><h4>Duração dos destaques</h4><p>O prazo começa quando a moldura é salva como Novo ou Atualizada.</p>
+              <div class="duration-row"><label><span>Novo</span><input id="newDurationValue" type="number" min="1" value="7"></label><select id="newDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div>
+              <div class="duration-row"><label><span>Atualizada</span><input id="updatedDurationValue" type="number" min="1" value="7"></label><select id="updatedDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div>
+              <button id="saveManagementBtn" class="button primary" type="button">Salvar configurações</button>
+            </div>
+            <div class="management-card"><h4>Estatísticas de uso</h4><p>Informe o endereço do serviço de estatísticas. A chave administrativa fica somente neste navegador.</p>
+              <label><span>Endpoint</span><input id="analyticsEndpoint" type="url" placeholder="https://seu-worker.workers.dev"></label>
+              <label><span>Chave administrativa</span><input id="analyticsAdminKey" type="password" autocomplete="off" placeholder="Chave do Worker"></label>
+              <div class="stats-actions"><select id="statsPeriod"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select><button id="loadStatsBtn" class="button light" type="button">Atualizar estatísticas</button></div>
+            </div>
+          </div>
+          <div id="statsResult" class="stats-result" hidden></div>
+        </div>
+      </section>
+
       <section class="admin-utilities collapsible-admin-panel" id="maintenancePanel">
         <div class="maintenance-heading">
           <button id="maintenanceToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="maintenanceBody">

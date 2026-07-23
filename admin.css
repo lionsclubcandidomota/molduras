@@ -285,3 +285,8 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
   color:#1765a7;
   box-shadow:inset 0 0 0 1px rgba(23,101,167,.10);
 }
+
+
+/* v4.8 — gestão temporal e estatísticas */
+.schedule-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0 20px}.schedule-grid label,.management-card label{display:grid;gap:6px}.schedule-grid small,.management-card p,.management-card small{color:var(--muted);font-size:.82rem}.management-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:4px}.management-card{border:1px solid var(--line);border-radius:14px;padding:18px;background:#fff}.management-card h4{margin:0 0 5px}.duration-row{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:8px;align-items:end;margin:12px 0}.duration-row label{gap:5px}.stats-actions{display:flex;gap:8px;margin-top:12px}.stats-result{margin:16px 4px 4px}.stats-summary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}.stats-summary span{padding:10px 14px;border-radius:10px;background:#eef6ff;color:#0b4f88}.stats-summary strong{font-size:1.2rem;margin-right:4px}.stats-table-wrap{overflow:auto;border:1px solid var(--line);border-radius:12px}.stats-table-wrap table{width:100%;border-collapse:collapse;background:#fff}.stats-table-wrap th,.stats-table-wrap td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.stats-table-wrap td:nth-child(2){white-space:normal;min-width:220px}.stats-table-wrap td small{display:block;color:var(--muted)}
+@media(max-width:760px){.schedule-grid,.management-grid{grid-template-columns:1fr}.stats-actions{flex-direction:column}.duration-row{grid-template-columns:1fr 105px}}

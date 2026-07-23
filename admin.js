@@ -8,7 +8,7 @@
 
   const state = {
     owner: "", repo: "", branch: "main", token: "",
-    categorias: [], molduras: [], originalSnapshot: "",
+    categorias: [], molduras: [], configuracoes: {}, originalSnapshot: "",
     busy: false, dirty: false, editingId: "", pendingDelete: null, intentionalNavigation: false,
     draggedCategory: null, draggedFrame: null,
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
@@ -35,6 +35,8 @@
     diagnoseBtn: $("diagnoseBtn"), exportBackupBtn: $("exportBackupBtn"), importBackupInput: $("importBackupInput"), historyBtn: $("historyBtn"), utilityResult: $("utilityResult"),
     pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), discardPending: $("discardPendingBtn"), editorBackdrop: $("editorBackdrop"),
     nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
+    framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
+    managementToggle: $("managementToggle"), managementBody: $("managementBody"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), saveManagement: $("saveManagementBtn"), analyticsEndpoint: $("analyticsEndpoint"), analyticsAdminKey: $("analyticsAdminKey"), statsPeriod: $("statsPeriod"), loadStats: $("loadStatsBtn"), statsResult: $("statsResult"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -122,17 +124,21 @@
       return { id:String(f.id||`moldura-${index+1}`), nome:String(f.nome||f.id||"Moldura"), categoriaId, ordem:Number.isFinite(Number(f.ordem))?Number(f.ordem):n, arquivo:f.arquivo, ativo:f.ativo!==false, status:["novo","atualizada"].includes(legacyStatus) && f.statusVisivel!==false ? legacyStatus : "normal", statusVisivel:f.statusVisivel!==false };
     });
     renumber(categorias, molduras);
-    return { categorias, molduras };
+    const configMatch = text.match(/window\.CONFIGURACOES\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
+    let configuracoes = {};
+    if (configMatch) { try { configuracoes = JSON.parse(configMatch[1]); } catch {} }
+    configuracoes = { duracaoNovo:{valor:7,unidade:"dias"}, duracaoAtualizada:{valor:7,unidade:"dias"}, analyticsEndpoint:"", ...configuracoes };
+    return { categorias, molduras, configuracoes };
   }
 
-  function serialize(categorias, molduras) {
-    return `// Gerenciado pelo Painel de Molduras Lions v10\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+  function serialize(categorias, molduras, configuracoes = state.configuracoes) {
+    return `// Gerenciado pelo Painel de Molduras Lions v48\nwindow.CONFIGURACOES = ${JSON.stringify(configuracoes, null, 2)};\n\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
   }
   function renumber(categorias = state.categorias, molduras = state.molduras) {
     categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
     for (const cat of categorias) molduras.filter(f=>f.categoriaId===cat.id).sort((a,b)=>a.ordem-b.ordem).forEach((f,i)=>f.ordem=i+1);
   }
-  function snapshot() { return JSON.stringify({categorias:state.categorias,molduras:state.molduras}); }
+  function snapshot() { return JSON.stringify({categorias:state.categorias,molduras:state.molduras,configuracoes:state.configuracoes}); }
   function markDirty() { state.dirty = snapshot() !== state.originalSnapshot; updateDirtyUI(); }
   function updateDirtyUI() {
     if (el.saveOrder) el.saveOrder.disabled = state.busy || !state.dirty;
@@ -153,7 +159,7 @@
   let configSaveQueue = Promise.resolve();
 
   function saveConfig(message) {
-    const content = textToB64(serialize(state.categorias, state.molduras));
+    const content = textToB64(serialize(state.categorias, state.molduras, state.configuracoes));
     const savedSnapshot = snapshot();
 
     const operation = async () => {
@@ -287,9 +293,14 @@
   function render(){renumber();renderCategoryOptions();renderCategories();renderFrames();renderSummary();markDirty();}
 
   async function load(){
-    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false;if(el.quickNav)el.quickNav.hidden=false; status("Conectado","ok");
+    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.configuracoes=data.configuracoes || {}; fillManagementForm(); state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false;if(el.quickNav)el.quickNav.hidden=false; status("Conectado","ok");
   }
-  function resetForm(){document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
+  const localDateTime = value => { if(!value)return ""; const d=new Date(value); if(Number.isNaN(d.getTime()))return ""; const z=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`; };
+  const isoOrEmpty = value => value ? new Date(value).toISOString() : "";
+  const addDuration = (status) => { const cfg=status==="novo"?state.configuracoes.duracaoNovo:state.configuracoes.duracaoAtualizada; const amount=Math.max(1,Number(cfg?.valor)||7); return new Date(Date.now()+amount*(cfg?.unidade==="horas"?3600000:86400000)).toISOString(); };
+  function applyStatusTiming(target,status){ target.status=status; target.statusVisivel=status!=="normal"; if(status==="normal"){delete target.statusDesde;delete target.statusAte;}else{target.statusDesde=new Date().toISOString();target.statusAte=addDuration(status);} }
+  function fillManagementForm(){ const c=state.configuracoes||{}; if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7; if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias"; if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7; if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias"; if(el.analyticsEndpoint)el.analyticsEndpoint.value=c.analyticsEndpoint||""; if(el.analyticsAdminKey)el.analyticsAdminKey.value=localStorage.getItem("lions-analytics-admin-key")||""; }
+  function resetForm(){document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";if(el.framePublishAt)el.framePublishAt.value="";if(el.frameHideAt)el.frameHideAt.value="";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
   function categoryFromInput(name){
     const clean=String(name).trim(); let cat=state.categorias.find(c=>c.nome.toLowerCase()===clean.toLowerCase());
@@ -345,7 +356,7 @@
         const item=state.bulkFiles[i],id=slugify(item.id),path=`${IMAGE_DIR}/${id}.${item.ext}`;
         status(`Enviando ${i+1} de ${state.bulkFiles.length}...`);
         await uploadImage(item.file,path,`Adiciona imagem ${item.name}`);
-        state.molduras.push({id,nome:item.name.trim(),categoriaId:cat.id,ordem:++order,arquivo:path,ativo:el.bulkActive.checked,status:statusValue,statusVisivel:statusValue!=="normal"});
+        const created={id,nome:item.name.trim(),categoriaId:cat.id,ordem:++order,arquivo:path,ativo:el.bulkActive.checked,publicarEm:isoOrEmpty(el.bulkPublishAt?.value),ocultarEm:isoOrEmpty(el.bulkHideAt?.value)};applyStatusTiming(created,statusValue);state.molduras.push(created);
       }
       renumber();await saveConfig(`Adiciona ${state.bulkFiles.length} molduras em lote`);render();el.clearBulk.click();flash("Molduras adicionadas e publicadas em lote.","success");
     }catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}
@@ -362,7 +373,7 @@
       if(action==="move"){
         const name=el.bulkMoveCategory.value.trim();if(!name)throw new Error("Informe a categoria de destino.");const cat=categoryFromInput(name);let order=state.molduras.filter(f=>f.categoriaId===cat.id&&!state.selectedIds.has(f.id)).length;selected.forEach(f=>{f.categoriaId=cat.id;f.ordem=++order;});
       } else if(action.startsWith("status-")){
-        const next=action.replace("status-","");selected.forEach(f=>{f.status=next;f.statusVisivel=next!=="normal";});
+        const next=action.replace("status-","");selected.forEach(f=>{applyStatusTiming(f,next);});
       } else if(action==="show"||action==="hide") selected.forEach(f=>f.ativo=action==="show");
       else if(action==="delete-records"||action==="delete-files"){
         state.molduras=state.molduras.filter(f=>!state.selectedIds.has(f.id));
@@ -386,8 +397,8 @@
       if(file){const ext=(file.name.split(".").pop()||"png").toLowerCase();path=`${IMAGE_DIR}/${id}.${ext}`;await uploadImage(file,path,`Atualiza imagem ${name}`);}
       const oldCat=existing?.categoriaId;
       const statusValue=["novo","atualizada"].includes(selectedStatus)?selectedStatus:"normal";
-      if(existing){Object.assign(existing,{id,nome:name,categoriaId:cat.id,arquivo:path,ativo:el.active.checked,status:statusValue,statusVisivel:statusValue!=="normal"});if(oldCat!==cat.id)existing.ordem=state.molduras.filter(f=>f.categoriaId===cat.id).length+1;}
-      else state.molduras.push({id,nome:name,categoriaId:cat.id,ordem:state.molduras.filter(f=>f.categoriaId===cat.id).length+1,arquivo:path,ativo:el.active.checked,status:statusValue,statusVisivel:statusValue!=="normal"});
+      if(existing){Object.assign(existing,{id,nome:name,categoriaId:cat.id,arquivo:path,ativo:el.active.checked,publicarEm:isoOrEmpty(el.framePublishAt?.value),ocultarEm:isoOrEmpty(el.frameHideAt?.value)});applyStatusTiming(existing,statusValue);if(oldCat!==cat.id)existing.ordem=state.molduras.filter(f=>f.categoriaId===cat.id).length+1;}
+      else { const created={id,nome:name,categoriaId:cat.id,ordem:state.molduras.filter(f=>f.categoriaId===cat.id).length+1,arquivo:path,ativo:el.active.checked,publicarEm:isoOrEmpty(el.framePublishAt?.value),ocultarEm:isoOrEmpty(el.frameHideAt?.value)};applyStatusTiming(created,statusValue);state.molduras.push(created); }
       renumber();await saveConfig(`${existing?"Atualiza":"Adiciona"} moldura ${name}`);render();resetForm();flash("Moldura publicada.","success");
     }catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}
   });
@@ -399,6 +410,7 @@
     const data = JSON.parse(state.originalSnapshot);
     state.categorias = data.categorias;
     state.molduras = data.molduras;
+    state.configuracoes = data.configuracoes || state.configuracoes; fillManagementForm();
     state.selectedIds.clear();
     state.dirty = false;
     render();
@@ -475,7 +487,7 @@
       const shouldCollapse=section.classList.contains("is-open");
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
-    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");document.body.classList.add("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=false;validateFrameForm();if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){setCreationMode("single", { scroll: false });state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);if(el.framePublishAt)el.framePublishAt.value=localDateTime(f.publicarEm);if(el.frameHideAt)el.frameHideAt.value=localDateTime(f.ocultarEm);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;el.form.classList.add("is-editing");document.body.classList.add("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=false;validateFrameForm();if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");updateDestination();el.form.scrollIntoView({behavior:"smooth",block:"start"});setTimeout(()=>el.name.focus(),350);return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 
@@ -484,7 +496,7 @@ Digite 2 para Atualizada
 Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
       if(choice===null)return;
       const next=choice.trim()==="1"?"novo":choice.trim()==="2"?"atualizada":"normal";
-      f.status=next;f.statusVisivel=next!=="normal";
+      applyStatusTiming(f,next);
       setBusy(true,"Publicando...");try{await saveConfig(`${next==="normal"?"Remove destaque":"Define destaque"} da moldura ${f.nome}`);render();flash(next==="normal"?"Destaque removido.":`Moldura marcada como ${statusLabel(next)}.`,"success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;
     }if(action==="toggle"){f.ativo=f.ativo===false;setBusy(true,"Publicando...");try{await saveConfig(`${f.ativo?"Exibe":"Oculta"} moldura ${f.nome}`);render();flash("Visibilidade atualizada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;}if(action==="delete"){state.pendingDelete=f;el.confirmText.textContent=`A moldura “${f.nome}” será removida.`;el.dialog.showModal();}});
   el.list.addEventListener("dragstart",e=>{const row=e.target.closest(".frame-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedFrame=row.dataset.id;row.classList.add("dragging");});
@@ -626,4 +638,17 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   el.exportBackupBtn?.addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),categorias:state.categorias,molduras:state.molduras},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-molduras-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);recordActivity("Backup exportado");});
   el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
   el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
+
+  // Gestão temporal e estatísticas
+  if(el.managementToggle) el.managementToggle.addEventListener("click",()=>{const open=el.managementToggle.getAttribute("aria-expanded")!=="true";el.managementToggle.setAttribute("aria-expanded",String(open));el.managementBody.hidden=!open;});
+  if(el.saveManagement) el.saveManagement.addEventListener("click",async()=>{
+    state.configuracoes={...state.configuracoes,duracaoNovo:{valor:Math.max(1,Number(el.newDurationValue.value)||1),unidade:el.newDurationUnit.value},duracaoAtualizada:{valor:Math.max(1,Number(el.updatedDurationValue.value)||1),unidade:el.updatedDurationUnit.value},analyticsEndpoint:String(el.analyticsEndpoint.value||"").trim().replace(/\/$/,"")};
+    localStorage.setItem("lions-analytics-admin-key",el.analyticsAdminKey.value||"");
+    setBusy(true,"Salvando configurações...");try{await saveConfig("Atualiza configurações gerenciais");render();flash("Configurações gerenciais publicadas.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}
+  });
+  if(el.loadStats) el.loadStats.addEventListener("click",async()=>{
+    const endpoint=String(el.analyticsEndpoint.value||state.configuracoes.analyticsEndpoint||"").replace(/\/$/,"");const key=el.analyticsAdminKey.value||localStorage.getItem("lions-analytics-admin-key")||"";if(!endpoint||!key)return flash("Informe o endpoint e a chave administrativa.","error");
+    localStorage.setItem("lions-analytics-admin-key",key);el.loadStats.disabled=true;el.loadStats.textContent="Carregando…";
+    try{const r=await fetch(`${endpoint}/stats?days=${encodeURIComponent(el.statsPeriod.value)}`,{headers:{"X-Admin-Key":key}});if(!r.ok)throw new Error(`Falha nas estatísticas (${r.status}).`);const data=await r.json();const names=new Map(state.molduras.map(f=>[f.id,f.nome]));const rows=(data.items||[]).map((x,i)=>`<tr><td>${i+1}</td><td><strong>${esc(names.get(x.frameId)||x.frameId)}</strong><small>${esc(x.frameId)}</small></td><td>${Number(x.downloads||0).toLocaleString("pt-BR")}</td><td>${Number(x.shares||0).toLocaleString("pt-BR")}</td><td>${Number((x.downloads||0)+(x.shares||0)).toLocaleString("pt-BR")}</td></tr>`).join("");el.statsResult.hidden=false;el.statsResult.innerHTML=`<div class="stats-summary"><span><strong>${Number(data.totals?.downloads||0).toLocaleString("pt-BR")}</strong> downloads</span><span><strong>${Number(data.totals?.shares||0).toLocaleString("pt-BR")}</strong> compartilhamentos</span></div><div class="stats-table-wrap"><table><thead><tr><th>#</th><th>Moldura</th><th>Downloads</th><th>Compart.</th><th>Total</th></tr></thead><tbody>${rows||'<tr><td colspan="5">Nenhum evento no período.</td></tr>'}</tbody></table></div>`;}catch(e){flash(e.message,"error");}finally{el.loadStats.disabled=false;el.loadStats.textContent="Atualizar estatísticas";}
+  });
 })();
