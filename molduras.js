@@ -266,8 +266,8 @@ window.MOLDURAS = [
   {
     "id": "gmt",
     "nome": "GMT",
-    "categoriaId": "cargos",
-    "ordem": 11,
+    "categoriaId": "lions",
+    "ordem": 3,
     "arquivo": "assets/molduras/gmt.png",
     "ativo": true,
     "status": "normal",
