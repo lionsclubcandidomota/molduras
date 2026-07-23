@@ -225,7 +225,7 @@ window.MOLDURAS = [
   },
   {
     "id": "primeiro-vice-presidente-de-clube",
-    "nome": "Primeiro Vice Presidente De Clube",
+    "nome": "Primeiro Vice Presidente de Clube",
     "categoriaId": "cargos",
     "ordem": 7,
     "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
