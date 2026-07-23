@@ -1,14 +1,14 @@
 // Gerenciado pelo Painel de Molduras Lions v8
 window.CATEGORIAS = [
   {
-    "id": "porco-no-rolete-apae-02-08",
-    "nome": "🐷 Porco no Rolete APAE 02/08",
+    "id": "ircd-26-27",
+    "nome": "✨ Eventos",
     "ordem": 1,
     "ativo": true
   },
   {
-    "id": "ircd-26-27",
-    "nome": "IRCD 26/27",
+    "id": "porco-no-rolete-apae-02-08",
+    "nome": "🐷 Porco no Rolete APAE 02/08",
     "ordem": 2,
     "ativo": true
   },
@@ -306,8 +306,8 @@ window.MOLDURAS = [
   {
     "id": "eu-vou-porco-no-rolete",
     "nome": "Eu Vou no Porco no Rolete",
-    "categoriaId": "porco-no-rolete-apae-02-08",
-    "ordem": 2,
+    "categoriaId": "ircd-26-27",
+    "ordem": 3,
     "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
     "ativo": true,
     "status": "novo",
@@ -316,8 +316,8 @@ window.MOLDURAS = [
   {
     "id": "nos-vamos-porco-no-rolete",
     "nome": "Nós Vamos no Porco no Rolete",
-    "categoriaId": "porco-no-rolete-apae-02-08",
-    "ordem": 1,
+    "categoriaId": "ircd-26-27",
+    "ordem": 4,
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
     "ativo": true,
     "status": "novo",
