@@ -265,7 +265,7 @@
       <section class="admin-utilities collapsible-admin-panel" id="managementPanel">
         <div class="maintenance-heading">
           <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="managementBody">
-            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Durações, agendamentos e estatísticas</strong><small>Configure os selos e acompanhe downloads e compartilhamentos.</small></span>
+            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Durações e agendamentos</strong><small>Configure os prazos dos selos e a disponibilidade das molduras.</small></span>
           </button><span class="panel-summary-pill">Configurações</span>
         </div>
         <div id="managementBody" class="collapsible-panel-body" hidden>
@@ -275,13 +275,7 @@
               <div class="duration-row"><label><span>Atualizada</span><input id="updatedDurationValue" type="number" min="1" value="7"></label><select id="updatedDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div>
               <button id="saveManagementBtn" class="button primary" type="button">Salvar configurações</button>
             </div>
-            <div class="management-card"><h4>Estatísticas de uso</h4><p>Informe o endereço do serviço de estatísticas. A chave administrativa fica somente neste navegador.</p>
-              <label><span>Endpoint</span><input id="analyticsEndpoint" type="url" placeholder="https://seu-worker.workers.dev"></label>
-              <label><span>Chave administrativa</span><input id="analyticsAdminKey" type="password" autocomplete="off" placeholder="Chave do Worker"></label>
-              <div class="stats-actions"><select id="statsPeriod"><option value="7">7 dias</option><option value="30" selected>30 dias</option><option value="90">90 dias</option><option value="365">1 ano</option></select><button id="loadStatsBtn" class="button light" type="button">Atualizar estatísticas</button></div>
-            </div>
           </div>
-          <div id="statsResult" class="stats-result" hidden></div>
         </div>
       </section>
 

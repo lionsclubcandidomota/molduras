@@ -36,7 +36,7 @@
     pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), discardPending: $("discardPendingBtn"), editorBackdrop: $("editorBackdrop"),
     nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
     framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
-    managementToggle: $("managementToggle"), managementBody: $("managementBody"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), saveManagement: $("saveManagementBtn"), analyticsEndpoint: $("analyticsEndpoint"), analyticsAdminKey: $("analyticsAdminKey"), statsPeriod: $("statsPeriod"), loadStats: $("loadStatsBtn"), statsResult: $("statsResult"),
+    managementToggle: $("managementToggle"), managementBody: $("managementBody"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), saveManagement: $("saveManagementBtn"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -127,7 +127,7 @@
     const configMatch = text.match(/window\.CONFIGURACOES\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
     let configuracoes = {};
     if (configMatch) { try { configuracoes = JSON.parse(configMatch[1]); } catch {} }
-    configuracoes = { duracaoNovo:{valor:7,unidade:"dias"}, duracaoAtualizada:{valor:7,unidade:"dias"}, analyticsEndpoint:"", ...configuracoes };
+    configuracoes = { duracaoNovo:{valor:7,unidade:"dias"}, duracaoAtualizada:{valor:7,unidade:"dias"}, ...configuracoes };
     return { categorias, molduras, configuracoes };
   }
 
@@ -299,7 +299,7 @@
   const isoOrEmpty = value => value ? new Date(value).toISOString() : "";
   const addDuration = (status) => { const cfg=status==="novo"?state.configuracoes.duracaoNovo:state.configuracoes.duracaoAtualizada; const amount=Math.max(1,Number(cfg?.valor)||7); return new Date(Date.now()+amount*(cfg?.unidade==="horas"?3600000:86400000)).toISOString(); };
   function applyStatusTiming(target,status){ target.status=status; target.statusVisivel=status!=="normal"; if(status==="normal"){delete target.statusDesde;delete target.statusAte;}else{target.statusDesde=new Date().toISOString();target.statusAte=addDuration(status);} }
-  function fillManagementForm(){ const c=state.configuracoes||{}; if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7; if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias"; if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7; if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias"; if(el.analyticsEndpoint)el.analyticsEndpoint.value=c.analyticsEndpoint||""; if(el.analyticsAdminKey)el.analyticsAdminKey.value=localStorage.getItem("lions-analytics-admin-key")||""; }
+  function fillManagementForm(){ const c=state.configuracoes||{}; if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7; if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias"; if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7; if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias"; }
   function resetForm(){document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";if(el.framePublishAt)el.framePublishAt.value="";if(el.frameHideAt)el.frameHideAt.value="";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
   function categoryFromInput(name){
@@ -639,16 +639,11 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
   el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
 
-  // Gestão temporal e estatísticas
+  // Gestão temporal e agendamentos
   if(el.managementToggle) el.managementToggle.addEventListener("click",()=>{const open=el.managementToggle.getAttribute("aria-expanded")!=="true";el.managementToggle.setAttribute("aria-expanded",String(open));el.managementBody.hidden=!open;});
   if(el.saveManagement) el.saveManagement.addEventListener("click",async()=>{
-    state.configuracoes={...state.configuracoes,duracaoNovo:{valor:Math.max(1,Number(el.newDurationValue.value)||1),unidade:el.newDurationUnit.value},duracaoAtualizada:{valor:Math.max(1,Number(el.updatedDurationValue.value)||1),unidade:el.updatedDurationUnit.value},analyticsEndpoint:String(el.analyticsEndpoint.value||"").trim().replace(/\/$/,"")};
-    localStorage.setItem("lions-analytics-admin-key",el.analyticsAdminKey.value||"");
+    state.configuracoes={...state.configuracoes,duracaoNovo:{valor:Math.max(1,Number(el.newDurationValue.value)||1),unidade:el.newDurationUnit.value},duracaoAtualizada:{valor:Math.max(1,Number(el.updatedDurationValue.value)||1),unidade:el.updatedDurationUnit.value}};
     setBusy(true,"Salvando configurações...");try{await saveConfig("Atualiza configurações gerenciais");render();flash("Configurações gerenciais publicadas.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}
   });
-  if(el.loadStats) el.loadStats.addEventListener("click",async()=>{
-    const endpoint=String(el.analyticsEndpoint.value||state.configuracoes.analyticsEndpoint||"").replace(/\/$/,"");const key=el.analyticsAdminKey.value||localStorage.getItem("lions-analytics-admin-key")||"";if(!endpoint||!key)return flash("Informe o endpoint e a chave administrativa.","error");
-    localStorage.setItem("lions-analytics-admin-key",key);el.loadStats.disabled=true;el.loadStats.textContent="Carregando…";
-    try{const r=await fetch(`${endpoint}/stats?days=${encodeURIComponent(el.statsPeriod.value)}`,{headers:{"X-Admin-Key":key}});if(!r.ok)throw new Error(`Falha nas estatísticas (${r.status}).`);const data=await r.json();const names=new Map(state.molduras.map(f=>[f.id,f.nome]));const rows=(data.items||[]).map((x,i)=>`<tr><td>${i+1}</td><td><strong>${esc(names.get(x.frameId)||x.frameId)}</strong><small>${esc(x.frameId)}</small></td><td>${Number(x.downloads||0).toLocaleString("pt-BR")}</td><td>${Number(x.shares||0).toLocaleString("pt-BR")}</td><td>${Number((x.downloads||0)+(x.shares||0)).toLocaleString("pt-BR")}</td></tr>`).join("");el.statsResult.hidden=false;el.statsResult.innerHTML=`<div class="stats-summary"><span><strong>${Number(data.totals?.downloads||0).toLocaleString("pt-BR")}</strong> downloads</span><span><strong>${Number(data.totals?.shares||0).toLocaleString("pt-BR")}</strong> compartilhamentos</span></div><div class="stats-table-wrap"><table><thead><tr><th>#</th><th>Moldura</th><th>Downloads</th><th>Compart.</th><th>Total</th></tr></thead><tbody>${rows||'<tr><td colspan="5">Nenhum evento no período.</td></tr>'}</tbody></table></div>`;}catch(e){flash(e.message,"error");}finally{el.loadStats.disabled=false;el.loadStats.textContent="Atualizar estatísticas";}
-  });
+
 })();
