@@ -11,6 +11,7 @@
     categorias: [], molduras: [], originalSnapshot: "",
     busy: false, dirty: false, editingId: "", pendingDelete: null,
     draggedCategory: null, draggedFrame: null,
+    collapsedCategories: new Set(),
   };
 
   const $ = (id) => document.getElementById(id);
@@ -22,6 +23,7 @@
     fileHint: $("fileHint"), active: $("frameActive"), frameStatus: $("frameStatus"), preview: $("filePreview"), destination: $("destinationPath"), save: $("saveFrameBtn"),
     list: $("framesList"), count: $("frameCount"), search: $("adminSearch"), saveOrder: $("saveOrderBtn"), cancelOrder: $("cancelOrderBtn"),
     notice: $("orderNotice"), summaryTotal: $("summaryTotal"), summaryVisible: $("summaryVisible"), summaryHighlights: $("summaryHighlights"), summaryCategories: $("summaryCategories"), categories: $("categoriesOrderList"), dialog: $("confirmDialog"), confirmText: $("confirmText"), deleteFile: $("deleteImageFile"), confirmDelete: $("confirmDeleteBtn"),
+    expandAll: $("expandAllCategoriesBtn"), collapseAll: $("collapseAllCategoriesBtn"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -146,6 +148,20 @@
     return "normal";
   }
   function statusLabel(value){ return value==="novo"?"Novo":value==="atualizada"?"Atualizada":"Sem destaque"; }
+  const COLLAPSE_STORAGE_KEY = "lions-admin-categorias-contraidas-v1";
+  function loadCollapsedCategories(){
+    try{
+      const saved=JSON.parse(localStorage.getItem(COLLAPSE_STORAGE_KEY)||"[]");
+      state.collapsedCategories=new Set(Array.isArray(saved)?saved:[]);
+    }catch{ state.collapsedCategories=new Set(); }
+  }
+  function saveCollapsedCategories(){
+    try{ localStorage.setItem(COLLAPSE_STORAGE_KEY,JSON.stringify([...state.collapsedCategories])); }catch{}
+  }
+  function setCategoryCollapsed(id,collapsed){
+    if(collapsed) state.collapsedCategories.add(id); else state.collapsedCategories.delete(id);
+    saveCollapsedCategories();
+  }
   function renderSummary(){
     if(el.summaryTotal) el.summaryTotal.textContent=state.molduras.length;
     if(el.summaryVisible) el.summaryVisible.textContent=state.molduras.filter(f=>f.ativo!==false).length;
@@ -170,19 +186,32 @@
   function renderFrames(){
     const q=el.search.value.toLowerCase().trim(); let total=0; let html="";
     for(const cat of state.categorias.sort((a,b)=>a.ordem-b.ordem)){
-      const frames=state.molduras.filter(f=>f.categoriaId===cat.id).sort((a,b)=>a.ordem-b.ordem).filter(f=>!q||`${f.nome} ${f.id} ${cat.nome}`.toLowerCase().includes(q));
-      if(!frames.length)continue; html+=`<div class="category-section-label"><span>${esc(cat.nome)}</span><small>${frames.length} moldura(s)</small></div>`;
-      frames.forEach((f,index)=>{const st=frameStatus(f);total++; html+=`<article class="frame-row" draggable="${!q}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
-        <div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar">☰</button><span class="order-number">${index+1}</span><button type="button" class="order-arrow" data-action="up" ${index===0?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${index===frames.length-1?"disabled":""}>↓</button></div>
+      const allFrames=state.molduras.filter(f=>f.categoriaId===cat.id).sort((a,b)=>a.ordem-b.ordem);
+      const frames=allFrames.filter(f=>!q||`${f.nome} ${f.id} ${cat.nome}`.toLowerCase().includes(q));
+      if(!frames.length)continue;
+      const forcedOpen=Boolean(q);
+      const isOpen=forcedOpen || !state.collapsedCategories.has(cat.id);
+      const catStatus=categoryStatus(cat.id);
+      const statusBadge=catStatus!=="normal"?`<span class="badge ${catStatus}">${statusLabel(catStatus)}</span>`:"";
+      total+=frames.length;
+      html+=`<section class="category-accordion ${isOpen?"is-open":""}" data-accordion-category="${esc(cat.id)}">
+        <button class="category-accordion-header" type="button" data-action="toggle-category" aria-expanded="${isOpen}" aria-controls="category-body-${esc(cat.id)}">
+          <span class="category-accordion-title"><span class="category-chevron" aria-hidden="true">›</span><span class="category-title-copy"><strong>${esc(cat.nome)}</strong><small>${allFrames.length} moldura(s)${q&&frames.length!==allFrames.length?` · ${frames.length} encontrada(s)`:""}</small></span></span>
+          <span class="category-accordion-meta">${q?`<span class="search-active-note">Resultado da busca</span>`:""}${statusBadge}<span class="badge active category-count-pill">${frames.length}</span></span>
+        </button>
+        <div id="category-body-${esc(cat.id)}" class="category-accordion-body" ${isOpen?"":"hidden"}>`;
+      frames.forEach((f,index)=>{const st=frameStatus(f);html+=`<article class="frame-row" draggable="${!q}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
+        <div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar">☰</button><span class="order-number">${f.ordem}</span><button type="button" class="order-arrow" data-action="up" ${f.ordem===1?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${f.ordem===allFrames.length?"disabled":""}>↓</button></div>
         <img class="frame-thumb" src="${esc(f.arquivo)}?v=${Date.now()}" alt=""><div class="frame-info"><h4>${esc(f.nome)}</h4><p>${esc(f.id)} · ordem ${f.ordem}</p><div class="badges"><span class="badge ${f.ativo!==false?"active":"inactive"}">${f.ativo!==false?"Visível":"Oculta"}</span>${st!=="normal"?`<span class="badge ${st}">${statusLabel(st)}</span>`:""}</div></div>
         <div class="row-actions frame-actions"><button class="button light" data-action="edit">Editar</button><button class="button light" data-action="status-menu">Destaque</button><button class="button light" data-action="toggle">${f.ativo!==false?"Ocultar":"Exibir"}</button><button class="button danger" data-action="delete">Excluir</button></div></article>`;});
+      html+=`</div></section>`;
     }
-    el.list.innerHTML=html||"<p>Nenhuma moldura encontrada.</p>"; el.count.textContent=`${total} moldura(s)`;
+    el.list.innerHTML=html||'<p class="category-empty">Nenhuma moldura encontrada.</p>'; el.count.textContent=`${total} moldura(s)`;
   }
   function render(){renumber();renderCategoryOptions();renderCategories();renderFrames();renderSummary();markDirty();}
 
   async function load(){
-    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; render(); el.manager.hidden=false; status("Conectado","ok");
+    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; loadCollapsedCategories(); render(); el.manager.hidden=false; status("Conectado","ok");
   }
   function resetForm(){state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
@@ -195,6 +224,8 @@
   el.toggleToken.addEventListener("click",()=>{el.token.type=el.token.type==="password"?"text":"password";el.toggleToken.textContent=el.token.type==="password"?"Mostrar":"Ocultar";});
   el.refresh.addEventListener("click",async()=>{if(state.dirty&&!confirm("Descartar alterações não salvas?"))return;setBusy(true);try{await load();flash("Lista atualizada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
   el.search.addEventListener("input",()=>{renderCategories();renderFrames();});
+  el.expandAll?.addEventListener("click",()=>{state.collapsedCategories.clear();saveCollapsedCategories();renderFrames();});
+  el.collapseAll?.addEventListener("click",()=>{state.collapsedCategories=new Set(state.categorias.map(c=>c.id));saveCollapsedCategories();renderFrames();});
   el.name.addEventListener("input",()=>{if(!state.editingId)el.id.value=slugify(el.name.value);updateDestination();}); el.id.addEventListener("input",updateDestination); el.file.addEventListener("change",()=>{updateDestination();const f=el.file.files[0];if(f){el.preview.innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Prévia">`;}});
   el.cancelEdit.addEventListener("click",resetForm);
 
@@ -273,7 +304,15 @@
     });
   });
 
-  el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;const action=b.dataset.action;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;updateDestination();el.form.scrollIntoView({behavior:"smooth"});return;}if(action==="status-menu"){
+  el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const action=b.dataset.action;
+    if(action==="toggle-category"){
+      if(el.search.value.trim())return;
+      const section=b.closest(".category-accordion"),categoryId=section?.dataset.accordionCategory;
+      if(!categoryId)return;
+      const shouldCollapse=section.classList.contains("is-open");
+      setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
+    }
+    const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){state.editingId=id;el.originalId.value=id;el.name.value=f.nome;el.id.value=f.id;el.category.value=catName(f.categoriaId);el.active.checked=f.ativo!==false;el.frameStatus.value=frameStatus(f);el.formTitle.textContent=`Editar: ${f.nome}`;el.cancelEdit.hidden=false;el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;updateDestination();el.form.scrollIntoView({behavior:"smooth"});return;}if(action==="status-menu"){
       const current=frameStatus(f);
       const choice=prompt(`Destaque de “${f.nome}”:
 

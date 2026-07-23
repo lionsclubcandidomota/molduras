@@ -165,11 +165,17 @@
         <div id="categoriesOrderList" class="categories-order-list"></div>
       </section>
 
-      <div class="frames-order-heading">
-        <h3>Ordem das molduras dentro das categorias</h3>
-        <p>Uma moldura só pode ser movida dentro da própria categoria. Para trocar de categoria, use “Editar”.</p>
+      <div class="frames-order-heading collapsible-heading">
+        <div>
+          <h3>Ordem das molduras dentro das categorias</h3>
+          <p>Use o cabeçalho de cada categoria para contrair ou expandir. Uma moldura só pode ser movida dentro da própria categoria.</p>
+        </div>
+        <div class="collapse-actions" aria-label="Ações de visualização das categorias">
+          <button id="expandAllCategoriesBtn" class="button light" type="button">Expandir todas</button>
+          <button id="collapseAllCategoriesBtn" class="button light" type="button">Contrair todas</button>
+        </div>
       </div>
-      <div id="framesList" class="frames-list"></div>
+      <div id="framesList" class="frames-list accordion-list"></div>
     </section>
   </main>
 
