@@ -28,6 +28,9 @@
     editorToggle: $("editorToggleBtn"), editorModeHint: $("editorModeHint"), generateId: $("generateIdBtn"),
     bulkFiles: $("bulkFiles"), bulkCategory: $("bulkCategory"), bulkStatus: $("bulkStatus"), bulkActive: $("bulkActive"), bulkReview: $("bulkReview"), clearBulk: $("clearBulkBtn"), publishBulk: $("publishBulkBtn"),
     bulkBar: $("bulkActionBar"), bulkSelectedCount: $("bulkSelectedCount"), bulkAction: $("bulkActionSelect"), bulkMoveCategory: $("bulkMoveCategory"), applyBulk: $("applyBulkActionBtn"), clearSelection: $("clearSelectionBtn"),
+    returnToSite: $("returnToSiteBtn"), quickNav: $("adminQuickNav"), scrollTop: $("scrollTopBtn"), clearSearch: $("clearSearchBtn"),
+    bulkUploadPanel: $("bulkUploadPanel"), bulkUploadToggle: $("bulkUploadToggle"), bulkUploadSummary: $("bulkUploadSummary"),
+    busyOverlay: $("pageBusyOverlay"), busyText: $("pageBusyText"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -50,6 +53,8 @@
     state.busy = value;
     [el.connect, el.refresh, el.save, el.confirmDelete, el.saveOrder, el.cancelOrder, el.publishBulk, el.applyBulk].forEach(x => { if (x) x.disabled = value; });
     if (value) status(message);
+    if (el.busyOverlay) el.busyOverlay.hidden = !value;
+    if (el.busyText && value) el.busyText.textContent = message;
     updateDirtyUI();
   }
 
@@ -269,7 +274,7 @@
   function render(){renumber();renderCategoryOptions();renderCategories();renderFrames();renderSummary();markDirty();}
 
   async function load(){
-    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false; status("Conectado","ok");
+    const file=await getFile(CONFIG_PATH); const data=normalizeData(b64ToText(file.content)); state.categorias=data.categorias; state.molduras=data.molduras; state.originalSnapshot=snapshot(); state.dirty=false; state.selectedIds.clear(); loadCollapsedCategories(); render(); el.manager.hidden=false;if(el.quickNav)el.quickNav.hidden=false; status("Conectado","ok");
   }
   function resetForm(){state.editingId="";el.originalId.value="";el.form.reset();el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
@@ -281,7 +286,8 @@
   el.formConnect.addEventListener("submit",async e=>{e.preventDefault();state.owner=el.owner.value.trim();state.repo=el.repo.value.trim();state.branch=el.branch.value.trim();state.token=el.token.value.trim();setBusy(true,"Conectando...");try{await load();flash("Dados carregados. O formato antigo será migrado ao salvar.","success");}catch(err){status("Erro","error");flash(err.message,"error");}finally{setBusy(false);if(!el.manager.hidden)status("Conectado","ok");}});
   el.toggleToken.addEventListener("click",()=>{el.token.type=el.token.type==="password"?"text":"password";el.toggleToken.textContent=el.token.type==="password"?"Mostrar":"Ocultar";});
   el.refresh.addEventListener("click",async()=>{if(state.dirty&&!confirm("Descartar alterações não salvas?"))return;setBusy(true);try{await load();flash("Lista atualizada.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}});
-  el.search.addEventListener("input",()=>{renderCategories();renderFrames();});
+  el.search.addEventListener("input",()=>{if(el.clearSearch)el.clearSearch.hidden=!el.search.value;renderCategories();renderFrames();});
+  if(el.clearSearch)el.clearSearch.addEventListener("click",()=>{el.search.value="";el.clearSearch.hidden=true;renderCategories();renderFrames();el.search.focus();});
   el.expandAll?.addEventListener("click",()=>{state.collapsedCategories.clear();saveCollapsedCategories();renderFrames();});
   el.collapseAll?.addEventListener("click",()=>{state.collapsedCategories=new Set(state.categorias.map(c=>c.id));saveCollapsedCategories();renderFrames();});
   el.name.addEventListener("input",()=>{if(!state.editingId)el.id.value=slugify(el.name.value);updateDestination();}); el.id.addEventListener("input",updateDestination); el.file.addEventListener("change",()=>{updateDestination();const f=el.file.files[0];if(f){el.preview.innerHTML=`<img src="${URL.createObjectURL(f)}" alt="Prévia">`;}});
@@ -459,6 +465,50 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   }
   if (el.generateId) el.generateId.addEventListener("click", () => { el.id.value = slugify(el.name.value); updateDestination(); el.id.focus(); });
   el.name.addEventListener("blur", () => { if (!state.editingId && !el.id.value.trim()) { el.id.value = slugify(el.name.value); updateDestination(); } });
+
+
+  // v9 — navegação confiável e atalhos de produtividade
+  if (el.returnToSite) {
+    const siteUrl = new URL("./", window.location.href);
+    siteUrl.search = "";
+    siteUrl.hash = "";
+    el.returnToSite.href = siteUrl.href;
+  }
+  if (el.scrollTop) {
+    const updateScrollButton = () => { el.scrollTop.hidden = window.scrollY < 500; };
+    window.addEventListener("scroll", updateScrollButton, { passive: true });
+    el.scrollTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+    updateScrollButton();
+  }
+  if (el.bulkUploadToggle && el.bulkUploadPanel) {
+    setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, getStoredPanelState("lions-admin-bulk-upload-open", true), "lions-admin-bulk-upload-open");
+    el.bulkUploadToggle.addEventListener("click", () => setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, !el.bulkUploadPanel.classList.contains("is-open"), "lions-admin-bulk-upload-open"));
+  }
+  const updateBulkSummary = () => {
+    if (!el.bulkUploadSummary) return;
+    const total = state.bulkFiles.length;
+    el.bulkUploadSummary.textContent = total ? `${total} arquivo${total === 1 ? "" : "s"}` : "Nenhum arquivo";
+  };
+  if (el.bulkFiles) el.bulkFiles.addEventListener("change", () => setTimeout(updateBulkSummary, 0));
+  if (el.clearBulk) el.clearBulk.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
+  if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
+  window.addEventListener("beforeunload", event => {
+    if (!state.dirty && !state.editingId && !state.bulkFiles.length) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape") {
+      if (state.selectedIds.size && el.clearSelection) el.clearSelection.click();
+      else if (state.editingId && el.cancelEdit) el.cancelEdit.click();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+      event.preventDefault();
+      if (!el.saveOrder.disabled) el.saveOrder.click();
+      else if (el.form.classList.contains("is-open") && !el.save.disabled) el.form.requestSubmit();
+    }
+  });
+  updateBulkSummary();
 
   updateDestination();
 })();

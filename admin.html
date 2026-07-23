@@ -16,7 +16,10 @@
         <h1>Central de conteúdo</h1>
         <p>Gerencie molduras, categorias, destaques e a ordem de exibição em um só lugar.</p>
       </div>
-      <a class="site-link" href="index.html">← Voltar ao site</a>
+      <div class="hero-actions">
+        <a id="returnToSiteBtn" class="site-link" href="./" aria-label="Voltar ao site principal">← Voltar ao site</a>
+        <button id="scrollTopBtn" class="site-link site-link-button" type="button" hidden>↑ Topo</button>
+      </div>
     </header>
 
     <section class="card" id="connectionCard">
@@ -55,6 +58,13 @@
         <button id="connectBtn" class="button primary full" type="submit">Conectar e carregar molduras</button>
       </form>
       <p class="help">Use um token <em>fine-grained</em> limitado somente a este repositório, com permissão <strong>Contents: Read and write</strong>.</p>
+    </section>
+
+    <section class="admin-quick-nav" id="adminQuickNav" hidden aria-label="Atalhos do painel">
+      <a href="#frameForm">＋ Nova moldura</a>
+      <a href="#bulkUploadPanel">▦ Inclusão em lote</a>
+      <a href="#categoryManagerPanel">☰ Categorias</a>
+      <a href="#framesSection">▣ Molduras cadastradas</a>
     </section>
 
     <section class="card" id="managerCard" hidden>
@@ -152,14 +162,19 @@
 
 
 
-      <section class="bulk-upload-panel" aria-labelledby="bulkUploadTitle">
-        <div class="editor-heading">
-          <div>
-            <span class="step">Inclusão em lote</span>
-            <h3 id="bulkUploadTitle">Adicionar várias molduras</h3>
-            <p>Selecione diversos arquivos de imagem, revise os nomes e publique tudo de uma vez.</p>
-          </div>
+      <section id="bulkUploadPanel" class="bulk-upload-panel collapsible-admin-panel is-open" aria-labelledby="bulkUploadTitle">
+        <div class="editor-heading bulk-toggle-heading">
+          <button id="bulkUploadToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="bulkUploadBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <span class="step">Inclusão em lote</span>
+              <strong id="bulkUploadTitle">Adicionar várias molduras</strong>
+              <small>Selecione diversos arquivos, revise os dados e publique tudo de uma vez.</small>
+            </span>
+          </button>
+          <span id="bulkUploadSummary" class="panel-summary-pill">Nenhum arquivo</span>
         </div>
+        <div id="bulkUploadBody" class="collapsible-panel-body">
         <div class="form-grid bulk-settings-grid">
           <label>
             <span>Arquivos</span>
@@ -188,14 +203,18 @@
           <button id="clearBulkBtn" class="button light" type="button" disabled>Limpar seleção</button>
           <button id="publishBulkBtn" class="button success" type="button" disabled>Publicar molduras em lote</button>
         </div>
+        </div>
       </section>
 
-      <div class="list-heading">
+      <section id="framesSection" class="frames-section"><div class="list-heading">
         <div>
           <h3>Molduras cadastradas</h3>
           <p id="frameCount">0 molduras</p>
         </div>
-        <input id="adminSearch" type="search" placeholder="Pesquisar moldura" />
+        <div class="search-control">
+          <input id="adminSearch" type="search" placeholder="Pesquisar por nome, ID ou categoria" autocomplete="off" />
+          <button id="clearSearchBtn" class="small-button" type="button" hidden>Limpar</button>
+        </div>
       </div>
 
       <div class="order-toolbar">
@@ -259,6 +278,7 @@
       </div>
 
       <div id="framesList" class="frames-list accordion-list"></div>
+      </section>
     </section>
   </main>
 
@@ -274,6 +294,9 @@
     </form>
   </dialog>
 
+  <div id="pageBusyOverlay" class="page-busy-overlay" hidden aria-live="polite">
+    <div class="page-busy-card"><span class="busy-spinner"></span><strong id="pageBusyText">Processando...</strong></div>
+  </div>
   <script src="admin.js"></script>
 </body>
 </html>
