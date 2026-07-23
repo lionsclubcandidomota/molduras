@@ -46,7 +46,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "eu-vou-ircd",
@@ -56,7 +60,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "novo-associado",
@@ -66,7 +74,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/novo-associado.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "presidente-de-clube",
@@ -76,7 +88,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/presidente-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "primeiro-vice-presidente-de-clube",
@@ -86,7 +102,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "secretario-de-clube",
@@ -96,7 +116,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/secretario-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "segundo-vice-presidente-de-clube",
@@ -106,7 +130,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "assessor-de-marketing",
@@ -114,9 +142,13 @@ window.MOLDURAS = [
     "categoriaId": "cargos",
     "ordem": 1,
     "arquivo": "assets/molduras/assessor-de-marketing.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "assessor-de-servicos-do-clube",
@@ -126,7 +158,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "assessor-de-socios-do-clube",
@@ -136,7 +172,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "diretor-de-clube",
@@ -146,7 +186,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diretor-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "tesoureiro-de-clube",
@@ -156,7 +200,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/tesoureiro-de-clube.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "socorro-a-catastrofes",
@@ -166,7 +214,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "cancer-infantil",
@@ -176,7 +228,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "diabetes",
@@ -186,7 +242,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "esforcos-humanitarios",
@@ -196,7 +256,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "fome",
@@ -206,7 +270,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "visao",
@@ -216,7 +284,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "juventude",
@@ -226,7 +298,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "meio-ambiente",
@@ -236,7 +312,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "feliz-aniversario",
@@ -247,6 +327,8 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": "",
     "publicarEm": "",
     "ocultarEm": "2026-07-23T23:50:00.000Z"
   },
@@ -258,7 +340,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "dia-d",
@@ -268,7 +354,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
     "status": "atualizada",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "gat",
@@ -278,7 +368,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/gat.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "get",
@@ -288,7 +382,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/get.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "glt",
@@ -298,7 +396,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/glt.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "gmt",
@@ -308,7 +410,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/gmt.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "eu-vou-porco-no-rolete",
@@ -318,7 +424,11 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   },
   {
     "id": "nos-vamos-porco-no-rolete",
@@ -328,6 +438,10 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
     "ativo": true,
     "status": "novo",
-    "statusVisivel": true
+    "statusVisivel": true,
+    "statusDesde": "",
+    "statusAte": "",
+    "publicarEm": "",
+    "ocultarEm": ""
   }
 ];
