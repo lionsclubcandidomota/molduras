@@ -7,7 +7,7 @@
   photoLayer.width = photoLayer.height = 1080;
   const photoCtx = photoLayer.getContext('2d');
   const wrap = $('canvasWrap');
-  const undoBtn=$('undoBtn'), redoBtn=$('redoBtn'), compareBtn=$('compareBtn'), resolutionWarning=$('resolutionWarning');
+  const undoBtn=$('undoBtn'), redoBtn=$('redoBtn'), resolutionWarning=$('resolutionWarning');
   const controls = $('controls');
   const photoInput = $('photoInput');
   const photoButton = $('photoButton');
@@ -56,7 +56,7 @@
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
     brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
     pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1,
-    favorites: new Set(), recents: [], history: [], future: [], comparing: false
+    favorites: new Set(), recents: [], history: [], future: []
   };
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -197,7 +197,7 @@
     document.querySelectorAll('#filterPresets button').forEach(button => button.disabled = !enabled);
     controls.setAttribute('aria-disabled', enabled ? 'false' : 'true');
     wrap.classList.toggle('is-awaiting-photo', !enabled);
-    if(undoBtn) undoBtn.disabled=!enabled||!state.history.length; if(redoBtn) redoBtn.disabled=!enabled||!state.future.length; if(compareBtn) compareBtn.disabled=!enabled;
+    if(undoBtn) undoBtn.disabled=!enabled||!state.history.length; if(redoBtn) redoBtn.disabled=!enabled||!state.future.length;
     emptyState.hidden = enabled;
     adjustHint.hidden = !enabled;
     photoButton.textContent = enabled ? '🔄 Trocar foto' : 'Escolher foto';
@@ -263,7 +263,7 @@
     ctx.clearRect(0, 0, 1080, 1080);
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, 1080, 1080);
-    if(state.comparing){const keep={brightness:state.brightness,contrast:state.contrast,saturation:state.saturation,warmth:state.warmth,grayscale:state.grayscale,hue:state.hue};Object.assign(state,{brightness:100,contrast:100,saturation:100,warmth:0,grayscale:0,hue:0});drawPhotoLayer();Object.assign(state,keep);}else drawPhotoLayer();
+    drawPhotoLayer();
     ctx.drawImage(photoLayer, 0, 0);
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
     if (state.selectedFrame) scheduleSave();
@@ -306,8 +306,6 @@
   rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,true)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
   undoBtn?.addEventListener('click',()=>{if(!state.history.length)return;state.future.push(transformSnapshot());restoreSnapshot(state.history.pop());updateHistoryButtons();});
   redoBtn?.addEventListener('click',()=>{if(!state.future.length)return;state.history.push(transformSnapshot());restoreSnapshot(state.future.pop());updateHistoryButtons();});
-  compareBtn?.addEventListener('pointerdown',()=>{state.comparing=true;draw();compareBtn.textContent='◐ Depois';});
-  ['pointerup','pointerleave','pointercancel'].forEach(ev=>compareBtn?.addEventListener(ev,()=>{state.comparing=false;draw();compareBtn.innerHTML='<span>◐</span> Antes';}));
   fitBtn.addEventListener('click',()=>{rememberState();resetPhotoPosition();}); centerBtn.addEventListener('click',()=>{rememberState();state.x=540;state.y=540;draw();});
   resetBtn.addEventListener('click',clearPhoto); newCreationBtn.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
   function clearPhoto(){photoInput.value='';state.photo=null;if(resolutionWarning)resolutionWarning.hidden=true;state.history=[];state.future=[];resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}

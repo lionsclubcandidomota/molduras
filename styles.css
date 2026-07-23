@@ -295,3 +295,60 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   }
   .compare-tool b{font-size:.88rem}
 }
+
+
+/* =========================================================
+   V4.1 — melhor leitura dos benefícios no celular
+   ========================================================= */
+@media (max-width: 760px) {
+  .benefit-list {
+    max-width: 390px;
+    margin: 30px auto 0;
+    gap: 0;
+  }
+
+  .benefit-list li {
+    grid-template-columns: 38px minmax(0, 1fr);
+    grid-template-areas:
+      "icon title"
+      "icon description";
+    column-gap: 12px;
+    row-gap: 5px;
+    padding: 15px 2px;
+    align-items: start;
+  }
+
+  .benefit-list li + li {
+    border-top: 1px solid rgba(255,255,255,.18);
+  }
+
+  .benefit-list li > span {
+    grid-area: icon;
+    width: 38px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  .benefit-list li > strong {
+    grid-area: title;
+    display: block;
+    font-size: .94rem;
+    line-height: 1.3;
+    white-space: normal;
+  }
+
+  .benefit-list li > small {
+    grid-area: description;
+    display: block;
+    margin-top: 1px;
+    font-size: .79rem;
+    line-height: 1.45;
+    color: #d6e8f8;
+    white-space: normal;
+  }
+}
