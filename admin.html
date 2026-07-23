@@ -164,10 +164,16 @@
             </select>
             <small>O destaque também aparece automaticamente na categoria.</small>
           </label>
-          <label class="switch-card">
-            <span>Visibilidade</span>
-            <span class="switch-line"><input id="frameActive" type="checkbox" checked /> <strong>Exibir no site</strong></span>
-            <small>Desative para ocultar sem excluir.</small>
+          <label class="switch-card visibility-card">
+            <span class="visibility-copy">
+              <strong>Visibilidade</strong>
+              <small>Desative para ocultar sem excluir.</small>
+            </span>
+            <span class="toggle-control">
+              <input id="frameActive" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+              <span class="toggle-label">Exibir no site</span>
+            </span>
           </label>
         </div>
 
@@ -181,7 +187,7 @@
         </div>
 
         <div class="editor-footer-actions">
-          <span id="editorModeHint" class="editor-mode-hint">Modo de cadastro</span>
+          <span id="editorModeHint" class="editor-mode-hint" hidden>Modo de edição</span>
           <button id="saveFrameBtn" class="button success" type="submit">Adicionar e publicar moldura</button>
         </div>
         </div>
