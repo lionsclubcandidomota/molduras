@@ -282,5 +282,25 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "novo",
     "statusVisivel": true
+  },
+  {
+    "id": "nos-vamos-ircd",
+    "nome": "Nos Vamos IRCD 26/27",
+    "categoriaId": "ircd-26-27",
+    "ordem": 1,
+    "arquivo": "assets/molduras/nos-vamos-ircd.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
+  },
+  {
+    "id": "eu-vou-ircd",
+    "nome": "Eu Vou IRCD 26/27",
+    "categoriaId": "ircd-26-27",
+    "ordem": 2,
+    "arquivo": "assets/molduras/eu-vou-ircd.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
