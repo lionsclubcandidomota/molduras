@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0f2d69" />
   <title>Central Lions — Administração de Molduras</title>
-  <link rel="icon" type="image/png" href="logo-lions.png" />
-  <link rel="apple-touch-icon" href="logo-lions.png" />
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
@@ -230,6 +228,18 @@
       </section>
       </div>
 
+      
+      <section class="admin-utilities" id="adminUtilities">
+        <div class="heading-row"><div><span class="step">🧰 Ferramentas</span><h2>Manutenção e segurança</h2><p>Diagnóstico, backup e histórico local do painel.</p></div></div>
+        <div class="utility-grid">
+          <button class="utility-card" id="diagnoseBtn" type="button"><span>🩺</span><strong>Diagnosticar biblioteca</strong><small>Localiza IDs, caminhos e categorias problemáticas.</small></button>
+          <button class="utility-card" id="exportBackupBtn" type="button"><span>⬇️</span><strong>Exportar backup</strong><small>Baixa categorias e molduras em JSON.</small></button>
+          <label class="utility-card utility-upload"><span>⬆️</span><strong>Importar backup</strong><small>Carrega um JSON para revisão antes de publicar.</small><input id="importBackupInput" type="file" accept="application/json,.json" hidden></label>
+          <button class="utility-card" id="historyBtn" type="button"><span>🕘</span><strong>Histórico local</strong><small>Exibe as últimas ações desta instalação.</small></button>
+        </div>
+        <div id="utilityResult" class="utility-result" hidden></div>
+      </section>
+
       <section id="framesSection" class="frames-section"><div class="list-heading">
         <div>
           <h3>🎞️ Molduras cadastradas</h3>
@@ -258,7 +268,7 @@
           <button id="categoryManagerToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="categoryManagerBody">
             <span class="section-chevron">›</span>
             <span>
-              <strong id="categoryOrderTitle">Categorias</strong>
+              <strong id="categoryOrderTitle">🗂️ Categorias</strong>
               <small>Expanda para renomear, limpar destaques, excluir ou reorganizar categorias.</small>
             </span>
           </button>

@@ -85,6 +85,7 @@
                 <span>🖼️</span><strong>Escolha uma moldura</strong><small>Depois você poderá adicionar sua foto.</small>
               </div>
             </div>
+            <p class="resolution-warning" id="resolutionWarning" hidden>⚠️ Esta foto pode perder qualidade na imagem final.</p>
             <p class="gesture-hint" id="adjustHint" hidden>☝️ Arraste a foto para posicionar. Use dois dedos para ampliar.</p>
           </div>
 
@@ -106,6 +107,9 @@
                 <input id="rotationRange" type="range" min="-180" max="180" value="0" step="1" disabled>
               </div>
               <div class="quick-actions">
+                <button class="tool-button" id="undoBtn" type="button" disabled><span>↶</span> Desfazer</button>
+                <button class="tool-button" id="redoBtn" type="button" disabled><span>↷</span> Refazer</button>
+                <button class="tool-button" id="compareBtn" type="button" disabled><span>◐</span> Antes</button>
                 <button class="tool-button" id="fitBtn" type="button" disabled><span>⛶</span> Preencher</button>
                 <button class="tool-button" id="centerBtn" type="button" disabled><span>◎</span> Centralizar</button>
                 <button class="tool-button danger" id="resetBtn" type="button" disabled><span>×</span> Remover</button>

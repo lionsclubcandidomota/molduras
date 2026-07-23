@@ -32,6 +32,7 @@
     bulkUploadPanel: $("bulkUploadPanel"), bulkUploadToggle: $("bulkUploadToggle"), bulkUploadSummary: $("bulkUploadSummary"),
     busyOverlay: $("pageBusyOverlay"), busyText: $("pageBusyText"),
     singleModeBtn: $("singleModeBtn"), bulkModeBtn: $("bulkModeBtn"), singleModeContainer: $("singleModeContainer"), bulkModeContainer: $("bulkModeContainer"),
+    diagnoseBtn: $("diagnoseBtn"), exportBackupBtn: $("exportBackupBtn"), importBackupInput: $("importBackupInput"), historyBtn: $("historyBtn"), utilityResult: $("utilityResult"),
   };
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
@@ -39,7 +40,8 @@
   const esc = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
-  function flash(message, type = "info") { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; }
+  function flash(message, type = "info") { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; if(type==="success") recordActivity(message); }
+  function recordActivity(message){try{const key="lions-admin-history";const list=JSON.parse(localStorage.getItem(key)||"[]");list.unshift({message,date:new Date().toLocaleString("pt-BR")});localStorage.setItem(key,JSON.stringify(list.slice(0,30)));}catch{}}
   function status(message, type = "neutral") { el.status.textContent = message; el.status.className = `status ${type}`; }
   function setPanelOpen(panel, button, open, storageKey) {
     if (!panel || !button) return;
@@ -547,4 +549,13 @@ Digite 0 para remover`,current==="novo"?"1":current==="atualizada"?"2":"0");
   updateBulkSummary();
 
   updateDestination();
+
+  el.diagnoseBtn?.addEventListener("click",()=>{
+    const issues=[];const ids=new Set(), files=new Set(), cats=new Set(state.categorias.map(c=>c.id));
+    state.molduras.forEach(f=>{if(ids.has(f.id))issues.push(`ID duplicado: ${f.id}`);ids.add(f.id);if(!f.arquivo)issues.push(`Sem arquivo: ${f.nome}`);else if(files.has(f.arquivo))issues.push(`Arquivo repetido: ${f.arquivo}`);else files.add(f.arquivo);if(!cats.has(f.categoriaId))issues.push(`Categoria inexistente em: ${f.nome}`);});
+    el.utilityResult.hidden=false;el.utilityResult.innerHTML=issues.length?`<strong>Foram encontrados ${issues.length} ponto(s):</strong><ul>${issues.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<strong>✅ Nenhum problema estrutural encontrado.</strong><p>${state.molduras.length} molduras e ${state.categorias.length} categorias verificadas.</p>`;
+  });
+  el.exportBackupBtn?.addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),categorias:state.categorias,molduras:state.molduras},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-molduras-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);recordActivity("Backup exportado");});
+  el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Clique em salvar ordenação para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
+  el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
 })();

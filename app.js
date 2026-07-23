@@ -7,6 +7,7 @@
   photoLayer.width = photoLayer.height = 1080;
   const photoCtx = photoLayer.getContext('2d');
   const wrap = $('canvasWrap');
+  const undoBtn=$('undoBtn'), redoBtn=$('redoBtn'), compareBtn=$('compareBtn'), resolutionWarning=$('resolutionWarning');
   const controls = $('controls');
   const photoInput = $('photoInput');
   const photoButton = $('photoButton');
@@ -161,10 +162,10 @@
 
   function setPhotoEnabled(enabled) {
     [zoomRange,zoomNumber,rotationRange,rotationNumber,downloadBtn,mobileDownloadBtn,shareBtn,fitBtn,centerBtn,resetBtn,brightnessRange,contrastRange,saturationRange,warmthRange,resetFiltersBtn].forEach(el => { if (el) el.disabled = !enabled; });
-    cropOptions.disabled = !enabled;
     document.querySelectorAll('#filterPresets button').forEach(button => button.disabled = !enabled);
     controls.setAttribute('aria-disabled', enabled ? 'false' : 'true');
     wrap.classList.toggle('is-awaiting-photo', !enabled);
+    if(undoBtn) undoBtn.disabled=!enabled||!state.history.length; if(redoBtn) redoBtn.disabled=!enabled||!state.future.length; if(compareBtn) compareBtn.disabled=!enabled;
     emptyState.hidden = enabled;
     adjustHint.hidden = !enabled;
     photoButton.textContent = enabled ? '🔄 Trocar foto' : 'Escolher foto';
@@ -199,6 +200,10 @@
   }
 
   function coverScale(image) { return Math.max(1080/image.naturalWidth,1080/image.naturalHeight); }
+  function transformSnapshot(){return {scale:state.scale,rotation:state.rotation,x:state.x,y:state.y,brightness:state.brightness,contrast:state.contrast,saturation:state.saturation,warmth:state.warmth,grayscale:state.grayscale,hue:state.hue};}
+  function updateHistoryButtons(){if(undoBtn)undoBtn.disabled=!state.photo||!state.history.length;if(redoBtn)redoBtn.disabled=!state.photo||!state.future.length;}
+  function rememberState(){if(!state.photo)return;state.history.push(transformSnapshot());if(state.history.length>40)state.history.shift();state.future=[];updateHistoryButtons();}
+  function restoreSnapshot(v){if(!v)return;Object.assign(state,v);updateTransformControls();brightnessRange.value=state.brightness;contrastRange.value=state.contrast;saturationRange.value=state.saturation;warmthRange.value=state.warmth;updateFilterOutputs();draw();}
   function resetPhotoPosition() { if (!state.photo) return; state.baseScale=coverScale(state.photo); state.scale=1; state.rotation=0; state.x=540; state.y=540; updateTransformControls(); draw(); }
   function setZoom(value) { state.scale=clamp(Number(value)||1,.2,4); updateTransformControls(); draw(); }
   function setRotation(value,snap=false) { let v=clamp(Number(value)||0,-180,180); if(snap && Math.abs(v)<=ROTATION_SNAP)v=0; state.rotation=v; updateTransformControls(); draw(); }
@@ -224,7 +229,7 @@
     ctx.clearRect(0, 0, 1080, 1080);
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, 1080, 1080);
-    drawPhotoLayer();
+    if(state.comparing){const keep={brightness:state.brightness,contrast:state.contrast,saturation:state.saturation,warmth:state.warmth,grayscale:state.grayscale,hue:state.hue};Object.assign(state,{brightness:100,contrast:100,saturation:100,warmth:0,grayscale:0,hue:0});drawPhotoLayer();Object.assign(state,keep);}else drawPhotoLayer();
     ctx.drawImage(photoLayer, 0, 0);
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
   }
@@ -260,13 +265,17 @@
   photoInput.addEventListener('change', event => {
     const file=event.target.files?.[0]; if(!file)return;
     if(!file.type.startsWith('image/')) return alert('Escolha um arquivo de imagem válido.');
-    const reader=new FileReader(); reader.onload=()=>{const image=new Image(); image.onload=()=>{state.photo=image;resetPhotoPosition();setPhotoEnabled(true);};image.onerror=()=>alert('Não foi possível abrir esta imagem.');image.src=reader.result;};reader.readAsDataURL(file);
+    const reader=new FileReader(); reader.onload=()=>{const image=new Image(); image.onload=()=>{state.photo=image;state.history=[];state.future=[];resetPhotoPosition();setPhotoEnabled(true);wrap.classList.remove('is-awaiting-photo');if(resolutionWarning)resolutionWarning.hidden=Math.min(image.naturalWidth,image.naturalHeight)>=900;};image.onerror=()=>alert('Não foi possível abrir esta imagem.');image.src=reader.result;};reader.readAsDataURL(file);
   });
   zoomRange.addEventListener('input',()=>setZoom(zoomRange.value)); zoomNumber.addEventListener('input',()=>{if(zoomNumber.value!=='')setZoom(Number(zoomNumber.value)/100);}); zoomNumber.addEventListener('change',()=>setZoom(Number(zoomNumber.value||100)/100));
   rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,true)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
-  fitBtn.addEventListener('click',resetPhotoPosition); centerBtn.addEventListener('click',()=>{state.x=540;state.y=540;draw();});
+  undoBtn?.addEventListener('click',()=>{if(!state.history.length)return;state.future.push(transformSnapshot());restoreSnapshot(state.history.pop());updateHistoryButtons();});
+  redoBtn?.addEventListener('click',()=>{if(!state.future.length)return;state.history.push(transformSnapshot());restoreSnapshot(state.future.pop());updateHistoryButtons();});
+  compareBtn?.addEventListener('pointerdown',()=>{state.comparing=true;draw();compareBtn.textContent='◐ Depois';});
+  ['pointerup','pointerleave','pointercancel'].forEach(ev=>compareBtn?.addEventListener(ev,()=>{state.comparing=false;draw();compareBtn.innerHTML='<span>◐</span> Antes';}));
+  fitBtn.addEventListener('click',()=>{rememberState();resetPhotoPosition();}); centerBtn.addEventListener('click',()=>{rememberState();state.x=540;state.y=540;draw();});
   resetBtn.addEventListener('click',clearPhoto); newCreationBtn.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
-  function clearPhoto(){photoInput.value='';state.photo=null;resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}
+  function clearPhoto(){photoInput.value='';state.photo=null;if(resolutionWarning)resolutionWarning.hidden=true;state.history=[];state.future=[];resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}
 
   document.querySelectorAll('#filterPresets button').forEach(button=>button.addEventListener('click',()=>applyPreset(button.dataset.preset)));
   [[brightnessRange,'brightness'],[contrastRange,'contrast'],[saturationRange,'saturation'],[warmthRange,'warmth']].forEach(([range,key])=>range.addEventListener('input',()=>{state[key]=Number(range.value); state.grayscale=0; state.hue=0; updateFilterOutputs();document.querySelectorAll('#filterPresets button').forEach(b=>b.classList.remove('is-active'));draw();}));

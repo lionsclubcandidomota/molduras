@@ -14,3 +14,5 @@
 .crop-options input:checked+span{box-shadow:0 0 0 3px rgba(18,106,181,.12)}
 @media(max-width:980px){.hero-grid{grid-template-columns:minmax(0,820px)}}
 @media(max-width:760px){.hero-grid{padding-bottom:64px}.hero-copy{text-align:center}}
+
+.resolution-warning{margin:10px 0 0;padding:10px 12px;border-radius:12px;background:#fff3cd;color:#73510a;font-size:.84rem;font-weight:700;text-align:center}.quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.canvas-stage:not(.is-awaiting-photo) canvas{opacity:1!important}
