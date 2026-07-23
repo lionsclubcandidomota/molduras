@@ -147,3 +147,31 @@ dialog::backdrop{background:rgba(5,20,40,.48);backdrop-filter:blur(4px)}
 
 /* v13 — editor lateral, validação e alterações pendentes */
 .pending-changes-bar{position:sticky;top:.75rem;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:0 0 1rem;padding:.8rem 1rem;border:1px solid #e6c86a;border-radius:14px;background:#fff8db;box-shadow:0 10px 28px rgba(57,48,12,.14)}.pending-changes-bar div{display:grid;gap:.12rem}.pending-changes-bar small{color:#6f622b}.field-error{display:block;min-height:1.15em;margin-top:.28rem;color:#b42318;font-weight:700;font-size:.78rem}.is-invalid{border-color:#d92d20!important;box-shadow:0 0 0 3px rgba(217,45,32,.1)!important}.editor-backdrop{position:fixed;inset:0;background:rgba(4,20,38,.42);backdrop-filter:blur(2px);z-index:89}.editor-drawer-open{overflow:hidden}.editor-drawer-open #frameForm{position:fixed;top:0;right:0;bottom:0;z-index:90;width:min(620px,94vw);margin:0;border-radius:24px 0 0 24px;overflow:auto;background:#fff;box-shadow:-24px 0 65px rgba(4,25,47,.25);animation:drawerIn .22s ease-out}.editor-drawer-open #frameForm .collapsible-panel-body{display:block!important}.editor-drawer-open #frameForm .section-toggle-button{pointer-events:none}@keyframes drawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}@media(max-width:700px){.pending-changes-bar{top:.4rem;align-items:flex-start}.pending-changes-bar .button{white-space:nowrap}.editor-drawer-open #frameForm{width:100vw;border-radius:0}}
+
+/* =========================================================
+   Central Lions 2.0 — identidade visual profissional
+   ========================================================= */
+:root{--v2-navy:#082d61;--v2-blue:#0d5db8;--v2-gold:#e5b83f;--v2-bg:#f3f6fb;--v2-card:#fff;--v2-ink:#12233c}
+body{background:radial-gradient(circle at 90% 0,rgba(229,184,63,.12),transparent 26rem),linear-gradient(180deg,#eef4fb 0,var(--v2-bg) 36rem);color:var(--v2-ink)}
+.admin-shell{max-width:1500px}
+.admin-hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#062b5d,#0c4f9d);border:0;box-shadow:0 24px 60px rgba(8,45,97,.2)}
+.admin-hero::after{content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-160px;top:-210px;background:rgba(229,184,63,.18)}
+.admin-hero>*{position:relative;z-index:1}
+.admin-logo{filter:drop-shadow(0 10px 18px rgba(0,0,0,.2))}
+.card,.v10-manager{border:1px solid rgba(8,45,97,.07);box-shadow:0 16px 44px rgba(8,45,97,.08);border-radius:22px}
+.v10-sidebar{background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border:1px solid rgba(8,45,97,.08);box-shadow:0 14px 34px rgba(8,45,97,.08)}
+.v10-sidebar a,.v10-sidebar button{transition:.2s ease}
+.v10-sidebar a:hover,.v10-sidebar button:hover{transform:translateX(3px);background:#edf5ff;color:var(--v2-blue)}
+.v10-dashboard{gap:1rem}.summary-card{position:relative;overflow:hidden;border:1px solid rgba(8,45,97,.07);box-shadow:0 10px 25px rgba(8,45,97,.06)}
+.summary-card::after{content:"";position:absolute;width:72px;height:72px;border-radius:50%;right:-28px;bottom:-32px;background:rgba(13,93,184,.08)}
+.summary-card strong{color:var(--v2-navy);font-size:2rem}
+.creation-mode-card,.utility-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.creation-mode-card:hover,.utility-card:hover{transform:translateY(-3px);box-shadow:0 16px 32px rgba(8,45,97,.1)}
+.creation-mode-card.is-active{border-color:var(--v2-blue);box-shadow:0 0 0 3px rgba(13,93,184,.1)}
+.editor-panel,.bulk-upload-panel,.admin-utilities,.frames-section{border-radius:20px}
+.pending-changes-bar{border:1px solid rgba(229,184,63,.38);box-shadow:0 14px 35px rgba(93,65,0,.13);backdrop-filter:blur(14px)}
+.button{transition:transform .16s ease,box-shadow .16s ease}.button:hover{transform:translateY(-1px)}
+.button.primary,.button.success{box-shadow:0 10px 22px rgba(13,93,184,.18)}
+input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none}
+input[type="search"]::-ms-clear{display:none;width:0;height:0}
+@media(max-width:900px){.admin-hero{border-radius:0 0 22px 22px}.v10-sidebar{border-radius:16px}}

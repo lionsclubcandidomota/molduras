@@ -30,15 +30,15 @@
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-copy">
-          <span class="hero-label">✨ Simples, rápido e privado</span>
+          <span class="hero-label">✨ Simples e rápido</span>
           <h1>Crie sua imagem Lions em poucos passos</h1>
-          <p>Escolha uma moldura, envie sua foto e faça os ajustes. Nada é enviado para servidores: tudo acontece no seu aparelho.</p>
+          <p>Escolha uma moldura, adicione sua foto, ajuste do seu jeito e tenha sua imagem pronta em poucos instantes.</p>
           <div class="hero-actions">
             <a class="button primary large" href="#galeria">Escolher uma moldura</a>
             <button class="button ghost large" id="heroHelpBtn" type="button">Ver como funciona</button>
           </div>
           <div class="trust-row">
-            <span>🔒 Foto privada</span><span>📱 Funciona no celular</span><span>⚡ Sem cadastro</span>
+            <span>📱💻 Funciona no celular e computador</span><span>⚡ Sem cadastro</span><span>🎨 Fácil de personalizar</span>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
         </label>
         <div class="category-strip" id="categoryFilters" aria-label="Categorias"></div>
         <div class="smart-filters" aria-label="Filtros pessoais">
-          <button type="button" id="favoritesFilterBtn">♡ Favoritas</button>
+          <button type="button" id="favoritesFilterBtn">❤️ Favoritas</button>
           <button type="button" id="recentFilterBtn">🕘 Recentes</button>
         </div>
       </div>
@@ -97,7 +97,7 @@
           <div class="tools-column">
             <div class="upload-card" id="uploadCard">
               <div class="upload-icon">📷</div>
-              <div><strong id="uploadTitle">Selecione uma moldura primeiro</strong><small id="uploadDescription">A foto será processada somente no seu aparelho.</small></div>
+              <div><strong id="uploadTitle">Selecione uma moldura primeiro</strong><small id="uploadDescription">Depois, escolha a imagem que deseja personalizar.</small></div>
               <label class="button primary block is-disabled" id="photoButton" for="photoInput" aria-disabled="true">Escolher foto</label>
               <input id="photoInput" type="file" accept="image/*" hidden disabled>
             </div>
@@ -114,7 +114,6 @@
               <div class="quick-actions">
                 <button class="tool-button" id="undoBtn" type="button" disabled><span>↶</span> Desfazer</button>
                 <button class="tool-button" id="redoBtn" type="button" disabled><span>↷</span> Refazer</button>
-                <button class="tool-button" id="compareBtn" type="button" disabled><span>◐</span> Antes</button>
                 <button class="tool-button" id="fitBtn" type="button" disabled><span>⛶</span> Preencher</button>
                 <button class="tool-button" id="centerBtn" type="button" disabled><span>◎</span> Centralizar</button>
                 <button class="tool-button danger" id="resetBtn" type="button" disabled><span>×</span> Remover</button>
@@ -124,7 +123,10 @@
             <details class="advanced-panel" id="advancedPanel">
               <summary><span><b>🎛️ Ajustes avançados</b><small>Filtros e ajustes de imagem</small></span><i>⌄</i></summary>
               <div class="advanced-content">
-
+                <div class="compare-panel">
+                  <div><strong>Comparar filtros</strong><small>Pressione e segure para visualizar a foto sem os filtros aplicados.</small></div>
+                  <button class="tool-button compare-tool" id="compareBtn" type="button" disabled><span>◐</span> Antes / Depois</button>
+                </div>
 
                 <div class="filter-presets" id="filterPresets" aria-label="Filtros rápidos">
                   <button type="button" data-preset="original" class="is-active" disabled>Original</button>
