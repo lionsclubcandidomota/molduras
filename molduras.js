@@ -19,14 +19,14 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
-    "id": "aniversario",
-    "nome": "Feliz Aniversário",
+    "id": "lions",
+    "nome": "Lions",
     "ordem": 4,
     "ativo": true
   },
   {
-    "id": "lions",
-    "nome": "Lions",
+    "id": "porco-no-rolete-apae-02-08",
+    "nome": "🐷 Porco no Rolete APAE 02/08",
     "ordem": 5,
     "ativo": true
   }
@@ -302,5 +302,15 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "eu-vou-porco-no-rolete",
+    "nome": "Eu vou Porco no Rolete",
+    "categoriaId": "porco-no-rolete-apae-02-08",
+    "ordem": 1,
+    "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true
   }
 ];
