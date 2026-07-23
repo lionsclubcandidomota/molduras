@@ -235,7 +235,7 @@ window.MOLDURAS = [
   },
   {
     "id": "secretario-de-clube",
-    "nome": "Secretario De Clube",
+    "nome": "Secretario de Clube",
     "categoriaId": "cargos",
     "ordem": 9,
     "arquivo": "assets/molduras/secretario-de-clube.png",
