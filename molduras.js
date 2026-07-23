@@ -7,27 +7,21 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
-    "id": "porco-no-rolete-apae-02-08",
-    "nome": "🐷 Porco no Rolete APAE 02/08",
-    "ordem": 2,
-    "ativo": true
-  },
-  {
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
-    "ordem": 3,
+    "ordem": 2,
     "ativo": true
   },
   {
     "id": "causas-globais",
     "nome": "🌎 Causas Globais",
-    "ordem": 4,
+    "ordem": 3,
     "ativo": true
   },
   {
     "id": "lions",
     "nome": "🦁 Lions",
-    "ordem": 5,
+    "ordem": 4,
     "ativo": true
   }
 ];
