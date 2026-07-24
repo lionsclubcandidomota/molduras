@@ -12,6 +12,7 @@
     busy: false, dirty: false, editingId: "", pendingDelete: null, intentionalNavigation: false,
     draggedCategory: null, draggedFrame: null, editorReturnScrollY: 0, editingCategoryId: "",
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
+    publicacao: {}, publicationWatchToken: 0,
   };
 
   const $ = (id) => document.getElementById(id);
@@ -38,6 +39,7 @@
     framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
     managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"), colorNewCode: $("colorNewCode"), colorUpdatedCode: $("colorUpdatedCode"), colorVisibleCode: $("colorVisibleCode"), colorHiddenCode: $("colorHiddenCode"),
     categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorDelete: $("categoryEditorDelete"), categoryEditorCount: $("categoryEditorCount"),
+    publicationNotice: $("publicationNotice"), publicationNoticeIcon: $("publicationNoticeIcon"), publicationNoticeTitle: $("publicationNoticeTitle"), publicationNoticeText: $("publicationNoticeText"), publicationNoticeLink: $("publicationNoticeLink"), publicationNoticeClose: $("publicationNoticeClose"),
   };
 
   // v5.6 — drawers independentes do fluxo da página.
@@ -157,11 +159,22 @@
     let configuracoes = {};
     if (configMatch) { try { configuracoes = JSON.parse(configMatch[1]); } catch {} }
     configuracoes = { duracaoNovo:{valor:7,unidade:"dias"}, duracaoAtualizada:{valor:7,unidade:"dias"}, mostrarNovo:true, mostrarAtualizada:true, cores:{novo:"#2f9e72",atualizada:"#d99a16",visivel:"#2d8fd5",oculta:"#7b8794"}, lembrarCategorias:true, mostrarContadorCategoria:true, confirmarPublicacao:true, confirmarDescarte:true, excluirImagemPadrao:true, ...configuracoes, cores:{novo:"#2f9e72",atualizada:"#d99a16",visivel:"#2d8fd5",oculta:"#7b8794",...(configuracoes.cores||{})} };
-    return { categorias, molduras, configuracoes };
+    const publicationMatch = source.match(/window\.PUBLICACAO\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
+    let publicacao = {};
+    if (publicationMatch) { try { publicacao = JSON.parse(publicationMatch[1]); } catch {} }
+    return { categorias, molduras, configuracoes, publicacao };
   }
 
-  function serialize(categorias, molduras, configuracoes = state.configuracoes) {
-    return `// Gerenciado pelo Painel de Molduras Lions v48\nwindow.CONFIGURACOES = ${JSON.stringify(configuracoes, null, 2)};\n\nwindow.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};\n\nwindow.MOLDURAS = ${JSON.stringify(molduras, null, 2)};\n`;
+  function serialize(categorias, molduras, configuracoes = state.configuracoes, publicacao = state.publicacao) {
+    return `// Gerenciado pelo Painel de Molduras Lions v64
+window.PUBLICACAO = ${JSON.stringify(publicacao || {}, null, 2)};
+
+window.CONFIGURACOES = ${JSON.stringify(configuracoes, null, 2)};
+
+window.CATEGORIAS = ${JSON.stringify(categorias, null, 2)};
+
+window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
+`;
   }
   function renumber(categorias = state.categorias, molduras = state.molduras) {
     categorias.sort((a,b)=>a.ordem-b.ordem).forEach((c,i)=>c.ordem=i+1);
@@ -178,6 +191,57 @@
     if (el.discardPending) el.discardPending.disabled = state.busy || !state.dirty;
   }
 
+  function publicIndexUrl() {
+    try {
+      const url = new URL("./", window.location.href);
+      url.hash = "";
+      url.search = "";
+      return url.href;
+    } catch {
+      return `https://${state.owner}.github.io/${state.repo}/`;
+    }
+  }
+  function publicConfigUrl() { return new URL(CONFIG_PATH, publicIndexUrl()).href; }
+  function setPublicationNotice(kind, title, text, showLink = false) {
+    if (!el.publicationNotice) return;
+    el.publicationNotice.hidden = false;
+    el.publicationNotice.dataset.state = kind;
+    if (el.publicationNoticeIcon) el.publicationNoticeIcon.textContent = kind === "ready" ? "✓" : kind === "timeout" ? "!" : "↻";
+    if (el.publicationNoticeTitle) el.publicationNoticeTitle.textContent = title;
+    if (el.publicationNoticeText) el.publicationNoticeText.textContent = text;
+    if (el.publicationNoticeLink) { el.publicationNoticeLink.hidden = !showLink; el.publicationNoticeLink.href = publicIndexUrl(); }
+  }
+  function closePublicationNotice() { if (el.publicationNotice) el.publicationNotice.hidden = true; }
+  function extractPublicationVersion(source) {
+    const match = String(source || "").match(/window\.PUBLICACAO\s*=\s*([\s\S]*?);\s*(?:window\.|$)/);
+    if (!match) return "";
+    try { return JSON.parse(match[1])?.versao || ""; } catch { return ""; }
+  }
+  async function watchPublicIndex(publication) {
+    const token = ++state.publicationWatchToken;
+    const expected = publication?.versao;
+    if (!expected) return;
+    setPublicationNotice("waiting", "GitHub atualizado", "Aguardando a nova versão aparecer no Index…");
+    const startedAt = Date.now();
+    const timeoutMs = 4 * 60 * 1000;
+    while (token === state.publicationWatchToken && Date.now() - startedAt < timeoutMs) {
+      try {
+        const url = `${publicConfigUrl()}?publicacao=${encodeURIComponent(expected)}&t=${Date.now()}`;
+        const response = await fetch(url, { cache: "no-store" });
+        if (response.ok && extractPublicationVersion(await response.text()) === expected) {
+          setPublicationNotice("ready", "Alterações disponíveis", "A nova versão já está no site público.", true);
+          flash("As alterações já estão disponíveis no Index.", "success");
+          if ("Notification" in window && Notification.permission === "granted") {
+            try { new Notification("Central Lions", { body: "As alterações já estão disponíveis no site." }); } catch {}
+          }
+          return;
+        }
+      } catch (error) { console.debug("[Lions Admin] Index ainda não disponível", error); }
+      await wait(5000);
+    }
+    if (token === state.publicationWatchToken) setPublicationNotice("timeout", "Publicação enviada", "O GitHub foi atualizado, mas o Index ainda não confirmou a nova versão.", true);
+  }
+
   async function getFile(path) {
     const nonce = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     return api(`${path}?ref=${encodeURIComponent(state.branch)}&_=${encodeURIComponent(nonce)}`);
@@ -188,7 +252,9 @@
   let configSaveQueue = Promise.resolve();
 
   function saveConfig(message) {
-    const content = textToB64(serialize(state.categorias, state.molduras, state.configuracoes));
+    const publication = { versao: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`, atualizadoEm: new Date().toISOString(), descricao: message };
+    state.publicacao = publication;
+    const content = textToB64(serialize(state.categorias, state.molduras, state.configuracoes, publication));
     const savedSnapshot = snapshot();
 
     const operation = async () => {
@@ -201,6 +267,7 @@
           state.originalSnapshot = savedSnapshot;
           state.dirty = snapshot() !== savedSnapshot;
           updateDirtyUI();
+          watchPublicIndex(publication);
           return;
         } catch (e) {
           last = e;
@@ -835,6 +902,7 @@
   if (el.clearBulk) el.clearBulk.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   el.publishPending?.addEventListener("click",()=>el.saveOrder?.click());
+  el.publicationNoticeClose?.addEventListener("click", closePublicationNotice);
   el.discardPending?.addEventListener("click", discardPendingChanges);
   el.editorBackdrop?.addEventListener("click",()=>{if(!state.busy)resetForm();});
   document.addEventListener("keydown",event=>{if(event.key!=="Escape"||state.busy)return;if(document.body.classList.contains("category-drawer-open"))closeCategoryEditor();else if(document.body.classList.contains("editor-drawer-open"))resetForm();});

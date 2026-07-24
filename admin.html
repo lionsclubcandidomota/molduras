@@ -415,6 +415,16 @@
     </form>
   </dialog>
 
+  <aside id="publicationNotice" class="publication-notice" data-state="waiting" hidden aria-live="polite" aria-atomic="true">
+    <span id="publicationNoticeIcon" class="publication-notice-icon" aria-hidden="true">↻</span>
+    <div class="publication-notice-content">
+      <strong id="publicationNoticeTitle">Aguardando publicação</strong>
+      <span id="publicationNoticeText">Verificando quando as alterações estarão disponíveis no Index…</span>
+    </div>
+    <a id="publicationNoticeLink" class="publication-notice-link" href="../" target="_blank" rel="noopener" hidden>Abrir Index</a>
+    <button id="publicationNoticeClose" class="publication-notice-close" type="button" aria-label="Fechar notificação">×</button>
+  </aside>
+
   <div id="pageBusyOverlay" class="page-busy-overlay" hidden aria-live="polite">
     <div class="page-busy-card"><span class="busy-spinner"></span><strong id="pageBusyText">Processando...</strong></div>
   </div>
