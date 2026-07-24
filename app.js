@@ -69,6 +69,7 @@
   const dismissRestoreBtn = $('dismissRestoreBtn');
   const mobileVisualToolbar = $('mobileVisualToolbar');
   const mobileEditToggle = $('mobileEditToggle');
+  const mobileEditToggleText = $('mobileEditToggleText');
   const editorSection = $('editor');
   const editorSidebar = editorSection?.querySelector('.editor-sidebar');
   const mobileZoomOutBtn = $('mobileZoomOutBtn');
@@ -361,7 +362,7 @@
     if (mobileEditToggle) {
       mobileEditToggle.setAttribute('aria-expanded','false');
       mobileEditToggle.classList.remove('is-active');
-      mobileEditToggle.innerHTML = '<span>🎛️</span> Ajustar foto';
+      if (mobileEditToggleText) mobileEditToggleText.textContent = 'Ajustar foto';
     }
     editorSection?.classList.toggle('photo-ready', enabled);
     editorSection?.classList.remove('adjustments-open');
@@ -490,7 +491,7 @@
     editorSection.classList.toggle('adjustments-open', opening);
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
-    mobileEditToggle.querySelector('.mobile-edit-toggle__label > span:last-child').textContent = opening ? 'Ocultar ajustes' : 'Ajustes avançados';
+    if (mobileEditToggleText) mobileEditToggleText.textContent = opening ? 'Ocultar ajustes' : 'Ajustar foto';
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = !opening;
     if (!opening && advancedPanel) advancedPanel.open = false;
     if (opening) {
