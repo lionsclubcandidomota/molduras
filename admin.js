@@ -14,30 +14,6 @@
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
   };
 
-  // v5.4 — drawers independentes do fluxo da página
-  const frameFormHome = { parent: el.form?.parentNode || null, next: el.form?.nextSibling || null };
-  function closeActionMenus(){ document.querySelectorAll(".action-menu").forEach(menu=>menu.hidden=true); }
-  function showLayer(drawer, backdrop, bodyClass){
-    closeActionMenus();
-    if(drawer){ drawer.hidden=false; drawer.classList.add("is-visible"); drawer.style.display="flex"; }
-    if(backdrop){ backdrop.hidden=false; backdrop.classList.add("is-visible"); }
-    document.body.classList.add(bodyClass);
-  }
-  function hideLayer(drawer, backdrop, bodyClass){
-    document.body.classList.remove(bodyClass);
-    if(backdrop){ backdrop.hidden=true; backdrop.classList.remove("is-visible"); }
-    if(drawer){ drawer.hidden=true; drawer.classList.remove("is-visible"); drawer.style.removeProperty("display"); }
-  }
-  function moveFrameFormToBody(){
-    if(el.form && el.form.parentNode!==document.body) document.body.appendChild(el.form);
-  }
-  function restoreFrameFormHome(){
-    if(!el.form || !frameFormHome.parent || el.form.parentNode===frameFormHome.parent) return;
-    if(frameFormHome.next && frameFormHome.next.parentNode===frameFormHome.parent) frameFormHome.parent.insertBefore(el.form,frameFormHome.next);
-    else frameFormHome.parent.appendChild(el.form);
-  }
-
-
   const $ = (id) => document.getElementById(id);
   const el = {
     formConnect: $("connectionForm"), owner: $("repoOwner"), repo: $("repoName"), branch: $("repoBranch"), token: $("githubToken"),
@@ -63,6 +39,30 @@
     managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"), colorNewCode: $("colorNewCode"), colorUpdatedCode: $("colorUpdatedCode"), colorVisibleCode: $("colorVisibleCode"), colorHiddenCode: $("colorHiddenCode"),
     categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorDelete: $("categoryEditorDelete"), categoryEditorCount: $("categoryEditorCount"),
   };
+
+  // v5.6 — drawers independentes do fluxo da página.
+  // Este bloco precisa ser inicializado somente depois do mapa de elementos `el`.
+  const frameFormHome = { parent: el.form?.parentNode || null, next: el.form?.nextSibling || null };
+  function closeActionMenus(){ document.querySelectorAll(".action-menu").forEach(menu=>menu.hidden=true); }
+  function showLayer(drawer, backdrop, bodyClass){
+    closeActionMenus();
+    if(drawer){ drawer.hidden=false; drawer.classList.add("is-visible"); drawer.style.display="flex"; }
+    if(backdrop){ backdrop.hidden=false; backdrop.classList.add("is-visible"); }
+    document.body.classList.add(bodyClass);
+  }
+  function hideLayer(drawer, backdrop, bodyClass){
+    document.body.classList.remove(bodyClass);
+    if(backdrop){ backdrop.hidden=true; backdrop.classList.remove("is-visible"); }
+    if(drawer){ drawer.hidden=true; drawer.classList.remove("is-visible"); drawer.style.removeProperty("display"); }
+  }
+  function moveFrameFormToBody(){
+    if(el.form && el.form.parentNode!==document.body) document.body.appendChild(el.form);
+  }
+  function restoreFrameFormHome(){
+    if(!el.form || !frameFormHome.parent || el.form.parentNode===frameFormHome.parent) return;
+    if(frameFormHome.next && frameFormHome.next.parentNode===frameFormHome.parent) frameFormHome.parent.insertBefore(el.form,frameFormHome.next);
+    else frameFormHome.parent.appendChild(el.form);
+  }
 
   class GitHubError extends Error { constructor(message, status = 0) { super(message); this.status = status; } }
   const slugify = (v) => String(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
