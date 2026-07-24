@@ -2313,3 +2313,16 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .category-strip-shell.has-overflow::after{right:0;width:28px;background:linear-gradient(270deg,rgba(255,255,255,.98),rgba(255,255,255,0))}
   .gallery-toolbar .category-strip{padding-right:24px!important}
 }
+
+/* v9.1 — topo mais enxuto, sem a faixa de benefícios */
+.hero-grid{
+  padding-bottom:82px!important;
+}
+.hero-actions{
+  margin-bottom:0!important;
+}
+@media(max-width:760px){
+  .hero-grid{
+    padding-bottom:52px!important;
+  }
+}
