@@ -1703,3 +1703,270 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .advanced-panel__icon{width:28px;height:28px;border-radius:8px}
   .mobile-shortcut-row button{gap:5px!important}
 }
+
+/* v8.4 — refinamento visual e alinhamento consistente dos controles */
+:root{
+  --control-height:40px;
+  --control-radius:11px;
+  --control-font:.78rem;
+  --control-icon:15px;
+  --control-gap:7px;
+}
+
+/* Sistema único de botões do editor */
+.photo-action-button,
+.tool-button,
+.mobile-shortcut-row button,
+.mobile-control-row button,
+.mobile-edit-toggle,
+#resetFiltersBtn{
+  min-height:var(--control-height)!important;
+  border-radius:var(--control-radius)!important;
+  font-size:var(--control-font)!important;
+  font-weight:650!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+}
+
+.photo-action-button,
+.tool-button,
+.mobile-shortcut-row button,
+#resetFiltersBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:var(--control-gap)!important;
+  padding:0 12px!important;
+}
+
+.photo-action-button .ui-icon,
+.tool-button .ui-icon,
+.mobile-shortcut-row button .ui-icon,
+.mobile-control-row button .ui-icon,
+.mobile-edit-toggle .ui-icon,
+#resetFiltersBtn .ui-icon{
+  width:var(--control-icon)!important;
+  height:var(--control-icon)!important;
+  flex:0 0 var(--control-icon)!important;
+  stroke-width:1.8!important;
+}
+
+.photo-action-button > span,
+.tool-button > span,
+.mobile-shortcut-row button > span,
+.mobile-edit-toggle__label > span,
+#resetFiltersBtn > span{
+  display:block!important;
+  line-height:1.15!important;
+  white-space:nowrap;
+}
+
+/* Toolbar da foto: três ações realmente centralizadas */
+.photo-action-toolbar{
+  align-items:stretch!important;
+  gap:0!important;
+  padding:4px!important;
+  border-radius:13px!important;
+  background:#f8fafc!important;
+  border:1px solid #dbe6ef!important;
+  box-shadow:none!important;
+}
+.photo-action-toolbar .photo-action-button{
+  min-width:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+.photo-action-toolbar .photo-action-button + .photo-action-button{
+  border-left:1px solid #e4ebf2!important;
+  border-radius:0!important;
+}
+.photo-action-toolbar .photo-action-button:first-child{border-radius:9px 0 0 9px!important}
+.photo-action-toolbar .photo-action-button:last-child{border-radius:0 9px 9px 0!important}
+.photo-action-toolbar .photo-action-button:hover{background:#eef4f9!important}
+.photo-action-toolbar .photo-action-button--danger{color:#ad3744!important}
+
+/* Cabeçalhos expansíveis com a mesma geometria */
+.mobile-edit-toggle,
+.advanced-panel summary{
+  min-height:46px!important;
+  padding:6px 7px 6px 12px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:10px!important;
+}
+.mobile-edit-toggle__label,
+.advanced-panel__heading{
+  display:flex!important;
+  align-items:center!important;
+  gap:9px!important;
+  min-width:0!important;
+}
+.mobile-edit-toggle__label > span,
+.advanced-panel summary b{
+  font-size:.78rem!important;
+  font-weight:700!important;
+  line-height:1.15!important;
+}
+.advanced-panel summary small{
+  font-size:.68rem!important;
+  line-height:1.25!important;
+  margin-top:2px!important;
+  font-weight:450!important;
+}
+.advanced-panel__icon{
+  width:28px!important;
+  height:28px!important;
+  border-radius:8px!important;
+}
+.toggle-chevron{
+  width:28px!important;
+  height:28px!important;
+  border-radius:8px!important;
+}
+
+/* Painel rápido: métricas, ícones e textos consistentes */
+.quick-tools{
+  padding:16px!important;
+  border-radius:16px!important;
+}
+.tool-group + .tool-group{margin-top:17px!important}
+.tool-label{
+  align-items:center!important;
+  min-height:34px!important;
+}
+.tool-label label{
+  font-size:.82rem!important;
+  font-weight:700!important;
+  line-height:1!important;
+}
+.number-field{
+  min-width:76px!important;
+  height:34px!important;
+  border-radius:10px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+}
+.number-field input{
+  font-size:.78rem!important;
+  font-weight:700!important;
+  text-align:right!important;
+  line-height:1!important;
+}
+.number-field span{font-size:.72rem!important;line-height:1!important}
+.quick-actions{
+  gap:8px!important;
+  margin-top:16px!important;
+}
+.tool-button{
+  min-width:0!important;
+  border:1px solid #dbe5ee!important;
+  background:#fff!important;
+  color:#274866!important;
+  box-shadow:none!important;
+}
+.tool-button:hover:not(:disabled){background:#f5f8fb!important;border-color:#cbdbe8!important}
+.tool-button:disabled{opacity:.45!important}
+
+/* Filtros: aparência mais uniforme */
+.filter-presets button{
+  min-height:34px!important;
+  padding:0 11px!important;
+  font-size:.73rem!important;
+  font-weight:550!important;
+  line-height:1!important;
+  border-radius:999px!important;
+}
+.filter-presets button.is-active{
+  background:#edf5fd!important;
+  color:#0759ad!important;
+  border-color:#bcd5ed!important;
+  box-shadow:inset 0 0 0 1px rgba(7,89,173,.04)!important;
+}
+.filter-controls label span{
+  font-size:.72rem!important;
+  font-weight:650!important;
+  line-height:1.2!important;
+}
+#resetFiltersBtn{
+  background:#f7f9fb!important;
+  color:#31546f!important;
+  border:1px solid #e1e8ef!important;
+  box-shadow:none!important;
+}
+
+@media (min-width:761px){
+  .photo-action-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .tool-button{justify-content:center!important}
+}
+
+@media (max-width:760px){
+  :root{
+    --control-height:38px;
+    --control-radius:10px;
+    --control-font:.7rem;
+    --control-icon:14px;
+    --control-gap:5px;
+  }
+
+  .photo-action-toolbar{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    padding:3px!important;
+  }
+  .photo-action-button{padding:0 5px!important}
+  .photo-action-button > span{font-size:.68rem!important}
+
+  .mobile-edit-toggle,
+  .advanced-panel summary{
+    min-height:44px!important;
+    padding:6px 6px 6px 11px!important;
+  }
+  .mobile-edit-toggle__label > span,
+  .advanced-panel summary b{font-size:.74rem!important}
+
+  .mobile-visual-toolbar{padding:9px!important}
+  .mobile-control-row{
+    align-items:center!important;
+    gap:5px!important;
+  }
+  .mobile-control-row button{
+    width:38px!important;
+    min-width:38px!important;
+    padding:0!important;
+    display:grid!important;
+    place-items:center!important;
+  }
+  .mobile-control-row output{
+    min-width:44px!important;
+    text-align:center!important;
+    font-size:.72rem!important;
+    font-weight:700!important;
+    line-height:1!important;
+  }
+  .mobile-shortcut-row{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  .mobile-shortcut-row button{
+    min-width:0!important;
+    padding:0 5px!important;
+  }
+  .mobile-shortcut-row button > span{font-size:.66rem!important}
+
+  .quick-tools{padding:11px!important;border-radius:14px!important}
+  .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;margin-top:11px!important}
+  .tool-button{padding:0 7px!important}
+  .tool-button > span{font-size:.68rem!important}
+  .tool-group + .tool-group{margin-top:13px!important}
+  .tool-label{min-height:30px!important}
+  .number-field{height:31px!important;min-width:67px!important}
+
+  .advanced-content{padding:12px!important}
+  .filter-presets{gap:6px!important}
+  .filter-presets button{min-height:32px!important;font-size:.69rem!important;padding:0 10px!important}
+  #resetFiltersBtn{padding:0 8px!important;font-size:.69rem!important}
+}
