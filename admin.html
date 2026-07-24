@@ -175,19 +175,16 @@
       <div id="singleModeContainer" class="creation-mode-content is-active">
       <form id="frameForm" class="editor-panel is-open">
         <input id="editingOriginalId" type="hidden" />
-        <div class="editor-heading editor-toggle-heading">
-          <button id="editorToggleBtn" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="editorBody">
-            <span class="section-chevron">›</span>
-            <span>
-              <span class="step">🖼️ Moldura avulsa / edição</span>
-              <strong id="formTitle">Adicionar nova moldura</strong>
-              <small>Cadastre uma moldura ou altere informações já existentes.</small>
-            </span>
-          </button>
+        <div class="editor-heading fixed-panel-heading">
+          <div class="panel-heading-copy">
+            <span class="step">🖼️ Moldura avulsa / edição</span>
+            <strong id="formTitle">Adicionar nova moldura</strong>
+            <small>Cadastre uma moldura ou altere informações já existentes.</small>
+          </div>
           <button id="cancelEditBtn" class="button light" type="button" hidden>Cancelar edição</button>
         </div>
 
-        <div id="editorBody" class="collapsible-panel-body">
+        <div id="editorBody" class="fixed-panel-body">
         <div class="form-section-title"><span>1</span><div><strong>Identificação</strong><small>Defina como a moldura aparecerá no site.</small></div></div>
         <div class="form-grid enhanced-fields">
           <label>
@@ -255,19 +252,16 @@
       </div>
 
       <div id="bulkModeContainer" class="creation-mode-content" hidden>
-      <section id="bulkUploadPanel" class="bulk-upload-panel collapsible-admin-panel is-open" aria-labelledby="bulkUploadTitle">
-        <div class="editor-heading bulk-toggle-heading">
-          <button id="bulkUploadToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="bulkUploadBody">
-            <span class="section-chevron">›</span>
-            <span>
-              <span class="step">📚 Inclusão em lote</span>
-              <strong id="bulkUploadTitle">Adicionar várias molduras</strong>
-              <small>Selecione diversos arquivos, revise os dados e publique tudo de uma vez.</small>
-            </span>
-          </button>
+      <section id="bulkUploadPanel" class="bulk-upload-panel" aria-labelledby="bulkUploadTitle">
+        <div class="editor-heading fixed-panel-heading">
+          <div class="panel-heading-copy">
+            <span class="step">📚 Inclusão em lote</span>
+            <strong id="bulkUploadTitle">Adicionar várias molduras</strong>
+            <small>Selecione diversos arquivos, revise os dados e publique tudo de uma vez.</small>
+          </div>
           <span id="bulkUploadSummary" class="panel-summary-pill">Nenhum arquivo</span>
         </div>
-        <div id="bulkUploadBody" class="collapsible-panel-body">
+        <div id="bulkUploadBody" class="fixed-panel-body">
         <div class="form-grid bulk-settings-grid">
           <label>
             <span>Arquivos</span>

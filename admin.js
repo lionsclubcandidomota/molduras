@@ -579,7 +579,6 @@
     if(el.editorBackdrop)el.editorBackdrop.hidden=false;
     validateFrameForm();
     if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}
-    setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");
     updateDestination();
     setTimeout(()=>{const target=focusStatus?el.frameStatus:el.name;target?.focus({preventScroll:true});},220);
   }
@@ -604,10 +603,6 @@
   if (el.categoryManagerToggle) {
     setPanelOpen(el.categoryManagerPanel, el.categoryManagerToggle, getStoredPanelState("lions-admin-category-manager-open", true), "lions-admin-category-manager-open");
     el.categoryManagerToggle.addEventListener("click", () => setPanelOpen(el.categoryManagerPanel, el.categoryManagerToggle, !el.categoryManagerPanel.classList.contains("is-open"), "lions-admin-category-manager-open"));
-  }
-  if (el.editorToggle) {
-    setPanelOpen(el.form, el.editorToggle, getStoredPanelState("lions-admin-editor-open", false), "lions-admin-editor-open");
-    el.editorToggle.addEventListener("click", () => setPanelOpen(el.form, el.editorToggle, !el.form.classList.contains("is-open"), "lions-admin-editor-open"));
   }
   if (el.generateId) el.generateId.addEventListener("click", () => { el.id.value = slugify(el.name.value); updateDestination(); el.id.focus(); });
   el.name.addEventListener("blur", () => { if (!state.editingId && !el.id.value.trim()) { el.id.value = slugify(el.name.value); updateDestination(); } });
@@ -637,14 +632,35 @@
 
   function setCreationMode(mode, options = {}) {
     const bulk = mode === "bulk";
-    if (el.singleModeContainer) { el.singleModeContainer.hidden = bulk; el.singleModeContainer.classList.toggle("is-active", !bulk); }
-    if (el.bulkModeContainer) { el.bulkModeContainer.hidden = !bulk; el.bulkModeContainer.classList.toggle("is-active", bulk); }
-    if (el.singleModeBtn) { el.singleModeBtn.classList.toggle("is-active", !bulk); el.singleModeBtn.setAttribute("aria-selected", String(!bulk)); }
-    if (el.bulkModeBtn) { el.bulkModeBtn.classList.toggle("is-active", bulk); el.bulkModeBtn.setAttribute("aria-selected", String(bulk)); }
+    const active = bulk ? el.bulkModeContainer : el.singleModeContainer;
+    const inactive = bulk ? el.singleModeContainer : el.bulkModeContainer;
+
+    // O atributo hidden é a fonte de verdade. A classe apenas anima o painel ativo.
+    if (inactive) {
+      inactive.classList.remove("is-active");
+      inactive.hidden = true;
+      inactive.setAttribute("aria-hidden", "true");
+    }
+    if (active) {
+      active.hidden = false;
+      active.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => active.classList.add("is-active"));
+    }
+
+    if (el.singleModeBtn) {
+      el.singleModeBtn.classList.toggle("is-active", !bulk);
+      el.singleModeBtn.setAttribute("aria-selected", String(!bulk));
+      el.singleModeBtn.tabIndex = bulk ? -1 : 0;
+    }
+    if (el.bulkModeBtn) {
+      el.bulkModeBtn.classList.toggle("is-active", bulk);
+      el.bulkModeBtn.setAttribute("aria-selected", String(bulk));
+      el.bulkModeBtn.tabIndex = bulk ? 0 : -1;
+    }
+
     try { localStorage.setItem("lions-admin-creation-mode", bulk ? "bulk" : "single"); } catch {}
     if (options.scroll !== false) {
-      const target = bulk ? el.bulkModeContainer : el.singleModeContainer;
-      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.querySelector(".creation-mode-switch")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
   let initialCreationMode = "single";
@@ -687,10 +703,6 @@
     window.addEventListener("scroll", updateScrollButton, { passive: true });
     el.scrollTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
     updateScrollButton();
-  }
-  if (el.bulkUploadToggle && el.bulkUploadPanel) {
-    setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, getStoredPanelState("lions-admin-bulk-upload-open", false), "lions-admin-bulk-upload-open");
-    el.bulkUploadToggle.addEventListener("click", () => setPanelOpen(el.bulkUploadPanel, el.bulkUploadToggle, !el.bulkUploadPanel.classList.contains("is-open"), "lions-admin-bulk-upload-open"));
   }
   const updateBulkSummary = () => {
     if (!el.bulkUploadSummary) return;
