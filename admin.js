@@ -400,25 +400,100 @@
   });
   el.bulkReview?.addEventListener("click",e=>{const b=e.target.closest("button[data-bulk-remove]");if(!b)return;const i=Number(b.dataset.bulkRemove);URL.revokeObjectURL(state.bulkFiles[i]?.url);state.bulkFiles.splice(i,1);renderBulkReview();});
   el.clearBulk?.addEventListener("click",()=>{state.bulkFiles.forEach(x=>URL.revokeObjectURL(x.url));state.bulkFiles=[];el.bulkFiles.value="";renderBulkReview();});
-  el.publishBulk?.addEventListener("click",async()=>{
-    const categoryName=el.bulkCategory.value.trim();if(!categoryName)return flash("Escolha a categoria das molduras em lote.","error");
-    if(!state.bulkFiles.length)return flash("Selecione pelo menos um arquivo.","error");
-    const invalid=state.bulkFiles.find(x=>!x.name.trim()||!slugify(x.id));if(invalid)return flash("Revise os nomes e identificadores.","error");
-    const ids=state.bulkFiles.map(x=>slugify(x.id));if(new Set(ids).size!==ids.length)return flash("Existem identificadores repetidos na seleção.","error");
-    if(ids.some(id=>state.molduras.some(f=>f.id===id)))return flash("Um ou mais identificadores já estão cadastrados.","error");
-    setBusy(true,`Enviando ${state.bulkFiles.length} molduras...`);
-    try{
-      const cat=categoryFromInput(categoryName),statusValue=["novo","atualizada"].includes(el.bulkStatus.value)?el.bulkStatus.value:"normal";
-      let order=state.molduras.filter(f=>f.categoriaId===cat.id).length;
-      for(let i=0;i<state.bulkFiles.length;i++){
-        const item=state.bulkFiles[i],id=slugify(item.id),path=`${IMAGE_DIR}/${id}.${item.ext}`;
-        status(`Enviando ${i+1} de ${state.bulkFiles.length}...`);
-        await uploadImage(item.file,path,`Adiciona imagem ${item.name}`);
-        const created={id,nome:item.name.trim(),categoriaId:cat.id,ordem:++order,arquivo:path,ativo:el.bulkActive.checked};applyStatusTiming(created,statusValue);state.molduras.push(created);
+  let bulkPublishRunning = false;
+  async function publishBulkFrames(){
+    if (bulkPublishRunning || state.busy) return;
+
+    // Sincroniza os últimos valores digitados na tabela antes da validação.
+    el.bulkReview?.querySelectorAll("tr[data-bulk-index]").forEach(row => {
+      const item = state.bulkFiles[Number(row.dataset.bulkIndex)];
+      if (!item) return;
+      const nameInput = row.querySelector('[data-bulk-field="name"]');
+      const idInput = row.querySelector('[data-bulk-field="id"]');
+      if (nameInput) item.name = nameInput.value;
+      if (idInput) item.id = slugify(idInput.value);
+    });
+
+    const categoryName = el.bulkCategory?.value.trim() || "";
+    if (!categoryName) { flash("Escolha a categoria das molduras em lote.", "error"); el.bulkCategory?.focus(); return; }
+    if (!state.bulkFiles.length) { flash("Selecione pelo menos um arquivo.", "error"); el.bulkFiles?.focus(); return; }
+
+    const invalid = state.bulkFiles.find(item => !item.name.trim() || !slugify(item.id));
+    if (invalid) { flash("Revise os nomes e identificadores das molduras.", "error"); return; }
+
+    const ids = state.bulkFiles.map(item => slugify(item.id));
+    if (new Set(ids).size !== ids.length) { flash("Existem identificadores repetidos na seleção.", "error"); return; }
+    if (ids.some(id => state.molduras.some(frame => frame.id === id))) { flash("Um ou mais identificadores já estão cadastrados.", "error"); return; }
+
+    bulkPublishRunning = true;
+    const originalLabel = el.publishBulk?.textContent || "Publicar molduras em lote";
+    if (el.publishBulk) {
+      el.publishBulk.disabled = true;
+      el.publishBulk.textContent = "Preparando publicação...";
+      el.publishBulk.setAttribute("aria-busy", "true");
+    }
+    flash(`Preparando ${state.bulkFiles.length} moldura${state.bulkFiles.length === 1 ? "" : "s"}...`, "info");
+    setBusy(true, `Enviando ${state.bulkFiles.length} moldura${state.bulkFiles.length === 1 ? "" : "s"}...`);
+
+    try {
+      const cat = categoryFromInput(categoryName);
+      const statusValue = ["novo", "atualizada"].includes(el.bulkStatus?.value) ? el.bulkStatus.value : "normal";
+      let order = state.molduras.filter(frame => frame.categoriaId === cat.id).length;
+
+      for (let i = 0; i < state.bulkFiles.length; i++) {
+        const item = state.bulkFiles[i];
+        const id = slugify(item.id);
+        const path = `${IMAGE_DIR}/${id}.${item.ext}`;
+        const progress = `Enviando ${i + 1} de ${state.bulkFiles.length}...`;
+        status(progress);
+        if (el.busyText) el.busyText.textContent = progress;
+        if (el.publishBulk) el.publishBulk.textContent = progress;
+
+        await uploadImage(item.file, path, `Adiciona imagem ${item.name}`);
+        const created = {
+          id,
+          nome: item.name.trim(),
+          categoriaId: cat.id,
+          ordem: ++order,
+          arquivo: path,
+          ativo: Boolean(el.bulkActive?.checked),
+        };
+        applyStatusTiming(created, statusValue);
+        state.molduras.push(created);
       }
-      renumber();await saveConfig(`Adiciona ${state.bulkFiles.length} molduras em lote`);render();el.clearBulk.click();flash("Molduras adicionadas e publicadas em lote.","success");
-    }catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}
-  });
+
+      renumber();
+      await saveConfig(`Adiciona ${state.bulkFiles.length} molduras em lote`);
+      render();
+
+      state.bulkFiles.forEach(item => URL.revokeObjectURL(item.url));
+      state.bulkFiles = [];
+      if (el.bulkFiles) el.bulkFiles.value = "";
+      renderBulkReview();
+      if (el.bulkUploadSummary) el.bulkUploadSummary.textContent = "Nenhum arquivo";
+      flash("Molduras adicionadas e publicadas em lote.", "success");
+    } catch (err) {
+      console.error("[Lions Admin] Falha na publicação em lote", err);
+      flash(err?.message || "Não foi possível publicar as molduras em lote.", "error");
+    } finally {
+      setBusy(false);
+      bulkPublishRunning = false;
+      if (el.publishBulk) {
+        el.publishBulk.textContent = originalLabel;
+        el.publishBulk.removeAttribute("aria-busy");
+        el.publishBulk.disabled = state.bulkFiles.length === 0;
+      }
+      status("Conectado", "ok");
+    }
+  }
+
+  if (el.publishBulk) {
+    el.publishBulk.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      publishBulkFrames();
+    });
+  }
   el.bulkAction?.addEventListener("change",()=>{el.bulkMoveCategory.hidden=el.bulkAction.value!=="move";});
   el.clearSelection?.addEventListener("click",clearSelection);
   el.applyBulk?.addEventListener("click",async()=>{
