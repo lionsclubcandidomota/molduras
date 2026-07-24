@@ -48,9 +48,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "eu-vou-ircd",
@@ -62,9 +60,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "novo-associado",
@@ -76,9 +72,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "presidente-de-clube",
@@ -90,9 +84,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "primeiro-vice-presidente-de-clube",
@@ -104,9 +96,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "secretario-de-clube",
@@ -118,9 +108,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "segundo-vice-presidente-de-clube",
@@ -132,9 +120,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "assessor-de-marketing",
@@ -146,9 +132,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "assessor-de-servicos-do-clube",
@@ -160,9 +144,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "assessor-de-socios-do-clube",
@@ -174,9 +156,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "diretor-de-clube",
@@ -188,9 +168,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "tesoureiro-de-clube",
@@ -202,9 +180,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "socorro-a-catastrofes",
@@ -216,9 +192,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "cancer-infantil",
@@ -230,9 +204,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "diabetes",
@@ -244,9 +216,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "esforcos-humanitarios",
@@ -258,9 +228,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "fome",
@@ -272,9 +240,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "visao",
@@ -286,9 +252,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "juventude",
@@ -300,9 +264,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "meio-ambiente",
@@ -314,9 +276,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "feliz-aniversario",
@@ -324,13 +284,11 @@ window.MOLDURAS = [
     "categoriaId": "lions",
     "ordem": 2,
     "arquivo": "assets/molduras/feliz-aniversario.png",
-    "ativo": true,
+    "ativo": false,
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": "2026-07-23T23:50:00.000Z"
+    "statusAte": ""
   },
   {
     "id": "orgulho-de-ser-leao",
@@ -342,9 +300,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "dia-d",
@@ -356,9 +312,7 @@ window.MOLDURAS = [
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "gat",
@@ -370,9 +324,7 @@ window.MOLDURAS = [
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "get",
@@ -384,9 +336,7 @@ window.MOLDURAS = [
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "glt",
@@ -398,9 +348,7 @@ window.MOLDURAS = [
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "gmt",
@@ -412,9 +360,7 @@ window.MOLDURAS = [
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "eu-vou-porco-no-rolete",
@@ -426,9 +372,7 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   },
   {
     "id": "nos-vamos-porco-no-rolete",
@@ -440,8 +384,6 @@ window.MOLDURAS = [
     "status": "novo",
     "statusVisivel": true,
     "statusDesde": "",
-    "statusAte": "",
-    "publicarEm": "",
-    "ocultarEm": ""
+    "statusAte": ""
   }
 ];
