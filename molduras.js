@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784858413651-5s0hnza",
-  "atualizadoEm": "2026-07-24T02:00:13.651Z",
-  "descricao": "Oculta moldura Feliz Aniversário"
+  "versao": "1784858456968-f71j8g7",
+  "atualizadoEm": "2026-07-24T02:00:56.968Z",
+  "descricao": "Oculta moldura GAT"
 };
 
 window.CONFIGURACOES = {
@@ -339,7 +339,7 @@ window.MOLDURAS = [
     "categoriaId": "lions",
     "ordem": 3,
     "arquivo": "assets/molduras/gat.png",
-    "ativo": true,
+    "ativo": false,
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
