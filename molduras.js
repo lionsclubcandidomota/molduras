@@ -1,7 +1,7 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784903471633-r0x5epy",
-  "atualizadoEm": "2026-07-24T14:31:11.633Z",
+  "versao": "1784903548529-yvrt4ab",
+  "atualizadoEm": "2026-07-24T14:32:28.529Z",
   "descricao": "Atualiza ordem de categorias e molduras"
 };
 
@@ -37,26 +37,26 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
+    "id": "al-2026-2027",
+    "nome": "🦁💛 AL 2026/2027",
+    "ordem": 2,
+    "ativo": true
+  },
+  {
     "id": "causas-globais",
     "nome": "🌎 Causas Globais",
-    "ordem": 2,
+    "ordem": 3,
     "ativo": true
   },
   {
     "id": "lions",
     "nome": "🦁 Lions",
-    "ordem": 3,
+    "ordem": 4,
     "ativo": true
   },
   {
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
-    "ordem": 4,
-    "ativo": true
-  },
-  {
-    "id": "al-2026-2027",
-    "nome": "🦁💛 AL 2026/2027",
     "ordem": 5,
     "ativo": true
   }
