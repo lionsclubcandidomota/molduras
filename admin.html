@@ -104,6 +104,35 @@
         <button id="categoryEditorSave" class="button success" type="button">Aplicar alterações</button>
       </div>
     </aside>
+
+    <div id="settingsBackdrop" class="editor-backdrop" hidden></div>
+    <aside id="settingsDrawer" class="category-editor-drawer settings-drawer" hidden aria-labelledby="settingsTitle">
+      <div class="category-editor-header">
+        <div><span class="step">⚙️ Configurações gerais</span><h2 id="settingsTitle">Centro de configurações</h2><p>Personalize o comportamento do painel e do site.</p></div>
+        <button id="settingsCancel" class="button light" type="button">Fechar</button>
+      </div>
+      <div class="category-editor-body settings-body">
+        <div class="settings-section"><div class="form-section-title"><span>1</span><div><strong>Destaques</strong><small>Defina por quanto tempo os selos ficam visíveis.</small></div></div>
+          <div class="settings-two-cols"><label><span>Novo</span><div class="duration-row"><input id="newDurationValue" type="number" min="1" value="7"><select id="newDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div></label><label><span>Atualizada</span><div class="duration-row"><input id="updatedDurationValue" type="number" min="1" value="7"><select id="updatedDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div></label></div>
+          <label class="switch-card"><span class="visibility-copy"><strong>Mostrar selo Novo</strong><small>Exibe o selo no site público.</small></span><span class="toggle-control"><input id="showNewBadge" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+          <label class="switch-card"><span class="visibility-copy"><strong>Mostrar selo Atualizada</strong><small>Exibe o selo no site público.</small></span><span class="toggle-control"><input id="showUpdatedBadge" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+        </div>
+        <div class="settings-section"><div class="form-section-title"><span>2</span><div><strong>Aparência</strong><small>Escolha as cores dos status.</small></div></div>
+          <div class="color-settings"><label><span>Novo</span><input id="colorNew" type="color" value="#2f9e72"></label><label><span>Atualizada</span><input id="colorUpdated" type="color" value="#d99a16"></label><label><span>Visível</span><input id="colorVisible" type="color" value="#2d8fd5"></label><label><span>Oculta</span><input id="colorHidden" type="color" value="#7b8794"></label></div>
+        </div>
+        <div class="settings-section"><div class="form-section-title"><span>3</span><div><strong>Categorias e molduras</strong><small>Controle a visualização da biblioteca.</small></div></div>
+          <label class="switch-card"><span class="visibility-copy"><strong>Lembrar categorias abertas</strong><small>Mantém a última organização usada neste navegador.</small></span><span class="toggle-control"><input id="rememberCategories" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+          <label class="switch-card"><span class="visibility-copy"><strong>Exibir contador por categoria</strong><small>Mostra a quantidade de molduras no site.</small></span><span class="toggle-control"><input id="showCategoryCount" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+        </div>
+        <div class="settings-section"><div class="form-section-title"><span>4</span><div><strong>Publicação e exclusão</strong><small>Defina confirmações e comportamento padrão.</small></div></div>
+          <label class="switch-card"><span class="visibility-copy"><strong>Confirmar antes de publicar</strong><small>Evita publicações acidentais.</small></span><span class="toggle-control"><input id="confirmPublish" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+          <label class="switch-card"><span class="visibility-copy"><strong>Confirmar antes de descartar</strong><small>Protege alterações ainda não publicadas.</small></span><span class="toggle-control"><input id="confirmDiscard" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+          <label class="switch-card"><span class="visibility-copy"><strong>Excluir também a imagem por padrão</strong><small>Deixa essa opção marcada no modal de exclusão.</small></span><span class="toggle-control"><input id="deleteImageDefault" type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></span></label>
+        </div>
+      </div>
+      <div class="category-editor-footer"><button id="settingsReset" class="button light" type="button">Restaurar padrões</button><button id="saveManagementBtn" class="button success" type="button">Salvar configurações</button></div>
+    </aside>
+
     <section class="card v10-manager" id="managerCard" hidden>
       <div class="heading-row">
         <div>
@@ -264,10 +293,6 @@
             </label>
           </div>
         </div>
-        <div class="schedule-grid bulk-schedule-grid">
-          <label><span>Disponibilizar todas em</span><input id="bulkPublishAt" type="datetime-local" /><small>Opcional.</small></label>
-          <label><span>Ocultar todas em</span><input id="bulkHideAt" type="datetime-local" /><small>Opcional.</small></label>
-        </div>
         <div id="bulkReview" class="bulk-review" hidden></div>
         <div class="bulk-upload-actions">
           <button id="clearBulkBtn" class="button light" type="button" disabled>Limpar seleção</button>
@@ -278,20 +303,11 @@
       </div>
 
       
-      <section class="admin-utilities collapsible-admin-panel" id="managementPanel">
+      <section class="admin-utilities collapsible-admin-panel settings-launch-card" id="managementPanel">
         <div class="maintenance-heading">
-          <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="managementBody">
-            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Duração dos destaques</strong><small>Configure por quanto tempo os selos Novo e Atualizada permanecem visíveis.</small></span>
+          <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button">
+            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Centro de configurações</strong><small>Destaques, aparência, categorias, publicação e exclusão.</small></span>
           </button><span class="panel-summary-pill">Configurações</span>
-        </div>
-        <div id="managementBody" class="collapsible-panel-body" hidden>
-          <div class="management-grid">
-            <div class="management-card"><h4>Duração dos destaques</h4><p>O prazo começa quando a moldura é salva como Novo ou Atualizada.</p>
-              <div class="duration-row"><label><span>Novo</span><input id="newDurationValue" type="number" min="1" value="7"></label><select id="newDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div>
-              <div class="duration-row"><label><span>Atualizada</span><input id="updatedDurationValue" type="number" min="1" value="7"></label><select id="updatedDurationUnit"><option value="dias">dias</option><option value="horas">horas</option></select></div>
-              <button id="saveManagementBtn" class="button primary" type="button">Salvar configurações</button>
-            </div>
-          </div>
         </div>
       </section>
 

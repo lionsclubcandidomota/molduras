@@ -47,6 +47,8 @@
   const FAVORITES_KEY = 'lions-molduras-favoritas';
   const RECENTS_KEY = 'lions-molduras-recentes';
   const PUBLIC_CONFIG = window.CONFIGURACOES || {};
+  const STATUS_COLORS = {novo:'#2f9e72',atualizada:'#d99a16',visivel:'#2d8fd5',oculta:'#7b8794',...(PUBLIC_CONFIG.cores||{})};
+  Object.entries(STATUS_COLORS).forEach(([k,v])=>document.documentElement.style.setProperty(`--status-${k}`,v));
   const favoritesFilterBtn = $('favoritesFilterBtn');
   const recentFilterBtn = $('recentFilterBtn');
   const restoreNotice = $('restoreNotice');
@@ -92,7 +94,7 @@
     }
     return status;
   };
-  const statusLabel = status => status === 'novo' ? 'NOVO' : status === 'atualizada' ? 'ATUALIZADA' : '';
+  const statusLabel = status => status === 'novo' ? (PUBLIC_CONFIG.mostrarNovo===false?'':'NOVO') : status === 'atualizada' ? (PUBLIC_CONFIG.mostrarAtualizada===false?'':'ATUALIZADA') : '';
   function readJson(key, fallback) { try { return JSON.parse(localStorage.getItem(key) || '') || fallback; } catch { return fallback; } }
   function savePersonalLists() {
     try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...state.favorites])); localStorage.setItem(RECENTS_KEY, JSON.stringify(state.recents.slice(0,12))); } catch {}
@@ -145,7 +147,7 @@
     const available = state.categories.filter(c => state.frames.some(f => f.categoriaId === c.id));
     categoryFilters.innerHTML = [{id:'todas',nome:'Todas'},...available].map(c => {
       const status = c.id === 'todas' ? 'normal' : categoryStatus(c.id);
-      return `<button type="button" class="category-chip${c.id==='todas'?' is-active':''}" data-category="${escapeHtml(c.id)}"><span>${escapeHtml(c.nome)}</span>${status!=='normal'?`<small class="${status}">${statusLabel(status)}</small>`:''}</button>`;
+      return `<button type="button" class="category-chip${c.id==='todas'?' is-active':''}" data-category="${escapeHtml(c.id)}"><span>${escapeHtml(c.nome)}</span>${status!=='normal'&&statusLabel(status)?`<small class="${status}">${statusLabel(status)}</small>`:''}</button>`;
     }).join('');
   }
 
@@ -182,9 +184,9 @@
       const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b)=> state.personalFilter === 'recent' ? state.recents.indexOf(a.id)-state.recents.indexOf(b.id) : a.ordem-b.ordem);
       if (!frames.length) return '';
       const status = categoryStatus(category.id);
-      return `<section class="frame-group"><div class="frame-group-header"><div><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div><b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b></div><div class="frame-grid">${frames.map(frame => {
+      return `<section class="frame-group"><div class="frame-group-header"><div><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div>${PUBLIC_CONFIG.mostrarContadorCategoria===false?'':`<b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b>`}</div><div class="frame-grid">${frames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id; const frameStatus = statusOf(frame);
-        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'♥':'♡'}</button></div>`;
+        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'♥':'♡'}</button></div>`;
       }).join('')}</div></section>`;
     }).join('');
   }
