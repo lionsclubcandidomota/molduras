@@ -46,6 +46,7 @@
   const STORAGE_KEY = 'lions-molduras-editor-v13';
   const FAVORITES_KEY = 'lions-molduras-favoritas';
   const RECENTS_KEY = 'lions-molduras-recentes';
+  const CATEGORY_VIEW_KEY = 'lions-molduras-categorias-v1';
   const PUBLIC_CONFIG = window.CONFIGURACOES || {};
   const STATUS_COLORS = {novo:'#2f9e72',atualizada:'#d99a16',visivel:'#2d8fd5',oculta:'#7b8794',...(PUBLIC_CONFIG.cores||{})};
   Object.entries(STATUS_COLORS).forEach(([k,v])=>document.documentElement.style.setProperty(`--status-${k}`,v));
@@ -74,7 +75,8 @@
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
     brightness: 100, contrast: 100, saturation: 100, warmth: 0, grayscale: 0, hue: 0,
     pointers: new Map(), lastPointer: null, pinchDistance: null, pinchScale: 1,
-    favorites: new Set(), recents: [], history: [], future: []
+    favorites: new Set(), recents: [], history: [], future: [],
+    categoryView: { collapsed: {}, expanded: {} }
   };
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
@@ -114,6 +116,22 @@
   function savePersonalLists() {
     try { localStorage.setItem(FAVORITES_KEY, JSON.stringify([...state.favorites])); localStorage.setItem(RECENTS_KEY, JSON.stringify(state.recents.slice(0,12))); } catch {}
   }
+  function loadCategoryView() {
+    const saved = readJson(CATEGORY_VIEW_KEY, {});
+    state.categoryView = {
+      collapsed: saved && typeof saved.collapsed === 'object' ? saved.collapsed : {},
+      expanded: saved && typeof saved.expanded === 'object' ? saved.expanded : {}
+    };
+  }
+  function saveCategoryView() {
+    try { localStorage.setItem(CATEGORY_VIEW_KEY, JSON.stringify(state.categoryView)); } catch {}
+  }
+  function previewLimit() {
+    if (window.matchMedia('(max-width: 760px)').matches) return 4;
+    if (window.matchMedia('(max-width: 980px)').matches) return 8;
+    return 10;
+  }
+  function isSearching() { return Boolean(normalizeSearchText(frameSearch?.value || '')); }
   function saveEditorState() {
     if (!state.selectedFrame) return;
     const data = { frameId: state.selectedFrame.id, activeCategory: state.activeCategory, transform: transformSnapshot(), savedAt: Date.now() };
@@ -191,18 +209,51 @@
 
   function renderFrames() {
     if (!state.filteredFrames.length) {
-      frameGallery.innerHTML = ''; frameMessage.hidden = false; frameMessage.textContent = 'Nenhuma moldura encontrada. Tente outra pesquisa ou categoria.'; return;
+      frameGallery.innerHTML = '';
+      frameMessage.hidden = false;
+      frameMessage.textContent = 'Nenhuma moldura encontrada. Tente outra pesquisa ou categoria.';
+      return;
     }
+
     frameMessage.hidden = true;
-    const categories = state.activeCategory === 'todas' ? state.categories : state.categories.filter(c => c.id === state.activeCategory);
+    const searching = isSearching();
+    const limit = previewLimit();
+    const categories = state.activeCategory === 'todas'
+      ? state.categories
+      : state.categories.filter(c => c.id === state.activeCategory);
+
     frameGallery.innerHTML = categories.map(category => {
-      const frames = state.filteredFrames.filter(f => f.categoriaId === category.id).sort((a,b)=> state.personalFilter === 'recent' ? state.recents.indexOf(a.id)-state.recents.indexOf(b.id) : a.ordem-b.ordem);
+      const frames = state.filteredFrames
+        .filter(f => f.categoriaId === category.id)
+        .sort((a,b) => state.personalFilter === 'recent'
+          ? state.recents.indexOf(a.id) - state.recents.indexOf(b.id)
+          : a.ordem - b.ordem);
+
       if (!frames.length) return '';
+
+      const collapsed = !searching && Boolean(state.categoryView.collapsed[category.id]);
+      const expanded = searching || Boolean(state.categoryView.expanded[category.id]);
+      const visibleFrames = expanded ? frames : frames.slice(0, limit);
+      const hasMore = frames.length > limit;
+      const hiddenCount = Math.max(0, frames.length - visibleFrames.length);
       const status = categoryStatus(category.id);
-      return `<section class="frame-group"><div class="frame-group-header"><div><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</div>${PUBLIC_CONFIG.mostrarContadorCategoria===false?'':`<b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b>`}</div><div class="frame-grid">${frames.map(frame => {
-        const selected = state.selectedFrame?.id === frame.id; const frameStatus = statusOf(frame);
+      const groupId = `grupo-${slug(category.id)}`;
+
+      const cards = visibleFrames.map(frame => {
+        const selected = state.selectedFrame?.id === frame.id;
+        const frameStatus = statusOf(frame);
         return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'♥':'♡'}</button></div>`;
-      }).join('')}</div></section>`;
+      }).join('');
+
+      const counter = PUBLIC_CONFIG.mostrarContadorCategoria === false
+        ? ''
+        : `<b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b>`;
+
+      const footer = !collapsed && hasMore && !searching
+        ? `<div class="frame-group-footer"><button type="button" class="category-more-button" data-category-expand="${escapeHtml(category.id)}" aria-expanded="${expanded}">${expanded ? '<span>Mostrar menos</span><small>Voltar para a visualização resumida</small>' : `<span>Ver todas as ${frames.length}</span><small>${hiddenCount} ${hiddenCount===1?'moldura restante':'molduras restantes'}</small>`}<i aria-hidden="true">${expanded?'↑':'↓'}</i></button></div>`
+        : '';
+
+      return `<section class="frame-group${collapsed?' is-collapsed':''}" data-category-group="${escapeHtml(category.id)}"><div class="frame-group-header"><button type="button" class="category-collapse-button" data-category-collapse="${escapeHtml(category.id)}" aria-expanded="${!collapsed}" aria-controls="${groupId}"><span class="category-chevron" aria-hidden="true">⌄</span><span class="category-title"><span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</span><small>${collapsed ? 'Toque para expandir a categoria' : expanded || searching ? 'Todas as molduras estão visíveis' : `Exibindo ${visibleFrames.length} de ${frames.length}`}</small></span></button><div class="category-count">${counter}</div></div><div class="frame-group-body" id="${groupId}"${collapsed?' hidden':''}><div class="frame-grid">${cards}</div>${footer}</div></section>`;
     }).join('');
   }
 
@@ -437,7 +488,40 @@
   resetFiltersBtn.addEventListener('click',resetAdvanced);
   advancedPanel.addEventListener('toggle', draw);
 
-  frameGallery.addEventListener('click',event=>{const favorite=event.target.closest('[data-favorite-id]');if(favorite){event.stopPropagation();toggleFavorite(favorite.dataset.favoriteId);return;}const button=event.target.closest('[data-frame-id]');if(!button)return;const frame=state.frames.find(f=>f.id===button.dataset.frameId);if(frame)selectFrame(frame);});
+  frameGallery.addEventListener('click', event => {
+    const collapseButton = event.target.closest('[data-category-collapse]');
+    if (collapseButton) {
+      const id = collapseButton.dataset.categoryCollapse;
+      state.categoryView.collapsed[id] = !Boolean(state.categoryView.collapsed[id]);
+      saveCategoryView();
+      renderFrames();
+      return;
+    }
+
+    const expandButton = event.target.closest('[data-category-expand]');
+    if (expandButton) {
+      const id = expandButton.dataset.categoryExpand;
+      state.categoryView.expanded[id] = !Boolean(state.categoryView.expanded[id]);
+      saveCategoryView();
+      renderFrames();
+      requestAnimationFrame(() => {
+        document.querySelector(`[data-category-group="${CSS.escape(id)}"]`)?.scrollIntoView({behavior:'smooth', block:'nearest'});
+      });
+      return;
+    }
+
+    const favorite = event.target.closest('[data-favorite-id]');
+    if (favorite) {
+      event.stopPropagation();
+      toggleFavorite(favorite.dataset.favoriteId);
+      return;
+    }
+
+    const button = event.target.closest('[data-frame-id]');
+    if (!button) return;
+    const frame = state.frames.find(f => f.id === button.dataset.frameId);
+    if (frame) selectFrame(frame);
+  });
   categoryFilters.addEventListener('click',event=>{
     const button=event.target.closest('[data-category]');
     if(!button)return;
@@ -474,7 +558,7 @@
   $('openHelpBtn').addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
 
   function init(){
-    try{normalizeData();state.favorites=new Set(readJson(FAVORITES_KEY,[]));state.recents=readJson(RECENTS_KEY,[]);if(!state.frames.length)throw new Error('Nenhuma moldura ativa encontrada.');buildCategories();applyFilters();const requested=new URLSearchParams(location.search).get('moldura');const frame=requested?state.frames.find(f=>f.id===requested):null;if(frame)selectFrame(frame,false);else if(!restoreEditorState())setFrameReady(false);}catch(error){console.error(error);frameMessage.hidden=false;frameMessage.textContent='Não foi possível carregar as molduras. Confira o arquivo molduras.js.';selectedFrameName.textContent='Erro ao carregar';}
+    try{normalizeData();state.favorites=new Set(readJson(FAVORITES_KEY,[]));state.recents=readJson(RECENTS_KEY,[]);loadCategoryView();if(!state.frames.length)throw new Error('Nenhuma moldura ativa encontrada.');buildCategories();applyFilters();const requested=new URLSearchParams(location.search).get('moldura');const frame=requested?state.frames.find(f=>f.id===requested):null;if(frame)selectFrame(frame,false);else if(!restoreEditorState())setFrameReady(false);}catch(error){console.error(error);frameMessage.hidden=false;frameMessage.textContent='Não foi possível carregar as molduras. Confira o arquivo molduras.js.';selectedFrameName.textContent='Erro ao carregar';}
     updateTransformControls();updateFilterOutputs();setPhotoEnabled(false);draw();
   }
   init();
