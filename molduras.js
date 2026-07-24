@@ -284,7 +284,7 @@ window.MOLDURAS = [
     "categoriaId": "lions",
     "ordem": 2,
     "arquivo": "assets/molduras/feliz-aniversario.png",
-    "ativo": false,
+    "ativo": true,
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
