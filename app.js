@@ -738,10 +738,7 @@
   async function shareImage(){
     if(!state.photo)return;
     try {
-      await exportManager.share(filename(), {
-        title:'Minha foto com moldura do Lions',
-        text:'Imagem criada com as molduras do Lions Clube de Cândido Mota.'
-      });
+      await exportManager.share(filename());
     } catch(error) {
       if(error.name !== 'AbortError') {
         alert(error.message || 'Não foi possível compartilhar a imagem.');

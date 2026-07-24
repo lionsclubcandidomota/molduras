@@ -105,7 +105,7 @@
       return result;
     }
 
-    async share(filename, shareData = {}) {
+    async share(filename) {
       const result = await this.prepare();
       const file = new File([result.blob], filename, {
         type: result.type,
@@ -113,7 +113,7 @@
       });
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ ...shareData, files: [file] });
+        await navigator.share({ files: [file] });
         return { ...result, shared: true };
       }
 
