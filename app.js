@@ -23,6 +23,10 @@
   const categoryViewActions = $('categoryViewActions');
   const expandAllCategoriesBtn = $('expandAllCategoriesBtn');
   const collapseAllCategoriesBtn = $('collapseAllCategoriesBtn');
+  const mobileViewMenuBtn = $('mobileViewMenuBtn');
+  const mobileViewMenu = $('mobileViewMenu');
+  const mobileExpandAllBtn = $('mobileExpandAllBtn');
+  const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
@@ -285,7 +289,7 @@
 
       const counter = PUBLIC_CONFIG.mostrarContadorCategoria === false
         ? ''
-        : `<b>${frames.length} ${frames.length===1?'moldura':'molduras'}</b>`;
+        : `<b><span class="category-count-number">${frames.length}</span><span class="category-count-label"> ${frames.length===1?'moldura':'molduras'}</span></b>`;
 
       const footer = !collapsed && hasMore && !searching
         ? `<div class="frame-group-footer"><button type="button" class="category-more-button" data-category-expand="${escapeHtml(category.id)}" aria-expanded="${expanded}">${expanded ? '<span>Mostrar menos</span><small>Voltar para a visualização resumida</small>' : `<span>Ver todas as ${frames.length}</span><small>${hiddenCount} ${hiddenCount===1?'moldura restante':'molduras restantes'}</small>`}<i aria-hidden="true">${expanded?'↑':'↓'}</i></button></div>`
@@ -593,6 +597,22 @@
   });
   expandAllCategoriesBtn?.addEventListener('click',()=>setAllCategoriesView(true));
   collapseAllCategoriesBtn?.addEventListener('click',()=>setAllCategoriesView(false));
+  mobileExpandAllBtn?.addEventListener('click',()=>{ setAllCategoriesView(true); closeMobileViewMenu(); });
+  mobileCollapseAllBtn?.addEventListener('click',()=>{ setAllCategoriesView(false); closeMobileViewMenu(); });
+  function closeMobileViewMenu(){
+    if (!mobileViewMenu || !mobileViewMenuBtn) return;
+    mobileViewMenu.hidden = true;
+    mobileViewMenuBtn.setAttribute('aria-expanded','false');
+  }
+  mobileViewMenuBtn?.addEventListener('click',(event)=>{
+    event.stopPropagation();
+    const opening = mobileViewMenu.hidden;
+    mobileViewMenu.hidden = !opening;
+    mobileViewMenuBtn.setAttribute('aria-expanded',String(opening));
+  });
+  mobileViewMenu?.addEventListener('click',event=>event.stopPropagation());
+  document.addEventListener('click',closeMobileViewMenu);
+  document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
 
   favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});
