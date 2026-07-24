@@ -704,7 +704,8 @@
 
   function updateScrollTopButton(){
     if (!scrollTopBtn) return;
-    scrollTopBtn.classList.toggle('is-visible', window.scrollY > 300);
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    scrollTopBtn.classList.toggle('is-visible', scrollPosition > 300);
   }
   const goToPageTop = ()=>window.scrollTo({top:0,behavior:'smooth'});
   const goToFrames = () => {
@@ -715,7 +716,9 @@
   mobileEndTopBtn?.addEventListener('click',goToPageTop);
   desktopStartOverBtn?.addEventListener('click',goToFrames);
   window.addEventListener('scroll',updateScrollTopButton,{passive:true});
+  window.addEventListener('resize',updateScrollTopButton,{passive:true});
   updateScrollTopButton();
+  window.requestAnimationFrame(updateScrollTopButton);
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
 
   favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});
