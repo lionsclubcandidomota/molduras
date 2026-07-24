@@ -10,7 +10,6 @@
   const undoBtn=$('undoBtn'), redoBtn=$('redoBtn'), resolutionWarning=$('resolutionWarning');
   const controls = $('controls');
   const photoInput = $('photoInput');
-  const photoButton = $('photoButton');
   const photoActionToolbar = $('photoActionToolbar');
   const changePhotoBtn = $('changePhotoBtn');
   const resetPhotoAdjustmentsBtn = $('resetPhotoAdjustmentsBtn');
@@ -40,8 +39,9 @@
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
   const editorSubtitle = $('editorSubtitle');
-  const uploadTitle = $('uploadTitle');
-  const uploadDescription = $('uploadDescription');
+  const selectedFrameContext = $('selectedFrameContext');
+  const selectedFrameTitle = $('selectedFrameTitle');
+  const selectedFrameDescription = $('selectedFrameDescription');
   const adjustHint = $('adjustHint');
   const mobileActionBar = $('mobileActionBar');
   const downloadBtn = $('downloadBtn');
@@ -358,17 +358,29 @@
     });
   }
 
+  function updateSelectedFrameContext() {
+    if (!selectedFrameContext || !selectedFrameTitle || !selectedFrameDescription) return;
+    const frame = state.selectedFrame;
+    if (!frame) {
+      selectedFrameContext.hidden = true;
+      return;
+    }
+    const category = state.categories.find(item => item.id === frame.categoriaId);
+    const description = String(frame.descricao || frame.description || '').trim();
+    selectedFrameTitle.textContent = frame.nome;
+    selectedFrameDescription.textContent = description || (category ? `${category.nome} · Toque ou clique na moldura abaixo para selecionar sua foto.` : 'Toque ou clique na moldura abaixo para selecionar sua foto.');
+    selectedFrameContext.hidden = false;
+  }
+
   function setFrameReady(ready) {
     updateEditorLayout();
     photoInput.disabled = !ready;
-    photoButton.classList.toggle('is-disabled', !ready);
-    photoButton.setAttribute('aria-disabled', String(!ready));
     if (!ready) {
-      uploadTitle.textContent = 'Selecione uma moldura primeiro'; uploadDescription.textContent = 'A foto será processada somente no seu aparelho.';
+      if (selectedFrameContext) selectedFrameContext.hidden = true;
       photoStatus.textContent = 'Aguardando moldura'; editorSubtitle.textContent = 'Primeiro, selecione uma moldura acima.';
       emptyState.querySelector('span').textContent = '＋'; emptyState.querySelector('strong').textContent = 'Escolha uma moldura'; emptyState.querySelector('small').textContent = 'Depois, toque aqui para selecionar sua foto.'; emptyState.classList.remove('is-clickable');
     } else if (!state.photo) {
-      uploadTitle.textContent = 'Agora escolha sua foto'; uploadDescription.textContent = `Moldura selecionada: ${state.selectedFrame.nome}`;
+      updateSelectedFrameContext();
       photoStatus.textContent = 'Moldura escolhida ✓'; editorSubtitle.textContent = 'Ótimo! Agora envie uma foto e ajuste como preferir.';
       emptyState.querySelector('span').textContent = '＋'; emptyState.querySelector('strong').textContent = 'Selecionar foto'; emptyState.querySelector('small').textContent = 'Toque em qualquer ponto desta área para escolher uma imagem.'; emptyState.classList.add('is-clickable');
     }
@@ -384,11 +396,9 @@
     emptyState.hidden = enabled;
     adjustHint.hidden = !enabled;
     if (photoActionToolbar) photoActionToolbar.hidden = !enabled;
-    photoButton.textContent = 'Escolher foto';
     photoStatus.textContent = enabled ? 'Foto carregada ✓' : state.selectedFrame ? 'Moldura escolhida ✓' : 'Aguardando moldura';
     photoStatus.classList.toggle('is-ready', enabled);
-    uploadTitle.textContent = enabled ? 'Foto adicionada' : state.selectedFrame ? 'Agora escolha sua foto' : 'Selecione uma moldura primeiro';
-    uploadDescription.textContent = enabled ? 'Use os controles para posicionar e ajustar.' : state.selectedFrame ? `Moldura selecionada: ${state.selectedFrame.nome}` : 'A foto será processada somente no seu aparelho.';
+    if (state.selectedFrame) updateSelectedFrameContext();
     mobileActionBar.hidden = !enabled; mobileActionBar.classList.toggle('is-visible', enabled);
     if (mobileEditToggle) {
       mobileEditToggle.hidden = !enabled;
@@ -411,6 +421,7 @@
     state.selectedFrame = frame;
     if (trackRecent) addRecent(frame.id);
     selectedFrameName.textContent = `✓ ${frame.nome}`;
+    updateSelectedFrameContext();
     loadFrame(frame.arquivo);
     renderFrames(); setFrameReady(true);
     const url = new URL(location.href); url.searchParams.set('moldura',frame.id); history.replaceState({},'',url);

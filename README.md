@@ -1,9 +1,7 @@
-# v7.5 — ExportManager e compressão inteligente
+# V96 — Segundo passo simplificado
 
-- Exportação em JPEG com qualidade inicial de 90%.
-- Segunda tentativa em 84% somente quando o arquivo ultrapassa 1,5 MB.
-- Limite de dimensão configurado em 1600 px, sem ampliar imagens menores.
-- Cache reutilizado entre baixar e compartilhar enquanto a edição não muda.
-- Bloqueio de cliques duplicados durante o processamento.
-- Indicador discreto de preparação, otimização e conclusão.
-- Compartilhamento usa o mesmo arquivo otimizado; quando indisponível, faz download.
+- Remove o card e o botão redundante **Escolher foto**.
+- Mantém a própria moldura como área principal para selecionar a imagem.
+- Exibe acima da prévia o nome e a descrição da moldura selecionada.
+- Usa a descrição cadastrada na moldura quando disponível; caso contrário, mostra a categoria e uma orientação curta.
+- Mantém as ações **Trocar foto**, **Redefinir** e **Remover** depois que a foto é carregada.
