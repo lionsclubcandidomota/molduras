@@ -401,7 +401,7 @@ window.MOLDURAS = [
   },
   {
     "id": "eu-vou-no-treinamento",
-    "nome": "Eu vou no treinamento",
+    "nome": "Eu Vou no Treinamento",
     "categoriaId": "ircd-26-27",
     "ordem": 5,
     "arquivo": "assets/molduras/eu-vou-no-treinamento.png",
