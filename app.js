@@ -53,6 +53,16 @@
   const recentFilterBtn = $('recentFilterBtn');
   const restoreNotice = $('restoreNotice');
   const dismissRestoreBtn = $('dismissRestoreBtn');
+  const mobileVisualToolbar = $('mobileVisualToolbar');
+  const mobileZoomOutBtn = $('mobileZoomOutBtn');
+  const mobileZoomInBtn = $('mobileZoomInBtn');
+  const mobileZoomValue = $('mobileZoomValue');
+  const mobileRotateLeftBtn = $('mobileRotateLeftBtn');
+  const mobileRotateRightBtn = $('mobileRotateRightBtn');
+  const mobileRotationValue = $('mobileRotationValue');
+  const mobileCenterBtn = $('mobileCenterBtn');
+  const mobileFitBtn = $('mobileFitBtn');
+  const mobileAdjustmentsBtn = $('mobileAdjustmentsBtn');
 
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
@@ -228,7 +238,9 @@
     uploadTitle.textContent = enabled ? 'Foto adicionada' : state.selectedFrame ? 'Agora escolha sua foto' : 'Selecione uma moldura primeiro';
     uploadDescription.textContent = enabled ? 'Use os controles para posicionar e ajustar.' : state.selectedFrame ? `Moldura selecionada: ${state.selectedFrame.nome}` : 'A foto será processada somente no seu aparelho.';
     mobileActionBar.hidden = !enabled; mobileActionBar.classList.toggle('is-visible', enabled);
+    if (mobileVisualToolbar) mobileVisualToolbar.hidden = !enabled;
     document.body.classList.toggle('has-mobile-bar', enabled);
+    document.body.classList.toggle('is-editing-photo', enabled);
     updateProgress();
   }
 
@@ -251,8 +263,12 @@
   }
 
   function updateTransformControls() {
-    zoomRange.value = String(state.scale); zoomNumber.value = String(Math.round(state.scale*100));
-    rotationRange.value = String(state.rotation); rotationNumber.value = String(Math.round(state.rotation));
+    const zoomPercent = Math.round(state.scale * 100);
+    const rotationDegrees = Math.round(state.rotation);
+    zoomRange.value = String(state.scale); zoomNumber.value = String(zoomPercent);
+    rotationRange.value = String(state.rotation); rotationNumber.value = String(rotationDegrees);
+    if (mobileZoomValue) mobileZoomValue.textContent = `${zoomPercent}%`;
+    if (mobileRotationValue) mobileRotationValue.textContent = `${rotationDegrees}°`;
   }
 
   function coverScale(image) { return Math.max(1080/image.naturalWidth,1080/image.naturalHeight); }
@@ -318,6 +334,24 @@
     draw();
   }
   function resetAdvanced() { applyPreset('original'); }
+
+  function mobileStep(change) {
+    if (!state.photo) return;
+    rememberState();
+    change();
+    scheduleSave();
+  }
+  mobileZoomOutBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale - 0.05)));
+  mobileZoomInBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale + 0.05)));
+  mobileRotateLeftBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation - 2, true)));
+  mobileRotateRightBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation + 2, true)));
+  mobileCenterBtn?.addEventListener('click', () => mobileStep(() => { state.x = 540; state.y = 540; draw(); }));
+  mobileFitBtn?.addEventListener('click', () => mobileStep(resetPhotoPosition));
+  mobileAdjustmentsBtn?.addEventListener('click', () => {
+    if (!state.photo) return;
+    advancedPanel.open = true;
+    advancedPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
 
   photoInput.addEventListener('change', event => {
     const file=event.target.files?.[0]; if(!file)return;

@@ -94,6 +94,24 @@
             </div>
             <p class="resolution-warning" id="resolutionWarning" hidden>⚠️ Esta foto pode perder qualidade na imagem final.</p>
             <p class="gesture-hint" id="adjustHint" hidden>☝️ Arraste a foto para posicionar. Use dois dedos para ampliar.</p>
+
+            <div class="mobile-visual-toolbar" id="mobileVisualToolbar" hidden aria-label="Atalhos de edição da foto">
+              <div class="mobile-control-row">
+                <button type="button" id="mobileZoomOutBtn" aria-label="Diminuir zoom">−</button>
+                <output id="mobileZoomValue" aria-live="polite">100%</output>
+                <button type="button" id="mobileZoomInBtn" aria-label="Aumentar zoom">+</button>
+                <span class="mobile-control-divider" aria-hidden="true"></span>
+                <button type="button" id="mobileRotateLeftBtn" aria-label="Girar para a esquerda">↶</button>
+                <output id="mobileRotationValue" aria-live="polite">0°</output>
+                <button type="button" id="mobileRotateRightBtn" aria-label="Girar para a direita">↷</button>
+              </div>
+              <div class="mobile-shortcut-row">
+                <button type="button" id="mobileCenterBtn"><span>◎</span> Centralizar</button>
+                <button type="button" id="mobileFitBtn"><span>⛶</span> Preencher</button>
+                <button type="button" id="mobileAdjustmentsBtn"><span>🎛️</span> Filtros</button>
+              </div>
+              <small>Os controles precisos ficam protegidos abaixo para evitar alterações acidentais.</small>
+            </div>
           </div>
 
           <div class="tools-column">
