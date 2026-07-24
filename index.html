@@ -66,8 +66,14 @@
           <input id="frameSearch" type="search" placeholder="Pesquisar moldura ou categoria" autocomplete="off">
           <button id="clearSearchBtn" type="button" aria-label="Limpar pesquisa" hidden>×</button>
         </label>
-        <div class="category-strip-shell">
-          <div class="category-strip" id="categoryFilters" aria-label="Categorias"></div>
+        <div class="category-strip-shell" id="categoryStripShell">
+          <button class="category-scroll-button category-scroll-button--prev" id="categoryPrevBtn" type="button" aria-label="Ver categorias anteriores" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg>
+          </button>
+          <div class="category-strip" id="categoryFilters" aria-label="Categorias" tabindex="0"></div>
+          <button class="category-scroll-button category-scroll-button--next" id="categoryNextBtn" type="button" aria-label="Ver mais categorias" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>
+          </button>
         </div>
         <div class="gallery-toolbar-footer">
           <div class="smart-filters" aria-label="Filtros pessoais">

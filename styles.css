@@ -2257,3 +2257,59 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
     font-size:.74rem!important;
   }
 }
+
+
+/* v9.0 — navegação horizontal das categorias */
+.category-strip-shell{
+  position:relative;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.category-strip-shell:not(.has-overflow){display:block}
+.category-strip{
+  min-width:0;
+  scroll-behavior:smooth;
+  overscroll-behavior-inline:contain;
+  scroll-snap-type:x proximity;
+}
+.category-chip{scroll-snap-align:start;flex:0 0 auto}
+.category-scroll-button{
+  position:relative;
+  z-index:2;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  border:1px solid #d7e3ef;
+  border-radius:11px;
+  background:#fff;
+  color:var(--blue);
+  box-shadow:0 5px 14px rgba(7,59,122,.11);
+  cursor:pointer;
+  transition:opacity .18s ease,transform .18s ease,background .18s ease;
+}
+.category-scroll-button:hover:not(:disabled){background:#f2f7fd;transform:translateY(-1px)}
+.category-scroll-button:disabled{opacity:.28;cursor:default;box-shadow:none}
+.category-scroll-button svg{display:block;width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.category-strip-shell.has-overflow::before,.category-strip-shell.has-overflow::after{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:22px;
+  z-index:1;
+  pointer-events:none;
+}
+.category-strip-shell.has-overflow::before{left:40px;background:linear-gradient(90deg,#fff,rgba(255,255,255,0))}
+.category-strip-shell.has-overflow::after{right:40px;background:linear-gradient(270deg,#fff,rgba(255,255,255,0))}
+@media(max-width:760px){
+  .category-strip-shell,.category-strip-shell.has-overflow{display:block}
+  .category-scroll-button{display:none!important}
+  .category-strip-shell.has-overflow::before{display:none}
+  .category-strip-shell.has-overflow::after{right:0;width:28px;background:linear-gradient(270deg,rgba(255,255,255,.98),rgba(255,255,255,0))}
+  .gallery-toolbar .category-strip{padding-right:24px!important}
+}

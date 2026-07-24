@@ -24,6 +24,9 @@
   const frameSearch = $('frameSearch');
   const clearSearchBtn = $('clearSearchBtn');
   const categoryFilters = $('categoryFilters');
+  const categoryStripShell = $('categoryStripShell');
+  const categoryPrevBtn = $('categoryPrevBtn');
+  const categoryNextBtn = $('categoryNextBtn');
   const categoryViewActions = $('categoryViewActions');
   const expandAllCategoriesBtn = $('expandAllCategoriesBtn');
   const collapseAllCategoriesBtn = $('collapseAllCategoriesBtn');
@@ -227,12 +230,43 @@
     return frames.some(f => statusOf(f)==='novo') ? 'novo' : frames.some(f => statusOf(f)==='atualizada') ? 'atualizada' : 'normal';
   }
 
+  function updateCategoryCarousel() {
+    if (!categoryFilters || !categoryPrevBtn || !categoryNextBtn) return;
+    const maxScroll = Math.max(0, categoryFilters.scrollWidth - categoryFilters.clientWidth);
+    const hasOverflow = maxScroll > 4;
+    categoryStripShell?.classList.toggle('has-overflow', hasOverflow);
+    categoryPrevBtn.hidden = !hasOverflow;
+    categoryNextBtn.hidden = !hasOverflow;
+    categoryPrevBtn.disabled = !hasOverflow || categoryFilters.scrollLeft <= 4;
+    categoryNextBtn.disabled = !hasOverflow || categoryFilters.scrollLeft >= maxScroll - 4;
+  }
+
+  function scrollCategoryCarousel(direction) {
+    if (!categoryFilters) return;
+    const amount = Math.max(240, Math.round(categoryFilters.clientWidth * 0.72));
+    categoryFilters.scrollBy({ left: direction * amount, behavior: 'smooth' });
+  }
+
+  function revealCategoryChip(button, behavior = 'smooth') {
+    if (!button || !categoryFilters) return;
+    const stripRect = categoryFilters.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const leftLimit = stripRect.left + 8;
+    const rightLimit = stripRect.right - 8;
+    if (buttonRect.left < leftLimit) {
+      categoryFilters.scrollBy({ left: buttonRect.left - leftLimit, behavior });
+    } else if (buttonRect.right > rightLimit) {
+      categoryFilters.scrollBy({ left: buttonRect.right - rightLimit, behavior });
+    }
+  }
+
   function buildCategories() {
     const available = state.categories.filter(c => state.frames.some(f => f.categoriaId === c.id));
     categoryFilters.innerHTML = [{id:'todas',nome:'Todas'},...available].map(c => {
       const status = c.id === 'todas' ? 'normal' : categoryStatus(c.id);
       return `<button type="button" class="category-chip${c.id==='todas'?' is-active':''}" data-category="${escapeHtml(c.id)}"><span>${escapeHtml(c.nome)}</span>${status!=='normal'&&statusLabel(status)?`<small class="${status}">${statusLabel(status)}</small>`:''}</button>`;
     }).join('');
+    requestAnimationFrame(updateCategoryCarousel);
   }
 
   function applyFilters() {
@@ -604,6 +638,17 @@
     const frame = state.frames.find(f => f.id === button.dataset.frameId);
     if (frame) selectFrame(frame);
   });
+  categoryPrevBtn?.addEventListener('click',()=>scrollCategoryCarousel(-1));
+  categoryNextBtn?.addEventListener('click',()=>scrollCategoryCarousel(1));
+  categoryFilters?.addEventListener('scroll',updateCategoryCarousel,{passive:true});
+  categoryFilters?.addEventListener('wheel',event=>{
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+    if (categoryFilters.scrollWidth <= categoryFilters.clientWidth + 4) return;
+    event.preventDefault();
+    categoryFilters.scrollLeft += event.deltaY;
+  },{passive:false});
+  window.addEventListener('resize',updateCategoryCarousel,{passive:true});
+
   categoryFilters.addEventListener('click',event=>{
     const button=event.target.closest('[data-category]');
     if(!button)return;
@@ -625,7 +670,8 @@
       saveCategoryView();
     }
 
-    categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));
+    categoryFilters.querySelectorAll('[data-category]').forEach(b=>b.classList.toggle('is-active',b===button));
+    revealCategoryChip(button);
     applyFilters();
 
     if (categoryId !== 'todas') {
