@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784917485034-qjoh9as",
-  "atualizadoEm": "2026-07-24T18:24:45.034Z",
-  "descricao": "Adiciona moldura Secretária de Clube"
+  "versao": "1784917575317-xfdhe0i",
+  "atualizadoEm": "2026-07-24T18:26:15.317Z",
+  "descricao": "Adiciona moldura Tesoureira de Clube"
 };
 
 window.CONFIGURACOES = {
@@ -750,5 +750,17 @@ window.MOLDURAS = [
     "ativo": true,
     "status": "normal",
     "statusVisivel": false
+  },
+  {
+    "id": "tesoureira-de-clube",
+    "nome": "Tesoureira de Clube",
+    "categoriaId": "cargos",
+    "ordem": 12,
+    "arquivo": "assets/molduras/tesoureira-de-clube.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T18:26:15.317Z",
+    "statusAte": "2026-07-27T18:26:15.317Z"
   }
 ];
