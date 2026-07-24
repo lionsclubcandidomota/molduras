@@ -414,3 +414,12 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .editor-section.photo-ready.adjustments-open .quick-tools{margin-top:0}
   .mobile-shortcut-row #mobileAdjustmentsBtn span{display:inline}
 }
+
+/* v5.9 — ações integradas ao painel Ajustar foto no celular */
+@media(max-width:760px){
+  .editor-section.photo-ready.adjustments-open .quick-tools{display:none!important}
+  .quick-tools:before{content:none!important;display:none!important}
+  .mobile-shortcut-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mobile-shortcut-row button.danger{color:#c6283c;border-color:#f1c6cd;background:#fff}
+  .mobile-shortcut-row button:disabled{opacity:.45;cursor:not-allowed}
+}

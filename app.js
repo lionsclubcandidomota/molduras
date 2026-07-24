@@ -65,6 +65,9 @@
   const mobileCenterBtn = $('mobileCenterBtn');
   const mobileFitBtn = $('mobileFitBtn');
   const mobileAdjustmentsBtn = $('mobileAdjustmentsBtn');
+  const mobileUndoBtn = $('mobileUndoBtn');
+  const mobileRedoBtn = $('mobileRedoBtn');
+  const mobileRemoveBtn = $('mobileRemoveBtn');
 
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
@@ -283,7 +286,7 @@
 
   function coverScale(image) { return Math.max(1080/image.naturalWidth,1080/image.naturalHeight); }
   function transformSnapshot(){return {scale:state.scale,rotation:state.rotation,x:state.x,y:state.y,brightness:state.brightness,contrast:state.contrast,saturation:state.saturation,warmth:state.warmth,grayscale:state.grayscale,hue:state.hue};}
-  function updateHistoryButtons(){if(undoBtn)undoBtn.disabled=!state.photo||!state.history.length;if(redoBtn)redoBtn.disabled=!state.photo||!state.future.length;}
+  function updateHistoryButtons(){if(undoBtn)undoBtn.disabled=!state.photo||!state.history.length;if(redoBtn)redoBtn.disabled=!state.photo||!state.future.length;if(mobileUndoBtn)mobileUndoBtn.disabled=!state.photo||!state.history.length;if(mobileRedoBtn)mobileRedoBtn.disabled=!state.photo||!state.future.length;if(mobileRemoveBtn)mobileRemoveBtn.disabled=!state.photo;}
   function rememberState(){if(!state.photo)return;state.history.push(transformSnapshot());if(state.history.length>40)state.history.shift();state.future=[];updateHistoryButtons();}
   function restoreSnapshot(v){if(!v)return;Object.assign(state,v);updateTransformControls();brightnessRange.value=state.brightness;contrastRange.value=state.contrast;saturationRange.value=state.saturation;warmthRange.value=state.warmth;updateFilterOutputs();draw();}
   function resetPhotoPosition() { if (!state.photo) return; state.baseScale=coverScale(state.photo); state.scale=1; state.rotation=0; state.x=540; state.y=540; updateTransformControls(); draw(); }
@@ -370,6 +373,10 @@
   mobileRotateRightBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation + 5, false)));
   mobileCenterBtn?.addEventListener('click', () => mobileStep(() => { state.x = 540; state.y = 540; draw(); }));
   mobileFitBtn?.addEventListener('click', () => mobileStep(resetPhotoPosition));
+  mobileUndoBtn?.addEventListener('click', () => undoBtn?.click());
+  mobileRedoBtn?.addEventListener('click', () => redoBtn?.click());
+  mobileRemoveBtn?.addEventListener('click', () => resetBtn?.click());
+
   mobileAdjustmentsBtn?.addEventListener('click', () => {
     if (!state.photo) return;
     advancedPanel.open = true;
