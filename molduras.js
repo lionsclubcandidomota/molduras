@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784917575317-xfdhe0i",
-  "atualizadoEm": "2026-07-24T18:26:15.317Z",
-  "descricao": "Adiciona moldura Tesoureira de Clube"
+  "versao": "1784917637205-mqjnldd",
+  "atualizadoEm": "2026-07-24T18:27:17.205Z",
+  "descricao": "Atualiza ordem de categorias e molduras"
 };
 
 window.CONFIGURACOES = {
@@ -133,7 +133,7 @@ window.MOLDURAS = [
     "id": "secretario-de-clube",
     "nome": "Secretario de Clube",
     "categoriaId": "cargos",
-    "ordem": 9,
+    "ordem": 10,
     "arquivo": "assets/molduras/secretario-de-clube.png",
     "ativo": true,
     "status": "normal",
@@ -205,7 +205,7 @@ window.MOLDURAS = [
     "id": "tesoureiro-de-clube",
     "nome": "Tesoureiro de Clube",
     "categoriaId": "cargos",
-    "ordem": 10,
+    "ordem": 12,
     "arquivo": "assets/molduras/tesoureiro-de-clube.png",
     "ativo": true,
     "status": "normal",
@@ -745,7 +745,7 @@ window.MOLDURAS = [
     "id": "secretaria-de-clube",
     "nome": "Secretária de Clube",
     "categoriaId": "cargos",
-    "ordem": 11,
+    "ordem": 9,
     "arquivo": "assets/molduras/secretaria-de-clube.png",
     "ativo": true,
     "status": "normal",
@@ -755,7 +755,7 @@ window.MOLDURAS = [
     "id": "tesoureira-de-clube",
     "nome": "Tesoureira de Clube",
     "categoriaId": "cargos",
-    "ordem": 12,
+    "ordem": 11,
     "arquivo": "assets/molduras/tesoureira-de-clube.png",
     "ativo": true,
     "status": "novo",
