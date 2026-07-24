@@ -357,13 +357,14 @@
     uploadTitle.textContent = enabled ? 'Foto adicionada' : state.selectedFrame ? 'Agora escolha sua foto' : 'Selecione uma moldura primeiro';
     uploadDescription.textContent = enabled ? 'Use os controles para posicionar e ajustar.' : state.selectedFrame ? `Moldura selecionada: ${state.selectedFrame.nome}` : 'A foto será processada somente no seu aparelho.';
     mobileActionBar.hidden = !enabled; mobileActionBar.classList.toggle('is-visible', enabled);
-    if (mobileEditToggle) mobileEditToggle.hidden = !enabled;
-    if (mobileVisualToolbar) mobileVisualToolbar.hidden = true;
     if (mobileEditToggle) {
+      mobileEditToggle.hidden = !enabled;
+      mobileEditToggle.setAttribute('aria-hidden', String(!enabled));
       mobileEditToggle.setAttribute('aria-expanded','false');
       mobileEditToggle.classList.remove('is-active');
       if (mobileEditToggleText) mobileEditToggleText.textContent = 'Ajustar foto';
     }
+    if (mobileVisualToolbar) mobileVisualToolbar.hidden = true;
     editorSection?.classList.toggle('photo-ready', enabled);
     editorSection?.classList.remove('adjustments-open');
     if (advancedPanel) advancedPanel.open = false;
