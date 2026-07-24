@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784912610552-82oya34",
-  "atualizadoEm": "2026-07-24T17:03:30.552Z",
-  "descricao": "Atualiza ordem de categorias e molduras"
+  "versao": "1784915363988-gmr83we",
+  "atualizadoEm": "2026-07-24T17:49:23.988Z",
+  "descricao": "Adiciona 12 molduras em lote"
 };
 
 window.CONFIGURACOES = {
@@ -58,6 +58,12 @@ window.CATEGORIAS = [
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
     "ordem": 5,
+    "ativo": true
+  },
+  {
+    "id": "lions-corumba-pantanal-distrito-lb-1",
+    "nome": "🦁 Lions Corumbá Pantanal - Distrito LB-1",
+    "ordem": 6,
     "ativo": true
   }
 ];
@@ -602,5 +608,149 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T17:00:06.404Z",
     "statusAte": "2026-07-27T17:00:06.405Z"
+  },
+  {
+    "id": "companheiro-de-clube-lions-corumba-pantanal",
+    "nome": "Companheiro de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 1,
+    "arquivo": "assets/molduras/companheiro-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:48:52.121Z",
+    "statusAte": "2026-07-27T17:48:52.121Z"
+  },
+  {
+    "id": "companheiros-de-clube-lions-corumba-pantanal",
+    "nome": "Companheiros de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 2,
+    "arquivo": "assets/molduras/companheiros-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:48:54.826Z",
+    "statusAte": "2026-07-27T17:48:54.826Z"
+  },
+  {
+    "id": "presidente-de-clube-lions-corumba-pantanal",
+    "nome": "Presidente de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 3,
+    "arquivo": "assets/molduras/presidente-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:48:58.102Z",
+    "statusAte": "2026-07-27T17:48:58.102Z"
+  },
+  {
+    "id": "vice-presidente-de-clube-lions-corumba-pantanal",
+    "nome": "Vice Presidente de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 4,
+    "arquivo": "assets/molduras/vice-presidente-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:00.921Z",
+    "statusAte": "2026-07-27T17:49:00.921Z"
+  },
+  {
+    "id": "ex-presidente-imediato-de-clube-lions-corumba-pantanal",
+    "nome": "Ex Presidente Imediato de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 5,
+    "arquivo": "assets/molduras/ex-presidente-imediato-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:03.785Z",
+    "statusAte": "2026-07-27T17:49:03.785Z"
+  },
+  {
+    "id": "secretaria-de-clube-lions-corumba-pantanal",
+    "nome": "Secretária de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 6,
+    "arquivo": "assets/molduras/secretaria-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:06.643Z",
+    "statusAte": "2026-07-27T17:49:06.643Z"
+  },
+  {
+    "id": "tesoureira-de-clube-lions-corumba-pantanal",
+    "nome": "Tesoureira de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 7,
+    "arquivo": "assets/molduras/tesoureira-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:09.495Z",
+    "statusAte": "2026-07-27T17:49:09.495Z"
+  },
+  {
+    "id": "assessor-de-associados-de-clube-lions-corumba-pantanal",
+    "nome": "Assessor de Associados de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 8,
+    "arquivo": "assets/molduras/assessor-de-associados-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:12.150Z",
+    "statusAte": "2026-07-27T17:49:12.150Z"
+  },
+  {
+    "id": "assessor-de-servicos-de-clube-lions-corumba-pantanal",
+    "nome": "Assessor de Serviços de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 9,
+    "arquivo": "assets/molduras/assessor-de-servicos-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:15.282Z",
+    "statusAte": "2026-07-27T17:49:15.282Z"
+  },
+  {
+    "id": "diretor-social-de-clube-lions-corumba-pantanal",
+    "nome": "Diretor Social de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 10,
+    "arquivo": "assets/molduras/diretor-social-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:18.012Z",
+    "statusAte": "2026-07-27T17:49:18.012Z"
+  },
+  {
+    "id": "assessor-de-marketing-de-clube-lions-corumba-pantanal",
+    "nome": "Assessor de Marketing de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 11,
+    "arquivo": "assets/molduras/assessor-de-marketing-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:21.259Z",
+    "statusAte": "2026-07-27T17:49:21.259Z"
+  },
+  {
+    "id": "administrador-de-clube-lions-corumba-pantanal",
+    "nome": "Administrador de Clube",
+    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
+    "ordem": 12,
+    "arquivo": "assets/molduras/administrador-de-clube-lions-corumba-pantanal.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:49:23.987Z",
+    "statusAte": "2026-07-27T17:49:23.987Z"
   }
 ];
