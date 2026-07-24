@@ -1194,42 +1194,58 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
 }
 
 
-/* v7.9 — ações da foto próximas à área de edição */
+/* v8.0 — ações da foto abaixo da prévia, junto ao botão Ajustar foto */
 .photo-action-toolbar{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:14px;
-  margin:0 0 12px;
-  padding:11px 12px 11px 14px;
-  border:1px solid #d8e4f0;
-  border-radius:16px;
-  background:linear-gradient(180deg,#fff,#f8fbff);
-  box-shadow:0 8px 22px rgba(7,59,122,.07);
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,.9fr);
+  gap:8px;
+  width:100%;
+  margin:10px 0 8px;
+  padding:0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
 }
-.photo-action-toolbar__label{display:flex;align-items:center;gap:10px;min-width:0}
-.photo-action-toolbar__label>span{width:30px;height:30px;flex:0 0 auto;border-radius:10px;display:grid;place-items:center;background:#dcf7e9;color:#087d52;font-weight:900}
-.photo-action-toolbar__label div{display:flex;flex-direction:column;min-width:0}
-.photo-action-toolbar__label strong{font-size:.86rem;color:var(--ink)}
-.photo-action-toolbar__label small{font-size:.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.photo-action-toolbar__buttons{display:flex;align-items:center;gap:7px;flex:0 0 auto}
-.photo-action-button{min-height:38px;border:1px solid #d6e2ee;border-radius:11px;background:#fff;color:var(--blue);padding:8px 11px;font-size:.76rem;font-weight:850;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
-.photo-action-button:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(7,59,122,.10);background:#f6faff}
+.photo-action-button{
+  min-height:44px;
+  border:1px solid #cfdeeb;
+  border-radius:12px;
+  background:#fff;
+  color:var(--blue);
+  padding:9px 12px;
+  font-size:.78rem;
+  font-weight:850;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.photo-action-button:hover{transform:translateY(-1px);box-shadow:0 6px 15px rgba(7,59,122,.09);background:#f7fbff}
 .photo-action-button--primary{background:var(--blue);border-color:var(--blue);color:#fff}
 .photo-action-button--primary:hover{background:var(--blue-2)}
-.photo-action-button--danger{color:var(--danger);background:#fffafb;border-color:#efd6db}
+.photo-action-button--danger{color:var(--danger);background:#fffafb;border-color:#efcfd6}
 .editor-section.photo-ready .upload-card{display:none}
 
-@media (max-width:760px){
-  .photo-action-toolbar{align-items:stretch;flex-direction:column;padding:10px;margin-bottom:10px;gap:9px}
-  .photo-action-toolbar__label{display:none}
-  .photo-action-toolbar__buttons{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) 42px;width:100%;gap:7px}
-  .photo-action-button{min-height:44px;padding:8px 10px;font-size:.78rem}
+/* A remoção agora existe somente na barra principal da foto. */
+.mobile-shortcut-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+.quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+@media(max-width:760px){
+  .photo-action-toolbar{
+    grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 46px;
+    gap:7px;
+    margin-top:10px;
+  }
+  .photo-action-button{min-height:44px;padding:8px 9px;font-size:.76rem}
   .photo-action-button--danger{font-size:0;padding:0}
-  .photo-action-button--danger span{font-size:1.25rem}
+  .photo-action-button--danger span{font-size:1.2rem}
+  .mobile-edit-toggle{margin-top:0}
+  .mobile-shortcut-row{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 
-@media (max-width:390px){
-  .photo-action-toolbar__buttons{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) 42px}
-  .photo-action-button{font-size:.72rem;gap:4px}
+@media(max-width:390px){
+  .photo-action-toolbar{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr) 44px;gap:6px}
+  .photo-action-button{font-size:.7rem;gap:4px}
 }

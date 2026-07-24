@@ -101,23 +101,6 @@
 
         <div class="workspace">
           <div class="canvas-column">
-            <div class="photo-action-toolbar" id="photoActionToolbar" hidden aria-label="Ações da foto">
-              <div class="photo-action-toolbar__label">
-                <span aria-hidden="true">✓</span>
-                <div><strong>Foto carregada</strong><small>Troque ou redefina a imagem sem sair da edição.</small></div>
-              </div>
-              <div class="photo-action-toolbar__buttons">
-                <button type="button" id="changePhotoBtn" class="photo-action-button photo-action-button--primary">
-                  <span aria-hidden="true">↻</span> Trocar foto
-                </button>
-                <button type="button" id="resetPhotoAdjustmentsBtn" class="photo-action-button">
-                  <span aria-hidden="true">◎</span> Redefinir
-                </button>
-                <button type="button" id="removePhotoBtn" class="photo-action-button photo-action-button--danger">
-                  <span aria-hidden="true">×</span> Remover
-                </button>
-              </div>
-            </div>
             <div class="canvas-stage is-awaiting-photo" id="canvasWrap">
               <canvas id="editorCanvas" width="1080" height="1080" aria-label="Prévia da imagem"></canvas>
               <label class="empty-state" id="emptyState" for="photoInput">
@@ -126,6 +109,18 @@
             </div>
             <p class="resolution-warning" id="resolutionWarning" hidden>⚠️ Esta foto pode perder qualidade na imagem final.</p>
             <p class="gesture-hint" id="adjustHint" hidden>☝️ Arraste a foto para posicionar. Use dois dedos para ampliar.</p>
+
+            <div class="photo-action-toolbar" id="photoActionToolbar" hidden aria-label="Ações da foto">
+              <button type="button" id="changePhotoBtn" class="photo-action-button photo-action-button--primary">
+                <span aria-hidden="true">↻</span> Trocar foto
+              </button>
+              <button type="button" id="resetPhotoAdjustmentsBtn" class="photo-action-button">
+                <span aria-hidden="true">◎</span> Redefinir
+              </button>
+              <button type="button" id="removePhotoBtn" class="photo-action-button photo-action-button--danger">
+                <span aria-hidden="true">×</span> Remover
+              </button>
+            </div>
 
             <button class="mobile-edit-toggle" id="mobileEditToggle" type="button" hidden aria-expanded="false" aria-controls="mobileVisualToolbar"><span>🎛️</span> Ajustar foto</button>
             <div class="mobile-visual-toolbar" id="mobileVisualToolbar" hidden aria-label="Atalhos de edição da foto">
@@ -144,7 +139,6 @@
                 <button type="button" id="mobileAdjustmentsBtn"><span>🎛️</span> Filtros</button>
                 <button type="button" id="mobileUndoBtn"><span>↶</span> Desfazer</button>
                 <button type="button" id="mobileRedoBtn"><span>↷</span> Refazer</button>
-                <button type="button" id="mobileRemoveBtn" class="danger"><span>×</span> Remover</button>
               </div>
               <small>Use os controles apenas quando precisar ajustar a foto.</small>
             </div>
@@ -172,7 +166,6 @@
                 <button class="tool-button" id="redoBtn" type="button" disabled><span>↷</span> Refazer</button>
                 <button class="tool-button" id="fitBtn" type="button" disabled><span>⛶</span> Preencher</button>
                 <button class="tool-button" id="centerBtn" type="button" disabled><span>◎</span> Centralizar</button>
-                <button class="tool-button danger" id="resetBtn" type="button" disabled><span>×</span> Remover</button>
               </div>
             </div>
 

@@ -47,7 +47,6 @@
   const shareBtn = $('shareBtn');
   const fitBtn = $('fitBtn');
   const centerBtn = $('centerBtn');
-  const resetBtn = $('resetBtn');
   const newCreationBtn = $('newCreationBtn');
   const advancedPanel = $('advancedPanel');
   const cropOptions = $('cropOptions');
@@ -343,7 +342,7 @@
   }
 
   function setPhotoEnabled(enabled) {
-    [zoomRange,zoomNumber,rotationRange,rotationNumber,downloadBtn,mobileDownloadBtn,shareBtn,fitBtn,centerBtn,resetBtn,brightnessRange,contrastRange,saturationRange,warmthRange,resetFiltersBtn].forEach(el => { if (el) el.disabled = !enabled; });
+    [zoomRange,zoomNumber,rotationRange,rotationNumber,downloadBtn,mobileDownloadBtn,shareBtn,fitBtn,centerBtn,brightnessRange,contrastRange,saturationRange,warmthRange,resetFiltersBtn].forEach(el => { if (el) el.disabled = !enabled; });
     document.querySelectorAll('#filterPresets button').forEach(button => button.disabled = !enabled);
     controls.setAttribute('aria-disabled', enabled ? 'false' : 'true');
     wrap.classList.toggle('is-awaiting-photo', !enabled);
@@ -512,7 +511,6 @@
   mobileFitBtn?.addEventListener('click', () => mobileStep(resetPhotoPosition));
   mobileUndoBtn?.addEventListener('click', () => undoBtn?.click());
   mobileRedoBtn?.addEventListener('click', () => redoBtn?.click());
-  mobileRemoveBtn?.addEventListener('click', () => resetBtn?.click());
 
   mobileAdjustmentsBtn?.addEventListener('click', () => {
     if (!state.photo) return;
@@ -562,7 +560,7 @@
   undoBtn?.addEventListener('click',()=>{if(!state.history.length)return;state.future.push(transformSnapshot());restoreSnapshot(state.history.pop());updateHistoryButtons();});
   redoBtn?.addEventListener('click',()=>{if(!state.future.length)return;state.history.push(transformSnapshot());restoreSnapshot(state.future.pop());updateHistoryButtons();});
   fitBtn.addEventListener('click',()=>{rememberState();resetPhotoPosition();}); centerBtn.addEventListener('click',()=>{rememberState();state.x=540;state.y=540;draw();});
-  resetBtn.addEventListener('click',clearPhoto); newCreationBtn?.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
+  newCreationBtn?.addEventListener('click',()=>{clearPhoto();$('galeria').scrollIntoView({behavior:'smooth'});});
   function clearPhoto(){photoInput.value='';state.photo=null;if(resolutionWarning)resolutionWarning.hidden=true;state.history=[];state.future=[];resetAdvanced();setPhotoEnabled(false);setFrameReady(Boolean(state.selectedFrame));draw();}
 
   document.querySelectorAll('#filterPresets button').forEach(button=>button.addEventListener('click',()=>applyPreset(button.dataset.preset)));
