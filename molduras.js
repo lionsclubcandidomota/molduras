@@ -58,10 +58,10 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "atualizada",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:45:56.151Z",
+    "statusAte": "2026-07-27T01:45:56.151Z"
   },
   {
     "id": "eu-vou-ircd",
@@ -70,10 +70,10 @@ window.MOLDURAS = [
     "ordem": 2,
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "atualizada",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:45:56.151Z",
+    "statusAte": "2026-07-27T01:45:56.151Z"
   },
   {
     "id": "novo-associado",
@@ -382,10 +382,10 @@ window.MOLDURAS = [
     "ordem": 3,
     "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "atualizada",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:45:56.152Z",
+    "statusAte": "2026-07-27T01:45:56.152Z"
   },
   {
     "id": "nos-vamos-porco-no-rolete",
@@ -394,10 +394,10 @@ window.MOLDURAS = [
     "ordem": 4,
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "atualizada",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:45:56.152Z",
+    "statusAte": "2026-07-27T01:45:56.152Z"
   },
   {
     "id": "eu-vou-no-treinamento",
