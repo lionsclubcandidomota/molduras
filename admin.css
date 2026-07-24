@@ -350,3 +350,14 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
 /* v5.3 — estabilidade dos editores e inclusão sem flutuação */
 .editor-backdrop[hidden],.category-editor-drawer[hidden]{display:none!important}
 .creation-mode-switch{top:auto!important}
+
+
+/* v5.4 — correção definitiva dos editores laterais */
+.editor-backdrop{z-index:9998!important}
+.editor-backdrop.is-visible{display:block!important}
+#frameForm.is-visible,.category-editor-drawer.is-visible{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;transform:none!important}
+#frameForm.is-visible{position:fixed!important;inset:0 0 0 auto!important;z-index:9999!important;width:min(590px,95vw)!important;height:100dvh!important;margin:0!important;border:0!important;border-radius:18px 0 0 18px!important;overflow:auto!important;background:#fff!important;box-shadow:-24px 0 70px rgba(4,25,47,.25)!important;flex-direction:column!important}
+.category-editor-drawer.is-visible{z-index:9999!important;height:100dvh!important}
+body.editor-drawer-open,body.category-drawer-open{overflow:hidden!important}
+body.editor-drawer-open .action-menu,body.category-drawer-open .action-menu{display:none!important}
+@media(max-width:600px){#frameForm.is-visible,.category-editor-drawer.is-visible{width:100vw!important;border-radius:0!important}}

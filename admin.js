@@ -14,6 +14,30 @@
     collapsedCategories: new Set(), selectedIds: new Set(), bulkFiles: [],
   };
 
+  // v5.4 — drawers independentes do fluxo da página
+  const frameFormHome = { parent: el.form?.parentNode || null, next: el.form?.nextSibling || null };
+  function closeActionMenus(){ document.querySelectorAll(".action-menu").forEach(menu=>menu.hidden=true); }
+  function showLayer(drawer, backdrop, bodyClass){
+    closeActionMenus();
+    if(drawer){ drawer.hidden=false; drawer.classList.add("is-visible"); drawer.style.display="flex"; }
+    if(backdrop){ backdrop.hidden=false; backdrop.classList.add("is-visible"); }
+    document.body.classList.add(bodyClass);
+  }
+  function hideLayer(drawer, backdrop, bodyClass){
+    document.body.classList.remove(bodyClass);
+    if(backdrop){ backdrop.hidden=true; backdrop.classList.remove("is-visible"); }
+    if(drawer){ drawer.hidden=true; drawer.classList.remove("is-visible"); drawer.style.removeProperty("display"); }
+  }
+  function moveFrameFormToBody(){
+    if(el.form && el.form.parentNode!==document.body) document.body.appendChild(el.form);
+  }
+  function restoreFrameFormHome(){
+    if(!el.form || !frameFormHome.parent || el.form.parentNode===frameFormHome.parent) return;
+    if(frameFormHome.next && frameFormHome.next.parentNode===frameFormHome.parent) frameFormHome.parent.insertBefore(el.form,frameFormHome.next);
+    else frameFormHome.parent.appendChild(el.form);
+  }
+
+
   const $ = (id) => document.getElementById(id);
   const el = {
     formConnect: $("connectionForm"), owner: $("repoOwner"), repo: $("repoName"), branch: $("repoBranch"), token: $("githubToken"),
@@ -334,7 +358,7 @@
     updateColorCodes(); applyConfigAppearance();
   }
   function applyConfigAppearance(){ const c=state.configuracoes?.cores||{}; const r=document.documentElement.style; r.setProperty("--status-new",c.novo||"#2f9e72");r.setProperty("--status-updated",c.atualizada||"#d99a16");r.setProperty("--status-visible",c.visivel||"#2d8fd5");r.setProperty("--status-hidden",c.oculta||"#7b8794"); }
-  function resetForm(options={}){const restoreScroll=options.restoreScroll!==false&&Boolean(state.editingId);const returnY=state.editorReturnScrollY;document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.form.classList.remove("is-editing");el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();if(restoreScroll)requestAnimationFrame(()=>window.scrollTo({top:returnY,left:0,behavior:"instant"}));}
+  function resetForm(options={}){const restoreScroll=options.restoreScroll!==false&&Boolean(state.editingId);const returnY=state.editorReturnScrollY;hideLayer(el.form,el.editorBackdrop,"editor-drawer-open");restoreFrameFormHome();state.editingId="";el.originalId.value="";el.form.reset();el.form.classList.remove("is-editing");el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();if(restoreScroll)requestAnimationFrame(()=>window.scrollTo({top:returnY,left:0,behavior:"instant"}));}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
   function categoryFromInput(name){
     const clean=String(name).trim(); let cat=state.categorias.find(c=>c.nome.toLowerCase()===clean.toLowerCase());
@@ -475,9 +499,7 @@
   function moveFrame(id,delta){const f=state.molduras.find(x=>x.id===id);if(!f)return;const a=state.molduras.filter(x=>x.categoriaId===f.categoriaId).sort((x,y)=>x.ordem-y.ordem),i=a.findIndex(x=>x.id===id),j=i+delta;if(i<0||j<0||j>=a.length)return;const oi=a[i].ordem;a[i].ordem=a[j].ordem;a[j].ordem=oi;renumber();render();}
 
   function closeCategoryEditor(){
-    document.body.classList.remove("category-drawer-open");
-    if(el.categoryEditorBackdrop) el.categoryEditorBackdrop.hidden=true;
-    if(el.categoryEditor) el.categoryEditor.hidden=true;
+    hideLayer(el.categoryEditor,el.categoryEditorBackdrop,"category-drawer-open");
     state.editingCategoryId="";
   }
   function openCategoryEditor(cat){
@@ -489,9 +511,7 @@
     if(el.categoryActiveInput) el.categoryActiveInput.checked=cat.ativo!==false;
     if(el.categoryHighlight) el.categoryHighlight.value="manter";
     if(el.categoryEditorCount) el.categoryEditorCount.textContent=`${state.molduras.filter(f=>f.categoriaId===cat.id).length} moldura(s) nesta categoria`;
-    if(el.categoryEditor) el.categoryEditor.hidden=false;
-    if(el.categoryEditorBackdrop) el.categoryEditorBackdrop.hidden=false;
-    document.body.classList.add("category-drawer-open");
+    showLayer(el.categoryEditor,el.categoryEditorBackdrop,"category-drawer-open");
     setTimeout(()=>el.categoryNameInput?.focus({preventScroll:true}),200);
   }
   el.categoryEditorCancel?.addEventListener("click",closeCategoryEditor);
@@ -580,8 +600,8 @@
     el.fileHint.textContent="Opcional: escolha apenas para substituir a imagem.";
     el.preview.innerHTML=`<img src="${esc(f.arquivo)}" alt="Prévia">`;
     el.form.classList.add("is-editing");
-    document.body.classList.add("editor-drawer-open");
-    if(el.editorBackdrop)el.editorBackdrop.hidden=false;
+    moveFrameFormToBody();
+    showLayer(el.form,el.editorBackdrop,"editor-drawer-open");
     validateFrameForm();
     if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}
     updateDestination();
@@ -756,11 +776,9 @@
     if(document.body.classList.contains("editor-drawer-open")) resetForm({restoreScroll:false});
     closeCategoryEditor?.();
     fillManagementForm();
-    el.settingsDrawer.hidden=false;
-    el.settingsBackdrop.hidden=false;
-    document.body.classList.add("category-drawer-open");
+    showLayer(el.settingsDrawer,el.settingsBackdrop,"category-drawer-open");
   }
-  function closeSettings(){ el.settingsDrawer.hidden=true; el.settingsBackdrop.hidden=true; document.body.classList.remove("category-drawer-open"); }
+  function closeSettings(){ hideLayer(el.settingsDrawer,el.settingsBackdrop,"category-drawer-open"); }
   el.managementToggle?.addEventListener("click",openSettings); el.settingsCancel?.addEventListener("click",closeSettings); el.settingsBackdrop?.addEventListener("click",()=>{if(!state.busy)closeSettings();});
   [el.colorNew,el.colorUpdated,el.colorVisible,el.colorHidden].forEach(input=>input?.addEventListener("input",()=>{updateColorCodes();applyConfigAppearance();}));
   el.settingsReset?.addEventListener("click",()=>{state.configuracoes={...state.configuracoes,duracaoNovo:{valor:7,unidade:"dias"},duracaoAtualizada:{valor:7,unidade:"dias"},cores:{novo:"#2f9e72",atualizada:"#d99a16",visivel:"#2d8fd5",oculta:"#7b8794"}};fillManagementForm();flash("Padrões restaurados. Salve para aplicar.","success");});
