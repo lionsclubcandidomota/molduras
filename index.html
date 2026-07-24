@@ -79,18 +79,10 @@
               <button type="button" id="expandAllCategoriesBtn" title="Abrir todas as categorias e mostrar todas as molduras"><span aria-hidden="true">⊞</span> Expandir todas</button>
               <button type="button" id="collapseAllCategoriesBtn" title="Fechar todas as categorias"><span aria-hidden="true">⊟</span> Contrair todas</button>
             </div>
-            <button type="button" class="mobile-view-menu-button" id="mobileViewMenuBtn" aria-expanded="false" aria-controls="mobileViewMenu" aria-label="Opções de visualização">⚙</button>
-            <div class="mobile-view-backdrop" id="mobileViewBackdrop" hidden></div>
-            <div class="mobile-view-menu" id="mobileViewMenu" hidden role="dialog" aria-modal="true" aria-labelledby="mobileViewTitle">
-              <div class="mobile-view-handle" aria-hidden="true"></div>
-              <div class="mobile-view-heading">
-                <div><small>Opções da galeria</small><strong id="mobileViewTitle">Visualização</strong></div>
-                <button type="button" id="mobileViewCloseBtn" aria-label="Fechar opções">×</button>
-              </div>
-              <div class="mobile-view-options">
-                <button type="button" id="mobileExpandAllBtn"><span class="view-option-icon" aria-hidden="true">⊞</span><span><b>Expandir todas</b><small>Abra as categorias e mostre todas as molduras</small></span></button>
-                <button type="button" id="mobileCollapseAllBtn"><span class="view-option-icon" aria-hidden="true">⊟</span><span><b>Contrair todas</b><small>Feche todas as categorias da galeria</small></span></button>
-              </div>
+            <button type="button" class="mobile-view-menu-button" id="mobileViewMenuBtn" aria-expanded="false" aria-controls="mobileViewMenu" aria-label="Opções de visualização">•••</button>
+            <div class="mobile-view-menu" id="mobileViewMenu" hidden role="menu" aria-label="Opções de visualização da galeria">
+              <button type="button" id="mobileExpandAllBtn" role="menuitem"><span class="view-option-icon" aria-hidden="true">⊞</span><span><b>Expandir todas</b><small>Mostrar todas as molduras</small></span></button>
+              <button type="button" id="mobileCollapseAllBtn" role="menuitem"><span class="view-option-icon" aria-hidden="true">⊟</span><span><b>Contrair todas</b><small>Fechar as categorias</small></span></button>
             </div>
           </div>
         </div>
@@ -230,5 +222,6 @@
 
   <script src="molduras.js"></script>
   <script src="app.js"></script>
+  <button type="button" class="scroll-top-button" id="scrollTopBtn" aria-label="Voltar ao início da página" title="Voltar ao início"><span aria-hidden="true">↑</span></button>
 </body>
 </html>

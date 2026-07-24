@@ -26,9 +26,8 @@
   const mobileViewMenuBtn = $('mobileViewMenuBtn');
   const mobileViewMenu = $('mobileViewMenu');
   const mobileExpandAllBtn = $('mobileExpandAllBtn');
-  const mobileViewBackdrop = $('mobileViewBackdrop');
-  const mobileViewCloseBtn = $('mobileViewCloseBtn');
   const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
+  const scrollTopBtn = $('scrollTopBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
@@ -286,7 +285,7 @@
       const cards = visibleFrames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id;
         const frameStatus = statusOf(frame);
-        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'♥':'♡'}</button></div>`;
+        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 10.55 19.1C5.4 14.5 2 11.45 2 7.7 2 4.65 4.4 2.25 7.45 2.25c1.72 0 3.37.8 4.55 2.05a6.12 6.12 0 0 1 4.55-2.05C19.6 2.25 22 4.65 22 7.7c0 3.75-3.4 6.8-8.55 11.4L12 20.4Z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.55 3.25c-1.72 0-3.37.8-4.55 2.05a6.12 6.12 0 0 0-4.55-2.05C4.4 3.25 2 5.65 2 8.7c0 3.75 3.4 6.8 8.55 11.4L12 21.4l1.45-1.3C18.6 15.5 22 12.45 22 8.7c0-3.05-2.4-5.45-5.45-5.45Zm-4.45 15.2-.1.1-.1-.1C7.14 14.2 4 11.4 4 8.7c0-1.9 1.55-3.45 3.45-3.45 1.46 0 2.88.94 3.38 2.24h2.34c.5-1.3 1.92-2.24 3.38-2.24C18.45 5.25 20 6.8 20 8.7c0 2.7-3.14 5.5-7.9 9.75Z"/></svg>'}</button></div>`;
       }).join('');
 
       const counter = PUBLIC_CONFIG.mostrarContadorCategoria === false
@@ -604,27 +603,28 @@
   function closeMobileViewMenu(){
     if (!mobileViewMenu || !mobileViewMenuBtn) return;
     mobileViewMenu.hidden = true;
-    if (mobileViewBackdrop) mobileViewBackdrop.hidden = true;
     mobileViewMenuBtn.setAttribute('aria-expanded','false');
-    document.body.classList.remove('is-view-sheet-open');
   }
   function openMobileViewMenu(){
     if (!mobileViewMenu || !mobileViewMenuBtn) return;
     mobileViewMenu.hidden = false;
-    if (mobileViewBackdrop) mobileViewBackdrop.hidden = false;
     mobileViewMenuBtn.setAttribute('aria-expanded','true');
-    document.body.classList.add('is-view-sheet-open');
   }
   mobileViewMenuBtn?.addEventListener('click',(event)=>{
     event.stopPropagation();
     if (mobileViewMenu.hidden) openMobileViewMenu(); else closeMobileViewMenu();
   });
   mobileViewMenu?.addEventListener('click',event=>event.stopPropagation());
-  mobileViewBackdrop?.addEventListener('click',closeMobileViewMenu);
-  mobileViewCloseBtn?.addEventListener('click',closeMobileViewMenu);
-  document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
   document.addEventListener('click',closeMobileViewMenu);
   document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
+
+  function updateScrollTopButton(){
+    if (!scrollTopBtn) return;
+    scrollTopBtn.classList.toggle('is-visible', window.scrollY > 520);
+  }
+  scrollTopBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+  window.addEventListener('scroll',updateScrollTopButton,{passive:true});
+  updateScrollTopButton();
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
 
   favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});
