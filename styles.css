@@ -927,3 +927,46 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .mobile-end-top-button strong{font-size:.9rem}
   .mobile-end-top-button small{margin-top:3px;color:#687d93;font-size:.68rem;font-weight:600}
 }
+
+
+/* =========================================================
+   V7.3 — ícones refinados para categorias e visualização
+   ========================================================= */
+.category-chevron{
+  width:34px!important;
+  height:34px!important;
+  border:1px solid #d6e5f3!important;
+  border-radius:11px!important;
+  background:#eef6fd!important;
+  color:#0759ad!important;
+  box-shadow:0 1px 2px rgba(12,55,96,.06)!important;
+  transition:transform .22s ease,background .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+.category-chevron svg{width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:2.35;stroke-linecap:round;stroke-linejoin:round}
+.category-collapse-button:hover .category-chevron{background:#dfeffc!important;border-color:#bad4ea!important;box-shadow:0 4px 10px rgba(7,89,173,.10)!important}
+.frame-group.is-collapsed .category-chevron{transform:rotate(-90deg)!important;background:#f2f5f8!important;border-color:#e0e7ee!important;color:#61758a!important}
+
+.desktop-category-actions button{
+  min-height:40px!important;
+  padding:8px 13px!important;
+  gap:8px!important;
+  border-radius:11px!important;
+  font-size:.78rem!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+}
+.category-action-icon{width:17px;height:17px;display:block;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.category-action-label{font-size:inherit!important;line-height:1!important;white-space:nowrap}
+#expandAllCategoriesBtn:not(:disabled){background:#f7fbff!important}
+#collapseAllCategoriesBtn:not(:disabled){background:#fff!important}
+.desktop-category-actions button:hover:not(:disabled){box-shadow:0 4px 12px rgba(7,89,173,.09)!important}
+
+.mobile-view-menu .view-option-icon{display:grid!important;place-items:center!important;background:#eaf4fd!important;color:#0759ad!important}
+.mobile-view-menu .view-option-icon .category-action-icon{width:18px!important;height:18px!important}
+
+@media(max-width:760px){
+  .category-chevron{width:30px!important;height:30px!important;border-radius:9px!important}
+  .category-chevron svg{width:16px;height:16px}
+  .mobile-view-menu>button{gap:10px!important}
+  .mobile-view-menu .view-option-icon{flex:0 0 34px!important;width:34px!important;height:34px!important;border-radius:10px!important}
+}
