@@ -221,15 +221,6 @@
           <button class="button secondary block" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
         </aside>
 
-        <aside class="desktop-start-card" aria-labelledby="desktopStartTitle">
-          <span class="desktop-start-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M5.5 15a8 8 0 1 0 1.9-8.3L4 10"/></svg>
-          </span>
-          <p class="eyebrow">Nova criação</p>
-          <h2 id="desktopStartTitle">Escolher outra moldura</h2>
-          <p>Para criar uma nova arte, volte à primeira etapa e escolha outra moldura.</p>
-          <button class="button desktop-start-button block" id="desktopStartOverBtn" type="button">← Voltar ao início</button>
-        </aside>
       </div>
     </section>
   </main>
@@ -254,12 +245,14 @@
     <button class="button primary block" id="startFromHelpBtn" type="button">Começar agora</button>
   </dialog>
 
-  <button type="button" class="scroll-top-button" id="scrollTopBtn" aria-label="Voltar ao início da página" title="Voltar ao início">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m7 11 5-5 5 5"></path>
-      <path d="M12 6v12"></path>
-    </svg>
-    <span>Topo</span>
+  <button type="button" class="scroll-top-button" id="scrollTopBtn" aria-label="Voltar ao topo da página" title="Voltar ao topo">
+    <span class="scroll-top-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="m7 11 5-5 5 5"></path>
+        <path d="M12 6v12"></path>
+      </svg>
+    </span>
+    <span class="scroll-top-label">Voltar ao topo</span>
   </button>
 
   <script src="molduras.js"></script>
