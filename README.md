@@ -1,9 +1,6 @@
-# Molduras Lions v5.7
+# Molduras Lions v6.0
 
-## Index móvel
-
-- Restaura os atalhos de zoom e rotação ao abrir **Ajustar foto**.
-- Mantém os controles protegidos enquanto a área de ajustes está fechada.
-- Exibe **Ajustes avançados** antes das ações de desfazer, refazer, preencher, centralizar e remover.
-- O botão **Filtros** abre os ajustes avançados e os posiciona próximos à prévia.
-- Ao fechar **Ajustar foto**, os controles e os ajustes avançados são recolhidos.
+- Oculta ações e ajustes avançados enquanto nenhuma foto foi carregada.
+- Usa um único botão “Ajustar foto” no celular e no computador.
+- No celular, ajustes avançados aparecem acima das ações.
+- No computador, controles ficam compactos e são abertos sob demanda.
