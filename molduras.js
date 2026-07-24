@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784915363988-gmr83we",
-  "atualizadoEm": "2026-07-24T17:49:23.988Z",
-  "descricao": "Adiciona 12 molduras em lote"
+  "versao": "1784915452777-mlkmrg8",
+  "atualizadoEm": "2026-07-24T17:50:52.777Z",
+  "descricao": "Atualiza ordem de categorias e molduras"
 };
 
 window.CONFIGURACOES = {
@@ -43,26 +43,26 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
+    "id": "lions-corumba-pantanal-distrito-lb-1",
+    "nome": "🦁 Lions Corumbá Pantanal - Distrito LB-1",
+    "ordem": 3,
+    "ativo": true
+  },
+  {
     "id": "causas-globais",
     "nome": "🌎 Causas Globais",
-    "ordem": 3,
+    "ordem": 4,
     "ativo": true
   },
   {
     "id": "lions",
     "nome": "🦁 Lions",
-    "ordem": 4,
+    "ordem": 5,
     "ativo": true
   },
   {
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
-    "ordem": 5,
-    "ativo": true
-  },
-  {
-    "id": "lions-corumba-pantanal-distrito-lb-1",
-    "nome": "🦁 Lions Corumbá Pantanal - Distrito LB-1",
     "ordem": 6,
     "ativo": true
   }
