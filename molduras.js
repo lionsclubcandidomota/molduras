@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784903548529-yvrt4ab",
-  "atualizadoEm": "2026-07-24T14:32:28.529Z",
-  "descricao": "Atualiza ordem de categorias e molduras"
+  "versao": "1784903653763-kifp947",
+  "atualizadoEm": "2026-07-24T14:34:13.763Z",
+  "descricao": "Manutenção em lote em 8 molduras"
 };
 
 window.CONFIGURACOES = {
@@ -214,10 +214,8 @@ window.MOLDURAS = [
     "ordem": 7,
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "cancer-infantil",
@@ -226,10 +224,8 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "diabetes",
@@ -238,10 +234,8 @@ window.MOLDURAS = [
     "ordem": 2,
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "esforcos-humanitarios",
@@ -250,10 +244,8 @@ window.MOLDURAS = [
     "ordem": 3,
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "fome",
@@ -262,10 +254,8 @@ window.MOLDURAS = [
     "ordem": 4,
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "visao",
@@ -274,10 +264,8 @@ window.MOLDURAS = [
     "ordem": 8,
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "juventude",
@@ -286,10 +274,8 @@ window.MOLDURAS = [
     "ordem": 5,
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "meio-ambiente",
@@ -298,10 +284,8 @@ window.MOLDURAS = [
     "ordem": 6,
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "normal",
+    "statusVisivel": false
   },
   {
     "id": "feliz-aniversario",
