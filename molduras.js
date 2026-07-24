@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784903653763-kifp947",
-  "atualizadoEm": "2026-07-24T14:34:13.763Z",
-  "descricao": "Manutenção em lote em 8 molduras"
+  "versao": "1784908906099-joifngv",
+  "atualizadoEm": "2026-07-24T16:01:46.099Z",
+  "descricao": "Adiciona moldura Administrador de Clube AL 26/27"
 };
 
 window.CONFIGURACOES = {
@@ -215,7 +215,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/socorro-a-catastrofes.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "cancer-infantil",
@@ -225,7 +227,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/cancer-infantil.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "diabetes",
@@ -235,7 +239,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diabetes.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "esforcos-humanitarios",
@@ -245,7 +251,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/esforcos-humanitarios.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "fome",
@@ -255,7 +263,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/fome.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "visao",
@@ -265,7 +275,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/visao.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "juventude",
@@ -275,7 +287,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/juventude.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "meio-ambiente",
@@ -285,7 +299,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/meio-ambiente.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "feliz-aniversario",
@@ -574,5 +590,17 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T14:29:39.956Z",
     "statusAte": "2026-07-27T14:29:39.956Z"
+  },
+  {
+    "id": "administrador-de-clube-al-26-27",
+    "nome": "Administrador de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 12,
+    "arquivo": "assets/molduras/administrador-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T16:01:46.099Z",
+    "statusAte": "2026-07-27T16:01:46.099Z"
   }
 ];
