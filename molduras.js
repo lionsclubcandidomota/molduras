@@ -141,7 +141,7 @@ window.MOLDURAS = [
     "categoriaId": "cargos",
     "ordem": 1,
     "arquivo": "assets/molduras/assessor-de-marketing.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "",
