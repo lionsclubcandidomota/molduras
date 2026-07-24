@@ -59,7 +59,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "eu-vou-ircd",
@@ -69,7 +71,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/eu-vou-ircd.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "novo-associado",
@@ -79,7 +83,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/novo-associado.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "presidente-de-clube",
@@ -89,7 +95,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/presidente-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "primeiro-vice-presidente-de-clube",
@@ -99,7 +107,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/primeiro-vice-presidente-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "secretario-de-clube",
@@ -109,7 +119,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/secretario-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "segundo-vice-presidente-de-clube",
@@ -119,7 +131,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/segundo-vice-presidente-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "assessor-de-marketing",
@@ -129,7 +143,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-marketing.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "assessor-de-servicos-do-clube",
@@ -139,7 +155,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-servicos-do-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "assessor-de-socios-do-clube",
@@ -149,7 +167,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/assessor-de-socios-do-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "diretor-de-clube",
@@ -159,7 +179,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/diretor-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "tesoureiro-de-clube",
@@ -169,7 +191,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/tesoureiro-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "socorro-a-catastrofes",
@@ -275,7 +299,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/feliz-aniversario.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "orgulho-de-ser-leao",
@@ -285,7 +311,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "dia-d",
@@ -295,7 +323,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "gat",
@@ -305,7 +335,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/gat.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "get",
@@ -315,7 +347,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/get.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "glt",
@@ -325,7 +359,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/glt.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "gmt",
@@ -335,7 +371,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/gmt.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "eu-vou-porco-no-rolete",
@@ -345,7 +383,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "nos-vamos-porco-no-rolete",
@@ -355,7 +395,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "eu-vou-no-treinamento",
@@ -364,7 +406,9 @@ window.MOLDURAS = [
     "ordem": 5,
     "arquivo": "assets/molduras/eu-vou-no-treinamento.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:41:30.857Z",
+    "statusAte": "2026-07-27T01:41:30.857Z"
   }
 ];
