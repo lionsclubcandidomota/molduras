@@ -410,5 +410,41 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:41:30.857Z",
     "statusAte": "2026-07-27T01:41:30.857Z"
+  },
+  {
+    "id": "nos-vamos-no-treinamento",
+    "nome": "Nós Vamos no Treinamento",
+    "categoriaId": "ircd-26-27",
+    "ordem": 6,
+    "arquivo": "assets/molduras/nos-vamos-no-treinamento.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:50:25.579Z",
+    "statusAte": "2026-07-27T01:50:25.579Z"
+  },
+  {
+    "id": "nos-vamos-ministrar-o-treinamento",
+    "nome": "Nós Vamos Ministrar o Treinamento",
+    "categoriaId": "ircd-26-27",
+    "ordem": 7,
+    "arquivo": "assets/molduras/nos-vamos-ministrar-o-treinamento.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:50:27.968Z",
+    "statusAte": "2026-07-27T01:50:27.968Z"
+  },
+  {
+    "id": "eu-vou-ministrar-o-treinamento",
+    "nome": "Eu Vou Ministrar o Treinamento",
+    "categoriaId": "ircd-26-27",
+    "ordem": 8,
+    "arquivo": "assets/molduras/eu-vou-ministrar-o-treinamento.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:50:30.696Z",
+    "statusAte": "2026-07-27T01:50:30.696Z"
   }
 ];
