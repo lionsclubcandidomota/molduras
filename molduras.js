@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784909247904-vuha8n0",
-  "atualizadoEm": "2026-07-24T16:07:27.904Z",
-  "descricao": "Remove moldura Administrador de Clube AL 26/27"
+  "versao": "1784912406405-fvx31r5",
+  "atualizadoEm": "2026-07-24T17:00:06.405Z",
+  "descricao": "Adiciona moldura Administrador de Clube AL 26/27"
 };
 
 window.CONFIGURACOES = {
@@ -590,5 +590,17 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T14:29:39.956Z",
     "statusAte": "2026-07-27T14:29:39.956Z"
+  },
+  {
+    "id": "administrador-de-clube-al-26-27",
+    "nome": "Administrador de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 12,
+    "arquivo": "assets/molduras/administrador-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T17:00:06.404Z",
+    "statusAte": "2026-07-27T17:00:06.405Z"
   }
 ];
