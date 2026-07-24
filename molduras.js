@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784917637205-mqjnldd",
-  "atualizadoEm": "2026-07-24T18:27:17.205Z",
-  "descricao": "Atualiza ordem de categorias e molduras"
+  "versao": "1784917748313-3ksf2qd",
+  "atualizadoEm": "2026-07-24T18:29:08.313Z",
+  "descricao": "Atualiza moldura Tesoureira de Clube"
 };
 
 window.CONFIGURACOES = {
@@ -758,9 +758,7 @@ window.MOLDURAS = [
     "ordem": 11,
     "arquivo": "assets/molduras/tesoureira-de-clube.png",
     "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "2026-07-24T18:26:15.317Z",
-    "statusAte": "2026-07-27T18:26:15.317Z"
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
