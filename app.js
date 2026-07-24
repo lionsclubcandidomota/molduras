@@ -20,6 +20,9 @@
   const frameSearch = $('frameSearch');
   const clearSearchBtn = $('clearSearchBtn');
   const categoryFilters = $('categoryFilters');
+  const categoryViewActions = $('categoryViewActions');
+  const expandAllCategoriesBtn = $('expandAllCategoriesBtn');
+  const collapseAllCategoriesBtn = $('collapseAllCategoriesBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
@@ -132,6 +135,40 @@
     return 10;
   }
   function isSearching() { return Boolean(normalizeSearchText(frameSearch?.value || '')); }
+  function visibleCategoryIds() {
+    const ids = new Set(state.filteredFrames.map(frame => frame.categoriaId));
+    return state.categories.filter(category => ids.has(category.id)).map(category => category.id);
+  }
+  function updateCategoryViewActions() {
+    if (!categoryViewActions) return;
+    const ids = visibleCategoryIds();
+    const searching = isSearching();
+    categoryViewActions.hidden = !ids.length;
+    categoryViewActions.classList.toggle('is-searching', searching);
+
+    const allOpenAndExpanded = ids.length > 0 && ids.every(id =>
+      !state.categoryView.collapsed[id] && Boolean(state.categoryView.expanded[id])
+    );
+    const allCollapsed = ids.length > 0 && ids.every(id => Boolean(state.categoryView.collapsed[id]));
+
+    if (expandAllCategoriesBtn) {
+      expandAllCategoriesBtn.disabled = searching || allOpenAndExpanded;
+      expandAllCategoriesBtn.setAttribute('aria-pressed', String(allOpenAndExpanded));
+    }
+    if (collapseAllCategoriesBtn) {
+      collapseAllCategoriesBtn.disabled = searching || allCollapsed;
+      collapseAllCategoriesBtn.setAttribute('aria-pressed', String(allCollapsed));
+    }
+  }
+  function setAllCategoriesView(expand) {
+    visibleCategoryIds().forEach(id => {
+      state.categoryView.collapsed[id] = !expand;
+      state.categoryView.expanded[id] = expand;
+    });
+    saveCategoryView();
+    renderFrames();
+    requestAnimationFrame(() => frameGallery.scrollIntoView({behavior:'smooth', block:'start'}));
+  }
   function saveEditorState() {
     if (!state.selectedFrame) return;
     const data = { frameId: state.selectedFrame.id, activeCategory: state.activeCategory, transform: transformSnapshot(), savedAt: Date.now() };
@@ -212,6 +249,7 @@
       frameGallery.innerHTML = '';
       frameMessage.hidden = false;
       frameMessage.textContent = 'Nenhuma moldura encontrada. Tente outra pesquisa ou categoria.';
+      updateCategoryViewActions();
       return;
     }
 
@@ -255,6 +293,7 @@
 
       return `<section class="frame-group${collapsed?' is-collapsed':''}" data-category-group="${escapeHtml(category.id)}"><div class="frame-group-header"><button type="button" class="category-collapse-button" data-category-collapse="${escapeHtml(category.id)}" aria-expanded="${!collapsed}" aria-controls="${groupId}"><span class="category-chevron" aria-hidden="true">⌄</span><span class="category-title"><span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</span><small>${collapsed ? 'Toque para expandir a categoria' : expanded || searching ? 'Todas as molduras estão visíveis' : `Exibindo ${visibleFrames.length} de ${frames.length}`}</small></span></button><div class="category-count">${counter}</div></div><div class="frame-group-body" id="${groupId}"${collapsed?' hidden':''}><div class="frame-grid">${cards}</div>${footer}</div></section>`;
     }).join('');
+    updateCategoryViewActions();
   }
 
   function updateProgress() {
@@ -532,10 +571,28 @@
     favoritesFilterBtn?.classList.remove('is-active');
     recentFilterBtn?.classList.remove('is-active');
 
-    state.activeCategory=button.dataset.category;
+    const categoryId = button.dataset.category;
+    state.activeCategory = categoryId;
+
+    // Ao escolher uma categoria específica, ela sempre abre por completo.
+    // Isso evita que o usuário encontre uma categoria fechada ou resumida.
+    if (categoryId !== 'todas') {
+      state.categoryView.collapsed[categoryId] = false;
+      state.categoryView.expanded[categoryId] = true;
+      saveCategoryView();
+    }
+
     categoryFilters.querySelectorAll('button').forEach(b=>b.classList.toggle('is-active',b===button));
     applyFilters();
+
+    if (categoryId !== 'todas') {
+      requestAnimationFrame(() => {
+        document.querySelector(`[data-category-group="${CSS.escape(categoryId)}"]`)?.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    }
   });
+  expandAllCategoriesBtn?.addEventListener('click',()=>setAllCategoriesView(true));
+  collapseAllCategoriesBtn?.addEventListener('click',()=>setAllCategoriesView(false));
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
 
   favoritesFilterBtn?.addEventListener('click',()=>{state.personalFilter=state.personalFilter==='favorites'?'all':'favorites';favoritesFilterBtn.classList.toggle('is-active',state.personalFilter==='favorites');recentFilterBtn?.classList.remove('is-active');applyFilters();});

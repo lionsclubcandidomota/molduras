@@ -577,3 +577,62 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .frame-group-footer{padding:12px 0 2px}
   .category-more-button{width:100%;min-width:0;padding:10px 12px}
 }
+
+
+/* =========================================================
+   V6.7 — ações globais de categorias
+   ========================================================= */
+.category-view-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  padding:9px 10px 9px 13px;
+  border:1px solid #dce7f2;
+  border-radius:14px;
+  background:#f8fbfe;
+}
+.category-view-actions>span{
+  color:#6c7f96;
+  font-size:.73rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.category-view-actions>div{display:flex;gap:7px}
+.category-view-actions button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:35px;
+  padding:7px 11px;
+  border:1px solid #cfdeec;
+  border-radius:10px;
+  background:#fff;
+  color:var(--blue);
+  font-size:.76rem;
+  font-weight:850;
+  cursor:pointer;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease,opacity .18s ease;
+}
+.category-view-actions button:hover:not(:disabled){background:#eaf4fd;border-color:#b7cfe4;transform:translateY(-1px)}
+.category-view-actions button:focus-visible{outline:3px solid rgba(7,89,173,.18);outline-offset:2px}
+.category-view-actions button:disabled{opacity:.45;cursor:default}
+.category-view-actions button span{font-size:1rem;line-height:1}
+.category-view-actions.is-searching::after{
+  content:'As categorias são abertas automaticamente durante a pesquisa';
+  color:#74869b;
+  font-size:.7rem;
+}
+.category-view-actions.is-searching>span,
+.category-view-actions.is-searching>div{display:none}
+
+@media(max-width:760px){
+  .category-view-actions{align-items:stretch;padding:8px;margin-top:8px}
+  .category-view-actions>span{display:none}
+  .category-view-actions>div{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .category-view-actions button{width:100%;min-height:40px;padding:8px 7px;font-size:.72rem}
+  .category-view-actions.is-searching{display:none}
+}
