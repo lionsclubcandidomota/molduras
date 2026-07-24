@@ -113,7 +113,10 @@
       });
 
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
+        await navigator.share({
+          files: [file],
+          text: '🦁 Nós Servimos!'
+        });
         return { ...result, shared: true };
       }
 
