@@ -29,6 +29,7 @@
   const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
   const scrollTopBtn = $('scrollTopBtn');
   const mobileEndTopBtn = $('mobileEndTopBtn');
+  const desktopStartOverBtn = $('desktopStartOverBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
@@ -629,6 +630,7 @@
   const goToPageTop = ()=>window.scrollTo({top:0,behavior:'smooth'});
   scrollTopBtn?.addEventListener('click',goToPageTop);
   mobileEndTopBtn?.addEventListener('click',goToPageTop);
+  desktopStartOverBtn?.addEventListener('click',goToPageTop);
   window.addEventListener('scroll',updateScrollTopButton,{passive:true});
   updateScrollTopButton();
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});

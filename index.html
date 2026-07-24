@@ -188,14 +188,26 @@
         </div>
       </div>
 
-      <aside class="finish-card" id="finishCard">
-        <div class="finish-number">3</div>
-        <p class="eyebrow">Último passo</p>
-        <h2>Finalize sua imagem</h2>
-        <p>Quando estiver satisfeito com o resultado, baixe ou compartilhe.</p>
-        <button class="button success block large" id="downloadBtn" type="button" disabled>⬇ Baixar imagem</button>
-        <button class="button secondary block" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
-      </aside>
+      <div class="editor-sidebar">
+        <aside class="finish-card" id="finishCard">
+          <div class="finish-number">3</div>
+          <p class="eyebrow">Último passo</p>
+          <h2>Finalize sua imagem</h2>
+          <p>Quando estiver satisfeito com o resultado, baixe ou compartilhe.</p>
+          <button class="button success block large" id="downloadBtn" type="button" disabled>⬇ Baixar imagem</button>
+          <button class="button secondary block" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
+        </aside>
+
+        <aside class="desktop-start-card" aria-labelledby="desktopStartTitle">
+          <span class="desktop-start-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M5.5 15a8 8 0 1 0 1.9-8.3L4 10"/></svg>
+          </span>
+          <p class="eyebrow">Nova criação</p>
+          <h2 id="desktopStartTitle">Escolher outra moldura</h2>
+          <p>Para criar uma nova arte, volte à primeira etapa e escolha outra moldura.</p>
+          <button class="button desktop-start-button block" id="desktopStartOverBtn" type="button">← Voltar ao início</button>
+        </aside>
+      </div>
     </section>
   </main>
 
