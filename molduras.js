@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784858546681-rzy9gy9",
-  "atualizadoEm": "2026-07-24T02:02:26.681Z",
-  "descricao": "Manutenção em lote em 2 molduras"
+  "versao": "1784859145837-z6y5kwq",
+  "atualizadoEm": "2026-07-24T02:12:25.837Z",
+  "descricao": "Atualiza moldura Novo Associado"
 };
 
 window.CONFIGURACOES = {
@@ -88,10 +88,10 @@ window.MOLDURAS = [
     "ordem": 5,
     "arquivo": "assets/molduras/novo-associado.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "atualizada",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T02:12:25.837Z",
+    "statusAte": "2026-07-27T02:12:25.837Z"
   },
   {
     "id": "presidente-de-clube",
