@@ -862,3 +862,12 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .favorite-button.is-favorite{background:#fff!important;color:#d12d4b!important}
   .favorite-button:active{transform:scale(.9)!important}
 }
+
+/* V71 — impede a barra de filtros de cobrir as molduras no desktop */
+@media (min-width:761px){
+  .gallery-toolbar{
+    position:relative!important;
+    top:auto!important;
+    z-index:5!important;
+  }
+}
