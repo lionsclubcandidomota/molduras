@@ -35,7 +35,6 @@
   const mobileExpandAllBtn = $('mobileExpandAllBtn');
   const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
   const scrollTopBtn = $('scrollTopBtn');
-  const mobileEndTopBtn = $('mobileEndTopBtn');
   const desktopStartOverBtn = $('desktopStartOverBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
@@ -713,7 +712,6 @@
     window.setTimeout(() => frameSearch?.focus({preventScroll:true}), 450);
   };
   scrollTopBtn?.addEventListener('click',goToPageTop);
-  mobileEndTopBtn?.addEventListener('click',goToPageTop);
   desktopStartOverBtn?.addEventListener('click',goToFrames);
   window.addEventListener('scroll',updateScrollTopButton,{passive:true});
   window.addEventListener('resize',updateScrollTopButton,{passive:true});
