@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784892894475-leq1mtz",
-  "atualizadoEm": "2026-07-24T11:34:54.475Z",
-  "descricao": "Exibe moldura Feliz Aniversário"
+  "versao": "1784903379956-5h2bg85",
+  "atualizadoEm": "2026-07-24T14:29:39.956Z",
+  "descricao": "Adiciona 11 molduras em lote"
 };
 
 window.CONFIGURACOES = {
@@ -52,6 +52,12 @@ window.CATEGORIAS = [
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
     "ordem": 4,
+    "ativo": true
+  },
+  {
+    "id": "al-2026-2027",
+    "nome": "🦁💛 AL 2026/2027",
+    "ordem": 5,
     "ativo": true
   }
 ];
@@ -452,5 +458,137 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:50:30.696Z",
     "statusAte": "2026-07-27T01:50:30.696Z"
+  },
+  {
+    "id": "assessor-de-marketing-de-clube-al-26-27",
+    "nome": "Assessor de Marketing de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 1,
+    "arquivo": "assets/molduras/assessor-de-marketing-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:09.769Z",
+    "statusAte": "2026-07-27T14:29:09.769Z"
+  },
+  {
+    "id": "diretor-social-de-clube-al-26-27",
+    "nome": "Diretor Social de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 2,
+    "arquivo": "assets/molduras/diretor-social-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:12.404Z",
+    "statusAte": "2026-07-27T14:29:12.404Z"
+  },
+  {
+    "id": "assessor-de-servicos-de-clube-al-26-27",
+    "nome": "Assessor de Serviços de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 3,
+    "arquivo": "assets/molduras/assessor-de-servicos-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:15.258Z",
+    "statusAte": "2026-07-27T14:29:15.258Z"
+  },
+  {
+    "id": "assessor-de-associados-de-clube-al-26-27",
+    "nome": "Assessor de Associados de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 4,
+    "arquivo": "assets/molduras/assessor-de-associados-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:18.653Z",
+    "statusAte": "2026-07-27T14:29:18.653Z"
+  },
+  {
+    "id": "tesoureiro-de-clube-al-26-27",
+    "nome": "Tesoureiro de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 5,
+    "arquivo": "assets/molduras/tesoureiro-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:21.577Z",
+    "statusAte": "2026-07-27T14:29:21.577Z"
+  },
+  {
+    "id": "tesoureira-de-clube-al-26-27",
+    "nome": "Tesoureira de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 6,
+    "arquivo": "assets/molduras/tesoureira-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:25.262Z",
+    "statusAte": "2026-07-27T14:29:25.262Z"
+  },
+  {
+    "id": "secretario-de-clube-al-26-27",
+    "nome": "Secretário de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 7,
+    "arquivo": "assets/molduras/secretario-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:28.138Z",
+    "statusAte": "2026-07-27T14:29:28.138Z"
+  },
+  {
+    "id": "secretaria-de-clube-al-26-27",
+    "nome": "Secretária de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 8,
+    "arquivo": "assets/molduras/secretaria-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:31.254Z",
+    "statusAte": "2026-07-27T14:29:31.254Z"
+  },
+  {
+    "id": "ex-presidente-imediato-de-clube-al-26-27",
+    "nome": "Ex Presidente Imediato de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 9,
+    "arquivo": "assets/molduras/ex-presidente-imediato-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:34.009Z",
+    "statusAte": "2026-07-27T14:29:34.009Z"
+  },
+  {
+    "id": "vice-presidente-de-clube-al-26-27",
+    "nome": "Vice Presidente de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 10,
+    "arquivo": "assets/molduras/vice-presidente-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:36.939Z",
+    "statusAte": "2026-07-27T14:29:36.939Z"
+  },
+  {
+    "id": "presidente-de-clube-al-26-27",
+    "nome": "Presidente de Clube AL 26/27",
+    "categoriaId": "al-2026-2027",
+    "ordem": 11,
+    "arquivo": "assets/molduras/presidente-de-clube-al-26-27.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T14:29:39.956Z",
+    "statusAte": "2026-07-27T14:29:39.956Z"
   }
 ];
