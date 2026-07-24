@@ -36,7 +36,7 @@
     pendingBar: $("pendingChangesBar"), publishPending: $("publishPendingBtn"), discardPending: $("discardPendingBtn"), editorBackdrop: $("editorBackdrop"),
     nameError: $("frameNameError"), idError: $("frameIdError"), categoryError: $("frameCategoryError"),
     framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
-    managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"),
+    managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"), colorNewCode: $("colorNewCode"), colorUpdatedCode: $("colorUpdatedCode"), colorVisibleCode: $("colorVisibleCode"), colorHiddenCode: $("colorHiddenCode"),
     categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorDelete: $("categoryEditorDelete"), categoryEditorCount: $("categoryEditorCount"),
   };
 
@@ -296,7 +296,7 @@
       frames.forEach((f,index)=>{const st=frameStatus(f);html+=`<article class="frame-row ${state.selectedIds.has(f.id)?"is-selected":""}" draggable="${!q&&!state.selectedIds.size}" data-id="${esc(f.id)}" data-category="${esc(cat.id)}">
         <label class="frame-select-wrap"><input class="frame-select" type="checkbox" data-select-frame="${esc(f.id)}" ${state.selectedIds.has(f.id)?"checked":""} aria-label="Selecionar ${esc(f.nome)}"></label><div class="order-controls"><button type="button" class="drag-handle" data-action="drag" title="Arrastar moldura" aria-label="Arrastar moldura"><svg class="drag-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 6h10M5 10h10M5 14h10" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button><span class="order-number">${f.ordem}</span><button type="button" class="order-arrow" data-action="up" ${f.ordem===1?"disabled":""}>↑</button><button type="button" class="order-arrow" data-action="down" ${f.ordem===allFrames.length?"disabled":""}>↓</button></div>
         <img class="frame-thumb" src="${esc(f.arquivo)}?v=${Date.now()}" alt=""><div class="frame-info"><h4>${esc(f.nome)}</h4><p>${esc(f.id)} · ordem ${f.ordem}</p><div class="badges"><span class="badge ${f.ativo!==false?"active":"inactive"}">${f.ativo!==false?"Visível":"Oculta"}</span>${st!=="normal"?`<span class="badge ${st}">${statusLabel(st)}</span>`:""}</div></div>
-        <div class="row-actions frame-actions"><button class="button light" data-action="edit">Editar</button><button class="button light" data-action="status-menu">Destaque</button><button class="button light" data-action="toggle">${f.ativo!==false?"Ocultar":"Exibir"}</button><button class="button danger" data-action="delete">Excluir</button></div></article>`;});
+        <div class="row-actions frame-actions action-menu-wrap"><button class="action-menu-trigger" data-action="open-menu" aria-label="Ações de ${esc(f.nome)}">⋮</button><div class="action-menu" hidden><button data-action="edit">✏️ <span>Editar</span></button><button data-action="status-menu">🏷️ <span>Alterar destaque</span></button><button data-action="toggle">${f.ativo!==false?"👁️‍🗨️ <span>Ocultar</span>":"👁️ <span>Exibir</span>"}</button><button class="danger-item" data-action="delete">🗑️ <span>Excluir</span></button></div></div></article>`;});
       html+=`</div></section>`;
     }
     el.list.innerHTML=html||'<p class="category-empty">Nenhuma moldura encontrada.</p>'; el.count.textContent=`${total} moldura(s)`; updateBulkBar();
@@ -318,7 +318,21 @@
     target.statusDesde=new Date().toISOString();
     target.statusAte=addDuration(status);
   }
-  function fillManagementForm(){ const c=state.configuracoes||{}, cores=c.cores||{}; if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7; if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias"; if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7; if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias"; if(el.showNewBadge)el.showNewBadge.checked=c.mostrarNovo!==false; if(el.showUpdatedBadge)el.showUpdatedBadge.checked=c.mostrarAtualizada!==false; if(el.colorNew)el.colorNew.value=cores.novo||"#2f9e72"; if(el.colorUpdated)el.colorUpdated.value=cores.atualizada||"#d99a16"; if(el.colorVisible)el.colorVisible.value=cores.visivel||"#2d8fd5"; if(el.colorHidden)el.colorHidden.value=cores.oculta||"#7b8794"; if(el.rememberCategories)el.rememberCategories.checked=c.lembrarCategorias!==false; if(el.showCategoryCount)el.showCategoryCount.checked=c.mostrarContadorCategoria!==false; if(el.confirmPublish)el.confirmPublish.checked=c.confirmarPublicacao!==false; if(el.confirmDiscard)el.confirmDiscard.checked=c.confirmarDescarte!==false; if(el.deleteImageDefault)el.deleteImageDefault.checked=c.excluirImagemPadrao!==false; applyConfigAppearance(); }
+  function updateColorCodes(){
+    [[el.colorNew,el.colorNewCode],[el.colorUpdated,el.colorUpdatedCode],[el.colorVisible,el.colorVisibleCode],[el.colorHidden,el.colorHiddenCode]].forEach(([input,code])=>{if(input&&code)code.textContent=input.value.toUpperCase();});
+  }
+  function fillManagementForm(){
+    const c=state.configuracoes||{}, cores=c.cores||{};
+    if(el.newDurationValue)el.newDurationValue.value=c.duracaoNovo?.valor||7;
+    if(el.newDurationUnit)el.newDurationUnit.value=c.duracaoNovo?.unidade||"dias";
+    if(el.updatedDurationValue)el.updatedDurationValue.value=c.duracaoAtualizada?.valor||7;
+    if(el.updatedDurationUnit)el.updatedDurationUnit.value=c.duracaoAtualizada?.unidade||"dias";
+    if(el.colorNew)el.colorNew.value=cores.novo||"#2f9e72";
+    if(el.colorUpdated)el.colorUpdated.value=cores.atualizada||"#d99a16";
+    if(el.colorVisible)el.colorVisible.value=cores.visivel||"#2d8fd5";
+    if(el.colorHidden)el.colorHidden.value=cores.oculta||"#7b8794";
+    updateColorCodes(); applyConfigAppearance();
+  }
   function applyConfigAppearance(){ const c=state.configuracoes?.cores||{}; const r=document.documentElement.style; r.setProperty("--status-new",c.novo||"#2f9e72");r.setProperty("--status-updated",c.atualizada||"#d99a16");r.setProperty("--status-visible",c.visivel||"#2d8fd5");r.setProperty("--status-hidden",c.oculta||"#7b8794"); }
   function resetForm(options={}){const restoreScroll=options.restoreScroll!==false&&Boolean(state.editingId);const returnY=state.editorReturnScrollY;document.body.classList.remove("editor-drawer-open");if(el.editorBackdrop)el.editorBackdrop.hidden=true;state.editingId="";el.originalId.value="";el.form.reset();el.form.classList.remove("is-editing");el.active.checked=true;el.frameStatus.value="novo";el.formTitle.textContent="Adicionar nova moldura";el.cancelEdit.hidden=true;el.preview.innerHTML="Prévia da imagem";el.fileHint.textContent="Obrigatório para uma nova moldura.";updateDestination();if(restoreScroll)requestAnimationFrame(()=>window.scrollTo({top:returnY,left:0,behavior:"instant"}));}
   function updateDestination(){const id=slugify(el.id.value||el.name.value);const ext=(el.file.files[0]?.name.split(".").pop()||"png").toLowerCase();el.destination.textContent=id?`${IMAGE_DIR}/${id}.${ext}`:`${IMAGE_DIR}/identificador.png`;}
@@ -567,10 +581,11 @@
     if(el.editorModeHint){el.editorModeHint.hidden=false;el.editorModeHint.textContent="Editando moldura existente";}
     setPanelOpen(el.form,el.editorToggle,true,"lions-admin-editor-open");
     updateDestination();
-    setTimeout(()=>{const target=focusStatus?el.frameStatus:el.name;target?.focus({preventScroll:true});if(focusStatus)target?.scrollIntoView({block:"center",behavior:"smooth"});},220);
+    setTimeout(()=>{const target=focusStatus?el.frameStatus:el.name;target?.focus({preventScroll:true});},220);
   }
 
   el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const action=b.dataset.action;
+    if(action==="open-menu"){const menu=b.nextElementSibling;document.querySelectorAll(".action-menu").forEach(m=>{if(m!==menu)m.hidden=true;});menu.hidden=!menu.hidden;return;}
     if(action==="toggle-category"){
       if(el.search.value.trim())return;
       const section=b.closest(".category-accordion"),categoryId=section?.dataset.accordionCategory;
@@ -579,6 +594,7 @@
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
     const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){openFrameEditor(f);return;}if(action==="status-menu"){openFrameEditor(f,{focusStatus:true});return;}if(action==="toggle"){f.ativo=f.ativo===false;setBusy(true,"Publicando...");try{await saveConfig(`${f.ativo?"Exibe":"Oculta"} moldura ${f.nome}`);render();flash("Visibilidade atualizada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;}if(action==="delete"){state.pendingDelete=f;el.confirmText.textContent=`A moldura “${f.nome}” será removida.`;if(el.deleteFile)el.deleteFile.checked=state.configuracoes.excluirImagemPadrao!==false; el.dialog.showModal();}});
+  document.addEventListener("click",e=>{if(!e.target.closest(".action-menu-wrap"))document.querySelectorAll(".action-menu").forEach(m=>m.hidden=true);});
   el.list.addEventListener("dragstart",e=>{const row=e.target.closest(".frame-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedFrame=row.dataset.id;row.classList.add("dragging");});
   el.list.addEventListener("dragover",e=>{if(state.draggedFrame)e.preventDefault();});
   el.list.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".frame-row")?.dataset.id,from=state.molduras.find(f=>f.id===state.draggedFrame),to=state.molduras.find(f=>f.id===target);if(from&&to&&from.categoriaId===to.categoriaId&&from.id!==to.id){const a=state.molduras.filter(f=>f.categoriaId===from.categoriaId).sort((x,y)=>x.ordem-y.ordem),fi=a.findIndex(f=>f.id===from.id),ti=a.findIndex(f=>f.id===to.id),[item]=a.splice(fi,1);a.splice(ti,0,item);a.forEach((f,i)=>f.ordem=i+1);render();}state.draggedFrame=null;});
@@ -722,9 +738,10 @@
   function openSettings(){ fillManagementForm(); el.settingsDrawer.hidden=false; el.settingsBackdrop.hidden=false; document.body.classList.add("category-drawer-open"); }
   function closeSettings(){ el.settingsDrawer.hidden=true; el.settingsBackdrop.hidden=true; document.body.classList.remove("category-drawer-open"); }
   el.managementToggle?.addEventListener("click",openSettings); el.settingsCancel?.addEventListener("click",closeSettings); el.settingsBackdrop?.addEventListener("click",()=>{if(!state.busy)closeSettings();});
-  el.settingsReset?.addEventListener("click",()=>{state.configuracoes={...state.configuracoes,duracaoNovo:{valor:7,unidade:"dias"},duracaoAtualizada:{valor:7,unidade:"dias"},mostrarNovo:true,mostrarAtualizada:true,cores:{novo:"#2f9e72",atualizada:"#d99a16",visivel:"#2d8fd5",oculta:"#7b8794"},lembrarCategorias:true,mostrarContadorCategoria:true,confirmarPublicacao:true,confirmarDescarte:true,excluirImagemPadrao:true};fillManagementForm();});
+  [el.colorNew,el.colorUpdated,el.colorVisible,el.colorHidden].forEach(input=>input?.addEventListener("input",()=>{updateColorCodes();applyConfigAppearance();}));
+  el.settingsReset?.addEventListener("click",()=>{state.configuracoes={...state.configuracoes,duracaoNovo:{valor:7,unidade:"dias"},duracaoAtualizada:{valor:7,unidade:"dias"},cores:{novo:"#2f9e72",atualizada:"#d99a16",visivel:"#2d8fd5",oculta:"#7b8794"}};fillManagementForm();flash("Padrões restaurados. Salve para aplicar.","success");});
   el.saveManagement?.addEventListener("click",async()=>{
-    state.configuracoes={...state.configuracoes,duracaoNovo:{valor:Math.max(1,Number(el.newDurationValue.value)||1),unidade:el.newDurationUnit.value},duracaoAtualizada:{valor:Math.max(1,Number(el.updatedDurationValue.value)||1),unidade:el.updatedDurationUnit.value},mostrarNovo:el.showNewBadge.checked,mostrarAtualizada:el.showUpdatedBadge.checked,cores:{novo:el.colorNew.value,atualizada:el.colorUpdated.value,visivel:el.colorVisible.value,oculta:el.colorHidden.value},lembrarCategorias:el.rememberCategories.checked,mostrarContadorCategoria:el.showCategoryCount.checked,confirmarPublicacao:el.confirmPublish.checked,confirmarDescarte:el.confirmDiscard.checked,excluirImagemPadrao:el.deleteImageDefault.checked};
+    state.configuracoes={...state.configuracoes,duracaoNovo:{valor:Math.max(1,Number(el.newDurationValue.value)||1),unidade:el.newDurationUnit.value},duracaoAtualizada:{valor:Math.max(1,Number(el.updatedDurationValue.value)||1),unidade:el.updatedDurationUnit.value},cores:{novo:el.colorNew.value,atualizada:el.colorUpdated.value,visivel:el.colorVisible.value,oculta:el.colorHidden.value}};
     setBusy(true,"Salvando configurações...");try{await saveConfig("Atualiza configurações gerais");applyConfigAppearance();render();closeSettings();flash("Configurações gerais publicadas.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}
   });
 
