@@ -26,6 +26,8 @@
   const mobileViewMenuBtn = $('mobileViewMenuBtn');
   const mobileViewMenu = $('mobileViewMenu');
   const mobileExpandAllBtn = $('mobileExpandAllBtn');
+  const mobileViewBackdrop = $('mobileViewBackdrop');
+  const mobileViewCloseBtn = $('mobileViewCloseBtn');
   const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
@@ -295,7 +297,7 @@
         ? `<div class="frame-group-footer"><button type="button" class="category-more-button" data-category-expand="${escapeHtml(category.id)}" aria-expanded="${expanded}">${expanded ? '<span>Mostrar menos</span><small>Voltar para a visualização resumida</small>' : `<span>Ver todas as ${frames.length}</span><small>${hiddenCount} ${hiddenCount===1?'moldura restante':'molduras restantes'}</small>`}<i aria-hidden="true">${expanded?'↑':'↓'}</i></button></div>`
         : '';
 
-      return `<section class="frame-group${collapsed?' is-collapsed':''}" data-category-group="${escapeHtml(category.id)}"><div class="frame-group-header"><button type="button" class="category-collapse-button" data-category-collapse="${escapeHtml(category.id)}" aria-expanded="${!collapsed}" aria-controls="${groupId}"><span class="category-chevron" aria-hidden="true">⌄</span><span class="category-title"><span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</span><small>${collapsed ? 'Toque para expandir a categoria' : expanded || searching ? 'Todas as molduras estão visíveis' : `Exibindo ${visibleFrames.length} de ${frames.length}`}</small></span></button><div class="category-count">${counter}</div></div><div class="frame-group-body" id="${groupId}"${collapsed?' hidden':''}><div class="frame-grid">${cards}</div>${footer}</div></section>`;
+      return `<section class="frame-group${collapsed?' is-collapsed':''}" data-category-group="${escapeHtml(category.id)}"><div class="frame-group-header"><button type="button" class="category-collapse-button" data-category-collapse="${escapeHtml(category.id)}" aria-expanded="${!collapsed}" aria-controls="${groupId}"><span class="category-chevron" aria-hidden="true">⌄</span><span class="category-title"><span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</span><small>${collapsed ? '' : expanded || searching ? 'Todas as molduras estão visíveis' : `Exibindo ${visibleFrames.length} de ${frames.length}`} </small></span></button><div class="category-count">${counter}</div></div><div class="frame-group-body" id="${groupId}"${collapsed?' hidden':''}><div class="frame-grid">${cards}</div>${footer}</div></section>`;
     }).join('');
     updateCategoryViewActions();
   }
@@ -602,15 +604,25 @@
   function closeMobileViewMenu(){
     if (!mobileViewMenu || !mobileViewMenuBtn) return;
     mobileViewMenu.hidden = true;
+    if (mobileViewBackdrop) mobileViewBackdrop.hidden = true;
     mobileViewMenuBtn.setAttribute('aria-expanded','false');
+    document.body.classList.remove('is-view-sheet-open');
+  }
+  function openMobileViewMenu(){
+    if (!mobileViewMenu || !mobileViewMenuBtn) return;
+    mobileViewMenu.hidden = false;
+    if (mobileViewBackdrop) mobileViewBackdrop.hidden = false;
+    mobileViewMenuBtn.setAttribute('aria-expanded','true');
+    document.body.classList.add('is-view-sheet-open');
   }
   mobileViewMenuBtn?.addEventListener('click',(event)=>{
     event.stopPropagation();
-    const opening = mobileViewMenu.hidden;
-    mobileViewMenu.hidden = !opening;
-    mobileViewMenuBtn.setAttribute('aria-expanded',String(opening));
+    if (mobileViewMenu.hidden) openMobileViewMenu(); else closeMobileViewMenu();
   });
   mobileViewMenu?.addEventListener('click',event=>event.stopPropagation());
+  mobileViewBackdrop?.addEventListener('click',closeMobileViewMenu);
+  mobileViewCloseBtn?.addEventListener('click',closeMobileViewMenu);
+  document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
   document.addEventListener('click',closeMobileViewMenu);
   document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
