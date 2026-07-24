@@ -1,4 +1,10 @@
-// Gerenciado pelo Painel de Molduras Lions v48
+// Gerenciado pelo Painel de Molduras Lions v64
+window.PUBLICACAO = {
+  "versao": "1784858413651-5s0hnza",
+  "atualizadoEm": "2026-07-24T02:00:13.651Z",
+  "descricao": "Oculta moldura Feliz Aniversário"
+};
+
 window.CONFIGURACOES = {
   "duracaoNovo": {
     "valor": 3,
@@ -297,7 +303,7 @@ window.MOLDURAS = [
     "categoriaId": "lions",
     "ordem": 2,
     "arquivo": "assets/molduras/feliz-aniversario.png",
-    "ativo": true,
+    "ativo": false,
     "status": "normal",
     "statusVisivel": false,
     "statusDesde": "",
