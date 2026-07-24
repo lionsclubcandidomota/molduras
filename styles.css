@@ -386,3 +386,19 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .mobile-control-row{grid-template-columns:38px 48px 38px 1px 38px 48px 38px;gap:4px}
   .mobile-shortcut-row button{font-size:.66rem}
 }
+
+
+/* v5.5 — edição móvel opcional e área inteira clicável */
+.empty-state.is-clickable{pointer-events:auto;z-index:3}
+.canvas-stage.is-awaiting-photo:has(.empty-state.is-clickable){cursor:pointer}
+@media(max-width:760px){
+  .editor-section.photo-ready .tools-column{display:none}
+  .editor-section.photo-ready.adjustments-open .tools-column{display:flex;animation:mobileAdjustmentsIn .18s ease both}
+  .editor-section.photo-ready .upload-card{display:none}
+  .editor-section.photo-ready .mobile-visual-toolbar{display:none!important}
+  .editor-section.photo-ready .quick-tools,.editor-section.photo-ready .advanced-panel{width:100%}
+  .editor-section.photo-ready .tools-column{margin-top:10px}
+  .editor-section.photo-ready.adjustments-open .quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .mobile-edit-toggle{position:relative;z-index:2}
+}
+@keyframes mobileAdjustmentsIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}

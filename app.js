@@ -55,6 +55,7 @@
   const dismissRestoreBtn = $('dismissRestoreBtn');
   const mobileVisualToolbar = $('mobileVisualToolbar');
   const mobileEditToggle = $('mobileEditToggle');
+  const editorSection = $('editor');
   const mobileZoomOutBtn = $('mobileZoomOutBtn');
   const mobileZoomInBtn = $('mobileZoomInBtn');
   const mobileZoomValue = $('mobileZoomValue');
@@ -241,7 +242,13 @@
     mobileActionBar.hidden = !enabled; mobileActionBar.classList.toggle('is-visible', enabled);
     if (mobileEditToggle) mobileEditToggle.hidden = !enabled;
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = true;
-    if (mobileEditToggle) mobileEditToggle.setAttribute('aria-expanded','false');
+    if (mobileEditToggle) {
+      mobileEditToggle.setAttribute('aria-expanded','false');
+      mobileEditToggle.classList.remove('is-active');
+      mobileEditToggle.innerHTML = '<span>🎛️</span> Ajustar foto';
+    }
+    editorSection?.classList.toggle('photo-ready', enabled);
+    editorSection?.classList.remove('adjustments-open');
     document.body.classList.toggle('has-mobile-bar', enabled);
     document.body.classList.toggle('is-editing-photo', enabled);
     updateProgress();
@@ -345,12 +352,15 @@
     scheduleSave();
   }
   mobileEditToggle?.addEventListener('click', () => {
-    if (!state.photo || !mobileVisualToolbar) return;
-    const opening = mobileVisualToolbar.hidden;
-    mobileVisualToolbar.hidden = !opening;
+    if (!state.photo || !editorSection) return;
+    const opening = !editorSection.classList.contains('adjustments-open');
+    editorSection.classList.toggle('adjustments-open', opening);
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
     mobileEditToggle.innerHTML = opening ? '<span>×</span> Fechar ajustes' : '<span>🎛️</span> Ajustar foto';
+    if (opening) {
+      requestAnimationFrame(() => document.querySelector('.tools-column')?.scrollIntoView({behavior:'smooth', block:'nearest'}));
+    }
   });
   mobileZoomOutBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale - 0.05)));
   mobileZoomInBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale + 0.05)));
@@ -362,6 +372,20 @@
     if (!state.photo) return;
     advancedPanel.open = true;
     advancedPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // Em celulares e computadores, toda a área da moldura abre a seleção de foto
+  // enquanto uma moldura estiver escolhida e ainda não houver fotografia carregada.
+  wrap.addEventListener('click', event => {
+    if (!state.selectedFrame || state.photo || photoInput.disabled) return;
+    event.preventDefault();
+    photoInput.click();
+  });
+  emptyState.addEventListener('click', event => {
+    if (!state.selectedFrame || state.photo || photoInput.disabled) return;
+    event.preventDefault();
+    event.stopPropagation();
+    photoInput.click();
   });
 
   photoInput.addEventListener('change', event => {
