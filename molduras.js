@@ -310,10 +310,10 @@ window.MOLDURAS = [
     "ordem": 7,
     "arquivo": "assets/molduras/orgulho-de-ser-leao.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:41:57.972Z",
+    "statusAte": "2026-07-27T01:41:57.972Z"
   },
   {
     "id": "dia-d",
@@ -322,10 +322,10 @@ window.MOLDURAS = [
     "ordem": 1,
     "arquivo": "assets/molduras/dia-d.png",
     "ativo": true,
-    "status": "normal",
-    "statusVisivel": false,
-    "statusDesde": "",
-    "statusAte": ""
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:41:57.972Z",
+    "statusAte": "2026-07-27T01:41:57.972Z"
   },
   {
     "id": "gat",
