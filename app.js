@@ -67,6 +67,7 @@
   const mobileVisualToolbar = $('mobileVisualToolbar');
   const mobileEditToggle = $('mobileEditToggle');
   const editorSection = $('editor');
+  const editorSidebar = editorSection?.querySelector('.editor-sidebar');
   const mobileZoomOutBtn = $('mobileZoomOutBtn');
   const mobileZoomInBtn = $('mobileZoomInBtn');
   const mobileZoomValue = $('mobileZoomValue');
@@ -305,6 +306,14 @@
     updateCategoryViewActions();
   }
 
+  function updateEditorLayout() {
+    const hasSelectedFrame = Boolean(state.selectedFrame);
+    editorSection?.classList.toggle('has-selected-frame', hasSelectedFrame);
+    if (editorSidebar) {
+      editorSidebar.setAttribute('aria-hidden', String(!hasSelectedFrame));
+    }
+  }
+
   function updateProgress() {
     const step = state.photo ? 3 : state.selectedFrame ? 2 : 1;
     document.querySelectorAll('[data-progress]').forEach(el => {
@@ -313,6 +322,7 @@
   }
 
   function setFrameReady(ready) {
+    updateEditorLayout();
     photoInput.disabled = !ready;
     photoButton.classList.toggle('is-disabled', !ready);
     photoButton.setAttribute('aria-disabled', String(!ready));
@@ -628,9 +638,13 @@
     scrollTopBtn.classList.toggle('is-visible', window.scrollY > 300);
   }
   const goToPageTop = ()=>window.scrollTo({top:0,behavior:'smooth'});
+  const goToFrames = () => {
+    $('galeria')?.scrollIntoView({behavior:'smooth', block:'start'});
+    window.setTimeout(() => frameSearch?.focus({preventScroll:true}), 450);
+  };
   scrollTopBtn?.addEventListener('click',goToPageTop);
   mobileEndTopBtn?.addEventListener('click',goToPageTop);
-  desktopStartOverBtn?.addEventListener('click',goToPageTop);
+  desktopStartOverBtn?.addEventListener('click',goToFrames);
   window.addEventListener('scroll',updateScrollTopButton,{passive:true});
   updateScrollTopButton();
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
