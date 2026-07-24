@@ -1,12 +1,9 @@
-# Molduras Lions v5.0
+# Molduras Lions v5.7
 
-Refatoração visual do painel administrativo.
+## Index móvel
 
-## Principais mudanças
-- Configurações do catálogo redesenhadas e simplificadas.
-- Duração dos destaques Novo e Atualizada em horas ou dias.
-- Cores dos status com prévia e código hexadecimal.
-- Menu compacto de ações em cada moldura.
-- Painéis laterais padronizados.
-- Correção do deslocamento ao abrir destaque/edição.
-- Layout responsivo e componentes visuais unificados.
+- Restaura os atalhos de zoom e rotação ao abrir **Ajustar foto**.
+- Mantém os controles protegidos enquanto a área de ajustes está fechada.
+- Exibe **Ajustes avançados** antes das ações de desfazer, refazer, preencher, centralizar e remover.
+- O botão **Filtros** abre os ajustes avançados e os posiciona próximos à prévia.
+- Ao fechar **Ajustar foto**, os controles e os ajustes avançados são recolhidos.

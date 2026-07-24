@@ -395,10 +395,22 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
   .editor-section.photo-ready .tools-column{display:none}
   .editor-section.photo-ready.adjustments-open .tools-column{display:flex;animation:mobileAdjustmentsIn .18s ease both}
   .editor-section.photo-ready .upload-card{display:none}
-  .editor-section.photo-ready .mobile-visual-toolbar{display:none!important}
+  .editor-section.photo-ready .mobile-visual-toolbar{display:none}
+  .editor-section.photo-ready.adjustments-open .mobile-visual-toolbar:not([hidden]){display:grid}
   .editor-section.photo-ready .quick-tools,.editor-section.photo-ready .advanced-panel{width:100%}
-  .editor-section.photo-ready .tools-column{margin-top:10px}
+  .editor-section.photo-ready .tools-column{margin-top:10px;flex-direction:column}
+  .editor-section.photo-ready.adjustments-open .advanced-panel{order:1}
+  .editor-section.photo-ready.adjustments-open .quick-tools{order:2}
   .editor-section.photo-ready.adjustments-open .quick-actions{grid-template-columns:repeat(3,minmax(0,1fr))}
   .mobile-edit-toggle{position:relative;z-index:2}
 }
 @keyframes mobileAdjustmentsIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+
+/* v5.7 — zoom/rotação restaurados e filtros antes das ações no celular */
+@media(max-width:760px){
+  .editor-section.photo-ready.adjustments-open .mobile-visual-toolbar{margin-top:8px}
+  .editor-section.photo-ready.adjustments-open .advanced-panel{margin-top:0}
+  .editor-section.photo-ready.adjustments-open .quick-tools{margin-top:0}
+  .mobile-shortcut-row #mobileAdjustmentsBtn span{display:inline}
+}

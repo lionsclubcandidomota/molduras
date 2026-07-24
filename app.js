@@ -358,8 +358,10 @@
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
     mobileEditToggle.innerHTML = opening ? '<span>×</span> Fechar ajustes' : '<span>🎛️</span> Ajustar foto';
+    if (mobileVisualToolbar) mobileVisualToolbar.hidden = !opening;
+    if (!opening && advancedPanel) advancedPanel.open = false;
     if (opening) {
-      requestAnimationFrame(() => document.querySelector('.tools-column')?.scrollIntoView({behavior:'smooth', block:'nearest'}));
+      requestAnimationFrame(() => mobileVisualToolbar?.scrollIntoView({behavior:'smooth', block:'nearest'}));
     }
   });
   mobileZoomOutBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale - 0.05)));
@@ -371,7 +373,7 @@
   mobileAdjustmentsBtn?.addEventListener('click', () => {
     if (!state.photo) return;
     advancedPanel.open = true;
-    advancedPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    requestAnimationFrame(() => advancedPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
   });
 
   // Em celulares e computadores, toda a área da moldura abre a seleção de foto
