@@ -10,5 +10,3 @@ Refatoração visual do painel administrativo.
 - Painéis laterais padronizados.
 - Correção do deslocamento ao abrir destaque/edição.
 - Layout responsivo e componentes visuais unificados.
-
-Substitua a pasta `admin` e mantenha seu `molduras.js` e `assets/molduras`.
