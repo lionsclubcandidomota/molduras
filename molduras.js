@@ -31,20 +31,20 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
-    "id": "cargos",
-    "nome": "💼 Cargos de Clube",
-    "ordem": 2,
-    "ativo": true
-  },
-  {
     "id": "causas-globais",
     "nome": "🌎 Causas Globais",
-    "ordem": 3,
+    "ordem": 2,
     "ativo": true
   },
   {
     "id": "lions",
     "nome": "🦁 Lions",
+    "ordem": 3,
+    "ativo": true
+  },
+  {
+    "id": "cargos",
+    "nome": "💼 Cargos de Clube",
     "ordem": 4,
     "ativo": true
   }
