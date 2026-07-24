@@ -88,13 +88,14 @@
           <div class="canvas-column">
             <div class="canvas-stage is-awaiting-photo" id="canvasWrap">
               <canvas id="editorCanvas" width="1080" height="1080" aria-label="Prévia da imagem"></canvas>
-              <div class="empty-state" id="emptyState">
-                <span>🖼️</span><strong>Escolha uma moldura</strong><small>Depois você poderá adicionar sua foto.</small>
-              </div>
+              <label class="empty-state" id="emptyState" for="photoInput">
+                <span aria-hidden="true">＋</span><strong>Escolha uma moldura</strong><small>Depois, toque aqui para selecionar sua foto.</small>
+              </label>
             </div>
             <p class="resolution-warning" id="resolutionWarning" hidden>⚠️ Esta foto pode perder qualidade na imagem final.</p>
             <p class="gesture-hint" id="adjustHint" hidden>☝️ Arraste a foto para posicionar. Use dois dedos para ampliar.</p>
 
+            <button class="mobile-edit-toggle" id="mobileEditToggle" type="button" hidden aria-expanded="false" aria-controls="mobileVisualToolbar"><span>🎛️</span> Ajustar foto</button>
             <div class="mobile-visual-toolbar" id="mobileVisualToolbar" hidden aria-label="Atalhos de edição da foto">
               <div class="mobile-control-row">
                 <button type="button" id="mobileZoomOutBtn" aria-label="Diminuir zoom">−</button>

@@ -481,6 +481,8 @@
     state.editingCategoryId="";
   }
   function openCategoryEditor(cat){
+    if(document.body.classList.contains("editor-drawer-open")) resetForm({restoreScroll:false});
+    closeSettings?.();
     state.editingCategoryId=cat.id;
     if(el.categoryEditorTitle) el.categoryEditorTitle.textContent=`Editar: ${cat.nome}`;
     if(el.categoryNameInput) el.categoryNameInput.value=cat.nome;
@@ -561,6 +563,9 @@
   });
 
   function openFrameEditor(f,{focusStatus=false}={}){
+    setCreationMode("single",{scroll:false});
+    closeSettings?.();
+    closeCategoryEditor?.();
     setCreationMode("single", { scroll: false });
     state.editorReturnScrollY=window.scrollY;
     state.editingId=f.id;
@@ -747,7 +752,14 @@
   el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
   el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
 
-  function openSettings(){ fillManagementForm(); el.settingsDrawer.hidden=false; el.settingsBackdrop.hidden=false; document.body.classList.add("category-drawer-open"); }
+  function openSettings(){
+    if(document.body.classList.contains("editor-drawer-open")) resetForm({restoreScroll:false});
+    closeCategoryEditor?.();
+    fillManagementForm();
+    el.settingsDrawer.hidden=false;
+    el.settingsBackdrop.hidden=false;
+    document.body.classList.add("category-drawer-open");
+  }
   function closeSettings(){ el.settingsDrawer.hidden=true; el.settingsBackdrop.hidden=true; document.body.classList.remove("category-drawer-open"); }
   el.managementToggle?.addEventListener("click",openSettings); el.settingsCancel?.addEventListener("click",closeSettings); el.settingsBackdrop?.addEventListener("click",()=>{if(!state.busy)closeSettings();});
   [el.colorNew,el.colorUpdated,el.colorVisible,el.colorHidden].forEach(input=>input?.addEventListener("input",()=>{updateColorCodes();applyConfigAppearance();}));

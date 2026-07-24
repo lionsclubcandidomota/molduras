@@ -327,7 +327,7 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
 
 
 /* v5.2 — inclusão por abas, sem accordions herdados */
-.creation-mode-switch{position:sticky;top:10px;z-index:25;box-shadow:0 8px 24px rgba(7,35,66,.06)}
+.creation-mode-switch{position:relative;z-index:1;box-shadow:0 8px 24px rgba(7,35,66,.06)}
 .creation-mode-content{animation:creationPanelIn .18s ease both}
 @keyframes creationPanelIn{from{opacity:.35;transform:translateY(4px)}to{opacity:1;transform:none}}
 .fixed-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}
@@ -346,3 +346,7 @@ dialog{padding:0;border:0;border-radius:16px;box-shadow:var(--shadow)}dialog::ba
   .fixed-panel-heading>.button,.fixed-panel-heading>.panel-summary-pill{align-self:flex-start}
   .fixed-panel-body{padding:13px}
 }
+
+/* v5.3 — estabilidade dos editores e inclusão sem flutuação */
+.editor-backdrop[hidden],.category-editor-drawer[hidden]{display:none!important}
+.creation-mode-switch{top:auto!important}

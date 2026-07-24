@@ -54,6 +54,7 @@
   const restoreNotice = $('restoreNotice');
   const dismissRestoreBtn = $('dismissRestoreBtn');
   const mobileVisualToolbar = $('mobileVisualToolbar');
+  const mobileEditToggle = $('mobileEditToggle');
   const mobileZoomOutBtn = $('mobileZoomOutBtn');
   const mobileZoomInBtn = $('mobileZoomInBtn');
   const mobileZoomValue = $('mobileZoomValue');
@@ -215,11 +216,11 @@
     if (!ready) {
       uploadTitle.textContent = 'Selecione uma moldura primeiro'; uploadDescription.textContent = 'A foto será processada somente no seu aparelho.';
       photoStatus.textContent = 'Aguardando moldura'; editorSubtitle.textContent = 'Primeiro, selecione uma moldura acima.';
-      emptyState.querySelector('span').textContent = '🖼️'; emptyState.querySelector('strong').textContent = 'Escolha uma moldura'; emptyState.querySelector('small').textContent = 'Depois você poderá adicionar sua foto.';
+      emptyState.querySelector('span').textContent = '＋'; emptyState.querySelector('strong').textContent = 'Escolha uma moldura'; emptyState.querySelector('small').textContent = 'Depois, toque aqui para selecionar sua foto.'; emptyState.classList.remove('is-clickable');
     } else if (!state.photo) {
       uploadTitle.textContent = 'Agora escolha sua foto'; uploadDescription.textContent = `Moldura selecionada: ${state.selectedFrame.nome}`;
       photoStatus.textContent = 'Moldura escolhida ✓'; editorSubtitle.textContent = 'Ótimo! Agora envie uma foto e ajuste como preferir.';
-      emptyState.querySelector('span').textContent = '📷'; emptyState.querySelector('strong').textContent = 'Adicione sua foto'; emptyState.querySelector('small').textContent = 'Toque em “Escolher foto” para continuar.';
+      emptyState.querySelector('span').textContent = '＋'; emptyState.querySelector('strong').textContent = 'Selecionar foto'; emptyState.querySelector('small').textContent = 'Toque em qualquer ponto desta área para escolher uma imagem.'; emptyState.classList.add('is-clickable');
     }
     updateProgress();
   }
@@ -238,7 +239,9 @@
     uploadTitle.textContent = enabled ? 'Foto adicionada' : state.selectedFrame ? 'Agora escolha sua foto' : 'Selecione uma moldura primeiro';
     uploadDescription.textContent = enabled ? 'Use os controles para posicionar e ajustar.' : state.selectedFrame ? `Moldura selecionada: ${state.selectedFrame.nome}` : 'A foto será processada somente no seu aparelho.';
     mobileActionBar.hidden = !enabled; mobileActionBar.classList.toggle('is-visible', enabled);
-    if (mobileVisualToolbar) mobileVisualToolbar.hidden = !enabled;
+    if (mobileEditToggle) mobileEditToggle.hidden = !enabled;
+    if (mobileVisualToolbar) mobileVisualToolbar.hidden = true;
+    if (mobileEditToggle) mobileEditToggle.setAttribute('aria-expanded','false');
     document.body.classList.toggle('has-mobile-bar', enabled);
     document.body.classList.toggle('is-editing-photo', enabled);
     updateProgress();
@@ -341,10 +344,18 @@
     change();
     scheduleSave();
   }
+  mobileEditToggle?.addEventListener('click', () => {
+    if (!state.photo || !mobileVisualToolbar) return;
+    const opening = mobileVisualToolbar.hidden;
+    mobileVisualToolbar.hidden = !opening;
+    mobileEditToggle.setAttribute('aria-expanded', String(opening));
+    mobileEditToggle.classList.toggle('is-active', opening);
+    mobileEditToggle.innerHTML = opening ? '<span>×</span> Fechar ajustes' : '<span>🎛️</span> Ajustar foto';
+  });
   mobileZoomOutBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale - 0.05)));
   mobileZoomInBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale + 0.05)));
-  mobileRotateLeftBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation - 2, true)));
-  mobileRotateRightBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation + 2, true)));
+  mobileRotateLeftBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation - 5, false)));
+  mobileRotateRightBtn?.addEventListener('click', () => mobileStep(() => setRotation(state.rotation + 5, false)));
   mobileCenterBtn?.addEventListener('click', () => mobileStep(() => { state.x = 540; state.y = 540; draw(); }));
   mobileFitBtn?.addEventListener('click', () => mobileStep(resetPhotoPosition));
   mobileAdjustmentsBtn?.addEventListener('click', () => {
@@ -359,7 +370,7 @@
     const reader=new FileReader(); reader.onload=()=>{const image=new Image(); image.onload=()=>{state.photo=image;state.history=[];state.future=[];resetPhotoPosition();setPhotoEnabled(true);wrap.classList.remove('is-awaiting-photo');if(resolutionWarning)resolutionWarning.hidden=Math.min(image.naturalWidth,image.naturalHeight)>=900;};image.onerror=()=>alert('Não foi possível abrir esta imagem.');image.src=reader.result;};reader.readAsDataURL(file);
   });
   zoomRange.addEventListener('input',()=>setZoom(zoomRange.value)); zoomNumber.addEventListener('input',()=>{if(zoomNumber.value!=='')setZoom(Number(zoomNumber.value)/100);}); zoomNumber.addEventListener('change',()=>setZoom(Number(zoomNumber.value||100)/100));
-  rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,true)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
+  rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,false)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
   undoBtn?.addEventListener('click',()=>{if(!state.history.length)return;state.future.push(transformSnapshot());restoreSnapshot(state.history.pop());updateHistoryButtons();});
   redoBtn?.addEventListener('click',()=>{if(!state.future.length)return;state.history.push(transformSnapshot());restoreSnapshot(state.future.pop());updateHistoryButtons();});
   fitBtn.addEventListener('click',()=>{rememberState();resetPhotoPosition();}); centerBtn.addEventListener('click',()=>{rememberState();state.x=540;state.y=540;draw();});
