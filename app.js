@@ -252,6 +252,8 @@
     }
     editorSection?.classList.toggle('photo-ready', enabled);
     editorSection?.classList.remove('adjustments-open');
+    if (advancedPanel) advancedPanel.open = false;
+    placeAdjustmentPanels();
     document.body.classList.toggle('has-mobile-bar', enabled);
     document.body.classList.toggle('is-editing-photo', enabled);
     updateProgress();
@@ -354,9 +356,23 @@
     change();
     scheduleSave();
   }
+  function placeAdjustmentPanels() {
+    if (!advancedPanel || !mobileVisualToolbar) return;
+    const mobile = window.matchMedia('(max-width: 760px)').matches;
+    if (mobile) {
+      const canvasColumn = mobileEditToggle?.parentElement;
+      if (canvasColumn && advancedPanel.parentElement !== canvasColumn) {
+        canvasColumn.insertBefore(advancedPanel, mobileVisualToolbar);
+      }
+    } else if (controls?.parentElement && advancedPanel.parentElement !== controls.parentElement) {
+      controls.parentElement.insertBefore(advancedPanel, controls);
+    }
+  }
+
   mobileEditToggle?.addEventListener('click', () => {
     if (!state.photo || !editorSection) return;
     const opening = !editorSection.classList.contains('adjustments-open');
+    placeAdjustmentPanels();
     editorSection.classList.toggle('adjustments-open', opening);
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
@@ -364,8 +380,14 @@
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = !opening;
     if (!opening && advancedPanel) advancedPanel.open = false;
     if (opening) {
-      requestAnimationFrame(() => mobileVisualToolbar?.scrollIntoView({behavior:'smooth', block:'nearest'}));
+      requestAnimationFrame(() => {
+        const target = window.matchMedia('(max-width: 760px)').matches ? advancedPanel : mobileEditToggle;
+        target?.scrollIntoView({behavior:'smooth', block:'nearest'});
+      });
     }
+  });
+  window.addEventListener('resize', () => {
+    if (editorSection?.classList.contains('adjustments-open')) placeAdjustmentPanels();
   });
   mobileZoomOutBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale - 0.05)));
   mobileZoomInBtn?.addEventListener('click', () => mobileStep(() => setZoom(state.scale + 0.05)));
