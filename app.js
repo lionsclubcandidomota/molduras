@@ -490,7 +490,7 @@
     editorSection.classList.toggle('adjustments-open', opening);
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
-    mobileEditToggle.innerHTML = opening ? '<span>×</span> Fechar ajustes' : '<span>🎛️</span> Ajustar foto';
+    mobileEditToggle.innerHTML = opening ? '<span>⌃</span> Ocultar ajustes' : '<span>⌄</span> Ajustes avançados';
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = !opening;
     if (!opening && advancedPanel) advancedPanel.open = false;
     if (opening) {
