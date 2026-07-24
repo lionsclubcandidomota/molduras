@@ -39,7 +39,7 @@
     framePublishAt: $("framePublishAt"), frameHideAt: $("frameHideAt"), bulkPublishAt: $("bulkPublishAt"), bulkHideAt: $("bulkHideAt"),
     managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"), colorNewCode: $("colorNewCode"), colorUpdatedCode: $("colorUpdatedCode"), colorVisibleCode: $("colorVisibleCode"), colorHiddenCode: $("colorHiddenCode"),
     categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorDelete: $("categoryEditorDelete"), categoryEditorCount: $("categoryEditorCount"),
-    publicationNotice: $("publicationNotice"), publicationNoticeIcon: $("publicationNoticeIcon"), publicationNoticeTitle: $("publicationNoticeTitle"), publicationNoticeText: $("publicationNoticeText"), publicationNoticeLink: $("publicationNoticeLink"), publicationNoticeClose: $("publicationNoticeClose"),
+    publicationNotice: $("publicationNotice"), publicationNoticeIcon: $("publicationNoticeIcon"), publicationNoticeTitle: $("publicationNoticeTitle"), publicationNoticeText: $("publicationNoticeText"), publicationNoticeLink: $("publicationNoticeLink"), publicationNoticeClose: $("publicationNoticeClose"), publicationNoticeRetry: $("publicationNoticeRetry"), publicationProgressBar: $("publicationProgressBar"),
   };
 
   // v5.6 — drawers independentes do fluxo da página.
@@ -202,14 +202,38 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
     }
   }
   function publicConfigUrl() { return new URL(CONFIG_PATH, publicIndexUrl()).href; }
+  let lastPublicationToCheck = null;
   function setPublicationNotice(kind, title, text, showLink = false) {
     if (!el.publicationNotice) return;
     el.publicationNotice.hidden = false;
     el.publicationNotice.dataset.state = kind;
-    if (el.publicationNoticeIcon) el.publicationNoticeIcon.textContent = kind === "ready" ? "✓" : kind === "timeout" ? "!" : "↻";
+    if (el.publicationNoticeIcon) {
+      el.publicationNoticeIcon.innerHTML = kind === "ready" ? "✓" : kind === "timeout" ? "!" : '<span class="publication-spinner"></span>';
+    }
     if (el.publicationNoticeTitle) el.publicationNoticeTitle.textContent = title;
     if (el.publicationNoticeText) el.publicationNoticeText.textContent = text;
     if (el.publicationNoticeLink) { el.publicationNoticeLink.hidden = !showLink; el.publicationNoticeLink.href = publicIndexUrl(); }
+    if (el.publicationNoticeRetry) el.publicationNoticeRetry.hidden = kind !== "timeout";
+    if (el.publicationProgressBar) el.publicationProgressBar.style.width = kind === "ready" ? "100%" : kind === "timeout" ? "100%" : "58%";
+    const steps = el.publicationNotice.querySelectorAll(".publication-steps li");
+    steps.forEach(step => step.classList.remove("is-done", "is-active", "is-error"));
+    const github = el.publicationNotice.querySelector('[data-step="github"]');
+    const pages = el.publicationNotice.querySelector('[data-step="pages"]');
+    const index = el.publicationNotice.querySelector('[data-step="index"]');
+    github?.classList.add("is-done");
+    if (kind === "waiting") {
+      pages?.classList.add("is-active");
+      if (pages?.querySelector(".step-dot")) pages.querySelector(".step-dot").textContent = "…";
+      if (index?.querySelector(".step-dot")) index.querySelector(".step-dot").textContent = "○";
+    } else if (kind === "ready") {
+      pages?.classList.add("is-done"); index?.classList.add("is-done");
+      if (pages?.querySelector(".step-dot")) pages.querySelector(".step-dot").textContent = "✓";
+      if (index?.querySelector(".step-dot")) index.querySelector(".step-dot").textContent = "✓";
+    } else {
+      pages?.classList.add("is-done"); index?.classList.add("is-error");
+      if (pages?.querySelector(".step-dot")) pages.querySelector(".step-dot").textContent = "✓";
+      if (index?.querySelector(".step-dot")) index.querySelector(".step-dot").textContent = "!";
+    }
   }
   function closePublicationNotice() { if (el.publicationNotice) el.publicationNotice.hidden = true; }
   function extractPublicationVersion(source) {
@@ -221,7 +245,8 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
     const token = ++state.publicationWatchToken;
     const expected = publication?.versao;
     if (!expected) return;
-    setPublicationNotice("waiting", "GitHub atualizado", "Aguardando a nova versão aparecer no Index…");
+    lastPublicationToCheck = publication;
+    setPublicationNotice("waiting", "Publicando alterações", "O GitHub foi atualizado. Aguardando a nova versão no Index…");
     const startedAt = Date.now();
     const timeoutMs = 4 * 60 * 1000;
     while (token === state.publicationWatchToken && Date.now() - startedAt < timeoutMs) {
@@ -229,7 +254,7 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
         const url = `${publicConfigUrl()}?publicacao=${encodeURIComponent(expected)}&t=${Date.now()}`;
         const response = await fetch(url, { cache: "no-store" });
         if (response.ok && extractPublicationVersion(await response.text()) === expected) {
-          setPublicationNotice("ready", "Alterações disponíveis", "A nova versão já está no site público.", true);
+          setPublicationNotice("ready", "Publicação concluída", "A nova versão já está disponível no Index.", true);
           flash("As alterações já estão disponíveis no Index.", "success");
           if ("Notification" in window && Notification.permission === "granted") {
             try { new Notification("Central Lions", { body: "As alterações já estão disponíveis no site." }); } catch {}
@@ -239,7 +264,7 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
       } catch (error) { console.debug("[Lions Admin] Index ainda não disponível", error); }
       await wait(5000);
     }
-    if (token === state.publicationWatchToken) setPublicationNotice("timeout", "Publicação enviada", "O GitHub foi atualizado, mas o Index ainda não confirmou a nova versão.", true);
+    if (token === state.publicationWatchToken) setPublicationNotice("timeout", "Publicação não confirmada", "O GitHub recebeu as alterações, mas o Index não confirmou a nova versão no tempo esperado.", true);
   }
 
   async function getFile(path) {
@@ -903,6 +928,9 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
   if (el.bulkReview) el.bulkReview.addEventListener("click", () => setTimeout(updateBulkSummary, 0));
   el.publishPending?.addEventListener("click",()=>el.saveOrder?.click());
   el.publicationNoticeClose?.addEventListener("click", closePublicationNotice);
+  el.publicationNoticeRetry?.addEventListener("click", () => {
+    if (lastPublicationToCheck) watchPublicIndex(lastPublicationToCheck);
+  });
   el.discardPending?.addEventListener("click", discardPendingChanges);
   el.editorBackdrop?.addEventListener("click",()=>{if(!state.busy)resetForm();});
   document.addEventListener("keydown",event=>{if(event.key!=="Escape"||state.busy)return;if(document.body.classList.contains("category-drawer-open"))closeCategoryEditor();else if(document.body.classList.contains("editor-drawer-open"))resetForm();});

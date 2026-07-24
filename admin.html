@@ -416,13 +416,24 @@
   </dialog>
 
   <aside id="publicationNotice" class="publication-notice" data-state="waiting" hidden aria-live="polite" aria-atomic="true">
-    <span id="publicationNoticeIcon" class="publication-notice-icon" aria-hidden="true">↻</span>
-    <div class="publication-notice-content">
-      <strong id="publicationNoticeTitle">Aguardando publicação</strong>
-      <span id="publicationNoticeText">Verificando quando as alterações estarão disponíveis no Index…</span>
+    <div class="publication-notice-head">
+      <span id="publicationNoticeIcon" class="publication-notice-icon" aria-hidden="true"><span class="publication-spinner"></span></span>
+      <div class="publication-notice-content">
+        <strong id="publicationNoticeTitle">Publicando alterações</strong>
+        <span id="publicationNoticeText">Aguardando a nova versão aparecer no Index…</span>
+      </div>
+      <button id="publicationNoticeClose" class="publication-notice-close" type="button" aria-label="Fechar notificação">×</button>
     </div>
-    <a id="publicationNoticeLink" class="publication-notice-link" href="../" target="_blank" rel="noopener" hidden>Abrir Index</a>
-    <button id="publicationNoticeClose" class="publication-notice-close" type="button" aria-label="Fechar notificação">×</button>
+    <div class="publication-progress" aria-hidden="true"><span id="publicationProgressBar"></span></div>
+    <ol class="publication-steps" aria-label="Etapas da publicação">
+      <li data-step="github"><span class="step-dot">✓</span><span>Alterações enviadas ao GitHub</span></li>
+      <li data-step="pages"><span class="step-dot">…</span><span>Processando no GitHub Pages</span></li>
+      <li data-step="index"><span class="step-dot">○</span><span>Confirmando no Index</span></li>
+    </ol>
+    <div class="publication-notice-actions">
+      <button id="publicationNoticeRetry" class="publication-notice-retry" type="button" hidden>Verificar novamente</button>
+      <a id="publicationNoticeLink" class="publication-notice-link" href="../" target="_blank" rel="noopener" hidden>Abrir Index</a>
+    </div>
   </aside>
 
   <div id="pageBusyOverlay" class="page-busy-overlay" hidden aria-live="polite">
