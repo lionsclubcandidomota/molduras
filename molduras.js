@@ -1,7 +1,7 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784915713862-qls6tm4",
-  "atualizadoEm": "2026-07-24T17:55:13.862Z",
+  "versao": "1784915864785-8k9mo3z",
+  "atualizadoEm": "2026-07-24T17:57:44.785Z",
   "descricao": "Atualiza ordem de categorias e molduras"
 };
 
@@ -44,7 +44,7 @@ window.CATEGORIAS = [
   },
   {
     "id": "lions-corumba-pantanal-distrito-lb-1",
-    "nome": "🦁 Lions Corumbá Pantanal - Distrito LB-1",
+    "nome": "🦁 Lions Clube Corumbá Pantanal - Distrito LB-1",
     "ordem": 3,
     "ativo": true
   },
