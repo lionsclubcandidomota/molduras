@@ -1,13 +1,26 @@
 // Gerenciado pelo Painel de Molduras Lions v48
 window.CONFIGURACOES = {
   "duracaoNovo": {
-    "valor": 7,
+    "valor": 3,
     "unidade": "dias"
   },
   "duracaoAtualizada": {
-    "valor": 7,
+    "valor": 3,
     "unidade": "dias"
-  }
+  },
+  "mostrarNovo": true,
+  "mostrarAtualizada": true,
+  "cores": {
+    "novo": "#2f9e72",
+    "atualizada": "#d99a16",
+    "visivel": "#2d8fd5",
+    "oculta": "#7b8794"
+  },
+  "lembrarCategorias": true,
+  "mostrarContadorCategoria": true,
+  "confirmarPublicacao": true,
+  "confirmarDescarte": true,
+  "excluirImagemPadrao": true
 };
 
 window.CATEGORIAS = [
