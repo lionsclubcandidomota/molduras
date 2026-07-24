@@ -11,6 +11,10 @@
   const controls = $('controls');
   const photoInput = $('photoInput');
   const photoButton = $('photoButton');
+  const photoActionToolbar = $('photoActionToolbar');
+  const changePhotoBtn = $('changePhotoBtn');
+  const resetPhotoAdjustmentsBtn = $('resetPhotoAdjustmentsBtn');
+  const removePhotoBtn = $('removePhotoBtn');
   const emptyState = $('emptyState');
   const zoomRange = $('zoomRange');
   const zoomNumber = $('zoomNumber');
@@ -346,7 +350,8 @@
     if(undoBtn) undoBtn.disabled=!enabled||!state.history.length; if(redoBtn) redoBtn.disabled=!enabled||!state.future.length;
     emptyState.hidden = enabled;
     adjustHint.hidden = !enabled;
-    photoButton.textContent = enabled ? '🔄 Trocar foto' : 'Escolher foto';
+    if (photoActionToolbar) photoActionToolbar.hidden = !enabled;
+    photoButton.textContent = 'Escolher foto';
     photoStatus.textContent = enabled ? 'Foto carregada ✓' : state.selectedFrame ? 'Moldura escolhida ✓' : 'Aguardando moldura';
     photoStatus.classList.toggle('is-ready', enabled);
     uploadTitle.textContent = enabled ? 'Foto adicionada' : state.selectedFrame ? 'Agora escolha sua foto' : 'Selecione uma moldura primeiro';
@@ -527,6 +532,24 @@
     event.preventDefault();
     event.stopPropagation();
     photoInput.click();
+  });
+
+  changePhotoBtn?.addEventListener('click', () => {
+    if (!state.selectedFrame || photoInput.disabled) return;
+    photoInput.value = '';
+    photoInput.click();
+  });
+
+  resetPhotoAdjustmentsBtn?.addEventListener('click', () => {
+    if (!state.photo) return;
+    rememberState();
+    resetAdvanced();
+    resetPhotoPosition();
+  });
+
+  removePhotoBtn?.addEventListener('click', () => {
+    if (!state.photo) return;
+    clearPhoto();
   });
 
   photoInput.addEventListener('change', event => {

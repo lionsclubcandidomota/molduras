@@ -101,6 +101,23 @@
 
         <div class="workspace">
           <div class="canvas-column">
+            <div class="photo-action-toolbar" id="photoActionToolbar" hidden aria-label="Ações da foto">
+              <div class="photo-action-toolbar__label">
+                <span aria-hidden="true">✓</span>
+                <div><strong>Foto carregada</strong><small>Troque ou redefina a imagem sem sair da edição.</small></div>
+              </div>
+              <div class="photo-action-toolbar__buttons">
+                <button type="button" id="changePhotoBtn" class="photo-action-button photo-action-button--primary">
+                  <span aria-hidden="true">↻</span> Trocar foto
+                </button>
+                <button type="button" id="resetPhotoAdjustmentsBtn" class="photo-action-button">
+                  <span aria-hidden="true">◎</span> Redefinir
+                </button>
+                <button type="button" id="removePhotoBtn" class="photo-action-button photo-action-button--danger">
+                  <span aria-hidden="true">×</span> Remover
+                </button>
+              </div>
+            </div>
             <div class="canvas-stage is-awaiting-photo" id="canvasWrap">
               <canvas id="editorCanvas" width="1080" height="1080" aria-label="Prévia da imagem"></canvas>
               <label class="empty-state" id="emptyState" for="photoInput">
