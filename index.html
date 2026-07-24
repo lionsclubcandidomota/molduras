@@ -112,33 +112,33 @@
 
             <div class="photo-action-toolbar" id="photoActionToolbar" hidden aria-label="Ações da foto">
               <button type="button" id="changePhotoBtn" class="photo-action-button photo-action-button--primary">
-                <span aria-hidden="true">↻</span> Trocar foto
+                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 1-2.34-5.66"/><path d="M20 4v7h-7"/></svg><span>Trocar foto</span>
               </button>
               <button type="button" id="resetPhotoAdjustmentsBtn" class="photo-action-button">
-                <span aria-hidden="true">◎</span> Redefinir
+                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6"/><path d="M4.93 15a8 8 0 1 0 1.32-8.74L4 10"/></svg><span>Redefinir</span>
               </button>
               <button type="button" id="removePhotoBtn" class="photo-action-button photo-action-button--danger">
-                <span aria-hidden="true">🗑</span> Remover
+                <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="m7 7 1 13h8l1-13"/><path d="M10 11v5M14 11v5"/></svg><span>Remover</span>
               </button>
             </div>
 
-            <button class="mobile-edit-toggle" id="mobileEditToggle" type="button" hidden aria-expanded="false" aria-controls="mobileVisualToolbar"><span>🎛️</span> Ajustar foto</button>
+            <button class="mobile-edit-toggle" id="mobileEditToggle" type="button" hidden aria-expanded="false" aria-controls="mobileVisualToolbar"><span class="mobile-edit-toggle__label"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>Ajustes avançados</span></span><span class="toggle-chevron" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9.5 5 5 5-5"/></svg></span></button>
             <div class="mobile-visual-toolbar" id="mobileVisualToolbar" hidden aria-label="Atalhos de edição da foto">
               <div class="mobile-control-row">
-                <button type="button" id="mobileZoomOutBtn" aria-label="Diminuir zoom">−</button>
+                <button type="button" id="mobileZoomOutBtn" aria-label="Diminuir zoom"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
                 <output id="mobileZoomValue" aria-live="polite">100%</output>
-                <button type="button" id="mobileZoomInBtn" aria-label="Aumentar zoom">+</button>
+                <button type="button" id="mobileZoomInBtn" aria-label="Aumentar zoom"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
                 <span class="mobile-control-divider" aria-hidden="true"></span>
-                <button type="button" id="mobileRotateLeftBtn" aria-label="Girar para a esquerda">↶</button>
+                <button type="button" id="mobileRotateLeftBtn" aria-label="Girar para a esquerda"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4v-5"/><path d="M4.5 7.5A8 8 0 1 1 4 15"/></svg></button>
                 <output id="mobileRotationValue" aria-live="polite">0°</output>
-                <button type="button" id="mobileRotateRightBtn" aria-label="Girar para a direita">↷</button>
+                <button type="button" id="mobileRotateRightBtn" aria-label="Girar para a direita"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7h5v-5"/><path d="M19.5 7.5A8 8 0 1 0 20 15"/></svg></button>
               </div>
               <div class="mobile-shortcut-row">
-                <button type="button" id="mobileCenterBtn"><span>◎</span> Centralizar</button>
-                <button type="button" id="mobileFitBtn"><span>⛶</span> Preencher</button>
-                <button type="button" id="mobileAdjustmentsBtn"><span>🎛️</span> Filtros</button>
-                <button type="button" id="mobileUndoBtn"><span>↶</span> Desfazer</button>
-                <button type="button" id="mobileRedoBtn"><span>↷</span> Refazer</button>
+                <button type="button" id="mobileCenterBtn"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>Centralizar</span></button>
+                <button type="button" id="mobileFitBtn"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg><span>Preencher</span></button>
+                <button type="button" id="mobileAdjustmentsBtn"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span>Filtros</span></button>
+                <button type="button" id="mobileUndoBtn"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4v-5"/><path d="M4.5 7.5A8 8 0 1 1 4 15"/></svg><span>Desfazer</span></button>
+                <button type="button" id="mobileRedoBtn"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7h5v-5"/><path d="M19.5 7.5A8 8 0 1 0 20 15"/></svg><span>Refazer</span></button>
               </div>
               <small>Use os controles apenas quando precisar ajustar a foto.</small>
             </div>
@@ -162,15 +162,15 @@
                 <input id="rotationRange" type="range" min="-180" max="180" value="0" step="1" disabled>
               </div>
               <div class="quick-actions">
-                <button class="tool-button" id="undoBtn" type="button" disabled><span>↶</span> Desfazer</button>
-                <button class="tool-button" id="redoBtn" type="button" disabled><span>↷</span> Refazer</button>
-                <button class="tool-button" id="fitBtn" type="button" disabled><span>⛶</span> Preencher</button>
-                <button class="tool-button" id="centerBtn" type="button" disabled><span>◎</span> Centralizar</button>
+                <button class="tool-button" id="undoBtn" type="button" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4v-5"/><path d="M4.5 7.5A8 8 0 1 1 4 15"/></svg><span>Desfazer</span></button>
+                <button class="tool-button" id="redoBtn" type="button" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7h5v-5"/><path d="M19.5 7.5A8 8 0 1 0 20 15"/></svg><span>Refazer</span></button>
+                <button class="tool-button" id="fitBtn" type="button" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg><span>Preencher</span></button>
+                <button class="tool-button" id="centerBtn" type="button" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span>Centralizar</span></button>
               </div>
             </div>
 
             <details class="advanced-panel" id="advancedPanel">
-              <summary><span><b>🎛️ Ajustes avançados</b><small>Filtros e ajustes de imagem</small></span><i>⌄</i></summary>
+              <summary><span class="advanced-panel__heading"><span class="advanced-panel__icon"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span><span><b>Ajustes avançados</b><small>Filtros e ajustes de imagem</small></span></span><span class="toggle-chevron" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 9.5 5 5 5-5"/></svg></span></summary>
               <div class="advanced-content">
                 <div class="filter-presets" id="filterPresets" aria-label="Filtros rápidos">
                   <button type="button" data-preset="original" class="is-active" disabled>Original</button>
@@ -191,7 +191,7 @@
                   <label><span>Saturação <output id="saturationOutput">100%</output></span><input id="saturationRange" type="range" min="0" max="200" value="100" disabled></label>
                   <label><span>Calor <output id="warmthOutput">0%</output></span><input id="warmthRange" type="range" min="0" max="70" value="0" disabled></label>
                 </div>
-                <button class="button subtle block" id="resetFiltersBtn" type="button" disabled>↺ Restaurar ajustes avançados</button>
+                <button class="button subtle block" id="resetFiltersBtn" type="button" disabled><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v6h6"/><path d="M4.93 15a8 8 0 1 0 1.32-8.74L4 10"/></svg><span>Restaurar ajustes avançados</span></button>
               </div>
             </details>
           </div>

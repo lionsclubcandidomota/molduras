@@ -490,7 +490,7 @@
     editorSection.classList.toggle('adjustments-open', opening);
     mobileEditToggle.setAttribute('aria-expanded', String(opening));
     mobileEditToggle.classList.toggle('is-active', opening);
-    mobileEditToggle.innerHTML = opening ? '<span>⌃</span> Ocultar ajustes' : '<span>⌄</span> Ajustes avançados';
+    mobileEditToggle.querySelector('.mobile-edit-toggle__label > span:last-child').textContent = opening ? 'Ocultar ajustes' : 'Ajustes avançados';
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = !opening;
     if (!opening && advancedPanel) advancedPanel.open = false;
     if (opening) {
