@@ -609,7 +609,27 @@
   }
 
   el.list.addEventListener("click",async e=>{const b=e.target.closest("button[data-action]");if(!b)return;const action=b.dataset.action;
-    if(action==="open-menu"){const menu=b.nextElementSibling;document.querySelectorAll(".action-menu").forEach(m=>{if(m!==menu)m.hidden=true;});menu.hidden=!menu.hidden;return;}
+    if(action==="open-menu"){
+      const menu=b.nextElementSibling;
+      const wasOpen=!menu.hidden;
+      document.querySelectorAll(".action-menu").forEach(m=>{m.hidden=true;m.removeAttribute("data-placement");});
+      if(wasOpen)return;
+      menu.hidden=false;
+      const triggerRect=b.getBoundingClientRect();
+      const menuRect=menu.getBoundingClientRect();
+      const margin=10;
+      const spaceBelow=window.innerHeight-triggerRect.bottom-margin;
+      const openAbove=spaceBelow<menuRect.height && triggerRect.top>menuRect.height+margin;
+      const top=openAbove
+        ? Math.max(margin,triggerRect.top-menuRect.height-6)
+        : Math.min(window.innerHeight-menuRect.height-margin,triggerRect.bottom+6);
+      const left=Math.max(margin,Math.min(window.innerWidth-menuRect.width-margin,triggerRect.right-menuRect.width));
+      menu.style.top=`${top}px`;
+      menu.style.left=`${left}px`;
+      menu.style.right="auto";
+      menu.dataset.placement=openAbove?"top":"bottom";
+      return;
+    }
     if(action==="toggle-category"){
       if(el.search.value.trim())return;
       const section=b.closest(".category-accordion"),categoryId=section?.dataset.accordionCategory;
@@ -618,7 +638,9 @@
       setCategoryCollapsed(categoryId,shouldCollapse);renderFrames();return;
     }
     const id=b.closest(".frame-row")?.dataset.id,f=state.molduras.find(x=>x.id===id);if(!f)return;if(action==="up"||action==="down")return moveFrame(id,action==="up"?-1:1);if(action==="edit"){openFrameEditor(f);return;}if(action==="status-menu"){openFrameEditor(f,{focusStatus:true});return;}if(action==="toggle"){f.ativo=f.ativo===false;setBusy(true,"Publicando...");try{await saveConfig(`${f.ativo?"Exibe":"Oculta"} moldura ${f.nome}`);render();flash("Visibilidade atualizada.","success");}catch(err){flash(err.message,"error");}finally{setBusy(false);status("Conectado","ok");}return;}if(action==="delete"){state.pendingDelete=f;el.confirmText.textContent=`A moldura “${f.nome}” será removida.`;if(el.deleteFile)el.deleteFile.checked=state.configuracoes.excluirImagemPadrao!==false; el.dialog.showModal();}});
-  document.addEventListener("click",e=>{if(!e.target.closest(".action-menu-wrap"))document.querySelectorAll(".action-menu").forEach(m=>m.hidden=true);});
+  document.addEventListener("click",e=>{if(!e.target.closest(".action-menu-wrap"))closeActionMenus();});
+  window.addEventListener("scroll",closeActionMenus,{passive:true});
+  window.addEventListener("resize",closeActionMenus);
   el.list.addEventListener("dragstart",e=>{const row=e.target.closest(".frame-row");if(!row||el.search.value.trim())return e.preventDefault();state.draggedFrame=row.dataset.id;row.classList.add("dragging");});
   el.list.addEventListener("dragover",e=>{if(state.draggedFrame)e.preventDefault();});
   el.list.addEventListener("drop",e=>{e.preventDefault();const target=e.target.closest(".frame-row")?.dataset.id,from=state.molduras.find(f=>f.id===state.draggedFrame),to=state.molduras.find(f=>f.id===target);if(from&&to&&from.categoriaId===to.categoriaId&&from.id!==to.id){const a=state.molduras.filter(f=>f.categoriaId===from.categoriaId).sort((x,y)=>x.ordem-y.ordem),fi=a.findIndex(f=>f.id===from.id),ti=a.findIndex(f=>f.id===to.id),[item]=a.splice(fi,1);a.splice(ti,0,item);a.forEach((f,i)=>f.ordem=i+1);render();}state.draggedFrame=null;});
