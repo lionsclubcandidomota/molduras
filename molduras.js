@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784916213456-uilduvb",
-  "atualizadoEm": "2026-07-24T18:03:33.456Z",
-  "descricao": "Remove moldura Companheiros de Clube"
+  "versao": "1784916622655-9y195xo",
+  "atualizadoEm": "2026-07-24T18:10:22.655Z",
+  "descricao": "Atualiza ordem de categorias e molduras"
 };
 
 window.CONFIGURACOES = {
@@ -43,26 +43,26 @@ window.CATEGORIAS = [
     "ativo": true
   },
   {
-    "id": "lions-corumba-pantanal-distrito-lb-1",
-    "nome": "🦁 Lions Clube Corumbá Pantanal - Distrito LB-1",
-    "ordem": 3,
-    "ativo": true
-  },
-  {
     "id": "causas-globais",
     "nome": "🌎 Causas Globais",
-    "ordem": 4,
+    "ordem": 3,
     "ativo": true
   },
   {
     "id": "lions",
     "nome": "🦁 Lions",
-    "ordem": 5,
+    "ordem": 4,
     "ativo": true
   },
   {
     "id": "cargos",
     "nome": "💼 Cargos de Clube",
+    "ordem": 5,
+    "ativo": true
+  },
+  {
+    "id": "lions-corumba-pantanal-distrito-lb-1",
+    "nome": "🦁 Lions Clube Corumbá Pantanal - Distrito LB-1",
     "ordem": 6,
     "ativo": true
   }
