@@ -28,6 +28,7 @@
   const mobileExpandAllBtn = $('mobileExpandAllBtn');
   const mobileCollapseAllBtn = $('mobileCollapseAllBtn');
   const scrollTopBtn = $('scrollTopBtn');
+  const mobileEndTopBtn = $('mobileEndTopBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
   const photoStatus = $('photoStatus');
@@ -620,9 +621,11 @@
 
   function updateScrollTopButton(){
     if (!scrollTopBtn) return;
-    scrollTopBtn.classList.toggle('is-visible', window.scrollY > 520);
+    scrollTopBtn.classList.toggle('is-visible', window.scrollY > 300);
   }
-  scrollTopBtn?.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+  const goToPageTop = ()=>window.scrollTo({top:0,behavior:'smooth'});
+  scrollTopBtn?.addEventListener('click',goToPageTop);
+  mobileEndTopBtn?.addEventListener('click',goToPageTop);
   window.addEventListener('scroll',updateScrollTopButton,{passive:true});
   updateScrollTopButton();
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
