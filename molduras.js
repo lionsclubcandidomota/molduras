@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784915864785-8k9mo3z",
-  "atualizadoEm": "2026-07-24T17:57:44.785Z",
-  "descricao": "Atualiza ordem de categorias e molduras"
+  "versao": "1784916213456-uilduvb",
+  "atualizadoEm": "2026-07-24T18:03:33.456Z",
+  "descricao": "Remove moldura Companheiros de Clube"
 };
 
 window.CONFIGURACOES = {
@@ -622,22 +622,10 @@ window.MOLDURAS = [
     "statusAte": "2026-07-27T17:48:52.121Z"
   },
   {
-    "id": "companheiros-de-clube-lions-corumba-pantanal",
-    "nome": "Companheiros de Clube",
-    "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 6,
-    "arquivo": "assets/molduras/companheiros-de-clube-lions-corumba-pantanal.png",
-    "ativo": true,
-    "status": "novo",
-    "statusVisivel": true,
-    "statusDesde": "2026-07-24T17:48:54.826Z",
-    "statusAte": "2026-07-27T17:48:54.826Z"
-  },
-  {
     "id": "presidente-de-clube-lions-corumba-pantanal",
     "nome": "Presidente de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 9,
+    "ordem": 8,
     "arquivo": "assets/molduras/presidente-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
@@ -649,7 +637,7 @@ window.MOLDURAS = [
     "id": "vice-presidente-de-clube-lions-corumba-pantanal",
     "nome": "Vice Presidente de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 10,
+    "ordem": 9,
     "arquivo": "assets/molduras/vice-presidente-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
@@ -661,7 +649,7 @@ window.MOLDURAS = [
     "id": "ex-presidente-imediato-de-clube-lions-corumba-pantanal",
     "nome": "Ex Presidente Imediato de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 8,
+    "ordem": 7,
     "arquivo": "assets/molduras/ex-presidente-imediato-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
@@ -673,7 +661,7 @@ window.MOLDURAS = [
     "id": "secretaria-de-clube-lions-corumba-pantanal",
     "nome": "Secretária de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 11,
+    "ordem": 10,
     "arquivo": "assets/molduras/secretaria-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
@@ -685,7 +673,7 @@ window.MOLDURAS = [
     "id": "tesoureira-de-clube-lions-corumba-pantanal",
     "nome": "Tesoureira de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 12,
+    "ordem": 11,
     "arquivo": "assets/molduras/tesoureira-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
@@ -721,7 +709,7 @@ window.MOLDURAS = [
     "id": "diretor-social-de-clube-lions-corumba-pantanal",
     "nome": "Diretor Social de Clube",
     "categoriaId": "lions-corumba-pantanal-distrito-lb-1",
-    "ordem": 7,
+    "ordem": 6,
     "arquivo": "assets/molduras/diretor-social-de-clube-lions-corumba-pantanal.png",
     "ativo": true,
     "status": "novo",
