@@ -398,5 +398,17 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "",
     "statusAte": ""
+  },
+  {
+    "id": "eu-vou-no-treinamento",
+    "nome": "Eu vou no treinamento",
+    "categoriaId": "ircd-26-27",
+    "ordem": 5,
+    "arquivo": "assets/molduras/eu-vou-no-treinamento.png",
+    "ativo": true,
+    "status": "novo",
+    "statusVisivel": true,
+    "statusDesde": "2026-07-24T01:24:31.338Z",
+    "statusAte": "2026-07-27T01:24:31.338Z"
   }
 ];
