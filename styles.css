@@ -2723,3 +2723,18 @@ input[type="search"]::-ms-clear{display:none;width:0;height:0}
 @media (prefers-reduced-motion: reduce) {
   .editor-main .workspace { transition: none; }
 }
+
+/* =========================================================
+   V10.1 — botão "Voltar ao topo" respeita o rodapé
+   ========================================================= */
+.scroll-top-button{
+  --scroll-top-footer-offset:0px;
+  bottom:calc(30px + var(--scroll-top-footer-offset))!important;
+  will-change:bottom,transform,opacity;
+}
+
+@media(max-width:760px){
+  .scroll-top-button{
+    bottom:calc(84px + env(safe-area-inset-bottom) + var(--scroll-top-footer-offset))!important;
+  }
+}

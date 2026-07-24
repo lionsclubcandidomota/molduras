@@ -712,10 +712,36 @@
   document.addEventListener('click',closeMobileViewMenu);
   document.addEventListener('keydown',event=>{ if(event.key==='Escape') closeMobileViewMenu(); });
 
+  const siteFooter = document.querySelector('.site-footer');
+  let scrollTopUpdateFrame = 0;
+
+  function positionScrollTopBeforeFooter(){
+    if (!scrollTopBtn || !siteFooter) return;
+
+    // Primeiro mede a posição natural do botão, sem compensação anterior.
+    scrollTopBtn.style.setProperty('--scroll-top-footer-offset', '0px');
+
+    const buttonRect = scrollTopBtn.getBoundingClientRect();
+    const footerRect = siteFooter.getBoundingClientRect();
+    const gapAboveFooter = window.matchMedia('(max-width: 760px)').matches ? 14 : 24;
+    const footerOffset = Math.max(0, buttonRect.bottom - footerRect.top + gapAboveFooter);
+
+    scrollTopBtn.style.setProperty('--scroll-top-footer-offset', `${Math.ceil(footerOffset)}px`);
+  }
+
   function updateScrollTopButton(){
     if (!scrollTopBtn) return;
     const scrollPosition = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
     scrollTopBtn.classList.toggle('is-visible', scrollPosition > 300);
+    positionScrollTopBeforeFooter();
+  }
+
+  function scheduleScrollTopUpdate(){
+    if (scrollTopUpdateFrame) return;
+    scrollTopUpdateFrame = window.requestAnimationFrame(() => {
+      scrollTopUpdateFrame = 0;
+      updateScrollTopButton();
+    });
   }
   const goToPageTop = ()=>window.scrollTo({top:0,behavior:'smooth'});
   const goToFrames = () => {
@@ -724,8 +750,8 @@
   };
   scrollTopBtn?.addEventListener('click',goToPageTop);
   desktopStartOverBtn?.addEventListener('click',goToFrames);
-  window.addEventListener('scroll',updateScrollTopButton,{passive:true});
-  window.addEventListener('resize',updateScrollTopButton,{passive:true});
+  window.addEventListener('scroll',scheduleScrollTopUpdate,{passive:true});
+  window.addEventListener('resize',scheduleScrollTopUpdate,{passive:true});
   updateScrollTopButton();
   window.requestAnimationFrame(updateScrollTopButton);
   frameSearch.addEventListener('input',applyFilters); clearSearchBtn.addEventListener('click',()=>{frameSearch.value='';applyFilters();frameSearch.focus();});
