@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784916622655-9y195xo",
-  "atualizadoEm": "2026-07-24T18:10:22.655Z",
-  "descricao": "Atualiza ordem de categorias e molduras"
+  "versao": "1784917485034-qjoh9as",
+  "atualizadoEm": "2026-07-24T18:24:45.034Z",
+  "descricao": "Adiciona moldura Secretária de Clube"
 };
 
 window.CONFIGURACOES = {
@@ -740,5 +740,15 @@ window.MOLDURAS = [
     "statusVisivel": true,
     "statusDesde": "2026-07-24T17:49:23.987Z",
     "statusAte": "2026-07-27T17:49:23.987Z"
+  },
+  {
+    "id": "secretaria-de-clube",
+    "nome": "Secretária de Clube",
+    "categoriaId": "cargos",
+    "ordem": 11,
+    "arquivo": "assets/molduras/secretaria-de-clube.png",
+    "ativo": true,
+    "status": "normal",
+    "statusVisivel": false
   }
 ];
