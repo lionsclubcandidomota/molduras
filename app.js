@@ -79,6 +79,8 @@
   const mobileRedoBtn = $('mobileRedoBtn');
   const mobileRemoveBtn = $('mobileRemoveBtn');
 
+  let exportRevision = 0;
+
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
     photo: null, frameImage: null, x: 540, y: 540, scale: 1, rotation: 0, baseScale: 1,
@@ -416,6 +418,7 @@
     ctx.drawImage(photoLayer, 0, 0);
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
     if (state.selectedFrame) scheduleSave();
+    exportRevision += 1;
   }
 
   function updateFilterOutputs() {
@@ -640,10 +643,73 @@
   function release(event){state.pointers.delete(event.pointerId);state.lastPointer=state.pointers.size===1?[...state.pointers.values()][0]:null;if(state.pointers.size<2)state.pinchDistance=null;}
   wrap.addEventListener('pointerup',release);wrap.addEventListener('pointercancel',release);wrap.addEventListener('wheel',event=>{if(!state.photo)return;event.preventDefault();setZoom(state.scale*(event.deltaY<0?1.05:.95));},{passive:false});
 
-  function makeBlob(){return new Promise((resolve,reject)=>{draw();canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Falha ao gerar a imagem.')),'image/png');});}
-  function filename(){return `foto-${slug(state.selectedFrame?.nome)||'moldura-lions'}.png`;}
-  async function downloadImage(){if(!state.photo)return;const text=downloadBtn.innerHTML;downloadBtn.disabled=true;mobileDownloadBtn.disabled=true;downloadBtn.textContent='Gerando…';try{const blob=await makeBlob(),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename();document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);}catch(e){alert(e.message);}finally{downloadBtn.disabled=false;mobileDownloadBtn.disabled=false;downloadBtn.innerHTML=text;}}
-  async function shareImage(){if(!state.photo)return;try{const blob=await makeBlob(),file=new File([blob],filename(),{type:'image/png'});if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Minha foto com moldura do Lions'});}else await downloadImage();}catch(e){if(e.name!=='AbortError')await downloadImage();}}
+  const exportStatus = document.createElement('div');
+  exportStatus.className = 'export-status';
+  exportStatus.hidden = true;
+  exportStatus.setAttribute('role', 'status');
+  exportStatus.setAttribute('aria-live', 'polite');
+  document.body.appendChild(exportStatus);
+  let exportStatusTimer = null;
+
+  function showExportStatus(message, type = 'loading') {
+    clearTimeout(exportStatusTimer);
+    exportStatus.textContent = message;
+    exportStatus.dataset.type = type;
+    exportStatus.hidden = false;
+    requestAnimationFrame(() => exportStatus.classList.add('is-visible'));
+    if (type !== 'loading') {
+      exportStatusTimer = setTimeout(() => {
+        exportStatus.classList.remove('is-visible');
+        setTimeout(() => { exportStatus.hidden = true; }, 220);
+      }, 2400);
+    }
+  }
+
+  function setExportBusy(busy) {
+    [downloadBtn, mobileDownloadBtn, shareBtn].forEach(button => {
+      if (button) button.disabled = busy || !state.photo;
+    });
+    downloadBtn?.classList.toggle('is-loading', busy);
+    mobileDownloadBtn?.classList.toggle('is-loading', busy);
+    shareBtn?.classList.toggle('is-loading', busy);
+  }
+
+  const exportManager = new window.ExportManager({
+    canvas,
+    getRevision: () => exportRevision,
+    maxDimension: 1600,
+    firstQuality: 0.90,
+    fallbackQuality: 0.84,
+    fallbackThreshold: 1.5 * 1024 * 1024,
+    onBusyChange: setExportBusy,
+    onStatus: showExportStatus
+  });
+
+  function filename(){return `foto-${slug(state.selectedFrame?.nome)||'moldura-lions'}.jpg`;}
+
+  async function downloadImage(){
+    if(!state.photo)return;
+    try {
+      await exportManager.download(filename());
+    } catch(error) {
+      alert(error.message || 'Não foi possível baixar a imagem.');
+    }
+  }
+
+  async function shareImage(){
+    if(!state.photo)return;
+    try {
+      await exportManager.share(filename(), {
+        title:'Minha foto com moldura do Lions',
+        text:'Imagem criada com as molduras do Lions Clube de Cândido Mota.'
+      });
+    } catch(error) {
+      if(error.name !== 'AbortError') {
+        alert(error.message || 'Não foi possível compartilhar a imagem.');
+      }
+    }
+  }
+
   downloadBtn.addEventListener('click',downloadImage);mobileDownloadBtn.addEventListener('click',downloadImage);shareBtn.addEventListener('click',shareImage);
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}
