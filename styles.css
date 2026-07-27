@@ -2939,3 +2939,16 @@ section{scroll-margin-top:72px}
   .brand strong{font-size:.86rem!important}
   .nav-help{padding:7px 9px!important;font-size:.73rem!important}
 }
+
+
+/* v10.4.3 — cabeçalho sem ação redundante */
+@media (max-width:760px){
+  .site-header nav{display:none!important}
+  .header-inner{min-height:54px!important;padding:7px 13px!important}
+  .brand{flex:1 1 100%!important}
+  .hero-grid{padding-top:24px!important}
+  section{scroll-margin-top:58px!important}
+}
+@media (max-width:360px){
+  .header-inner{min-height:52px!important}
+}

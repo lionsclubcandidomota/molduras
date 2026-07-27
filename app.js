@@ -991,7 +991,7 @@
   });
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}
-  $('openHelpBtn').addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
+  $('openHelpBtn')?.addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
 
   function init(){
     try{normalizeData();state.favorites=new Set(readJson(FAVORITES_KEY,[]));state.recents=readJson(RECENTS_KEY,[]);loadCategoryView();if(!state.frames.length)throw new Error('Nenhuma moldura ativa encontrada.');buildCategories();applyFilters();const requested=new URLSearchParams(location.search).get('moldura');const frame=requested?state.frames.find(f=>f.id===requested):null;if(frame)selectFrame(frame,false);else if(!restoreEditorState())setFrameReady(false);}catch(error){console.error(error);frameMessage.hidden=false;frameMessage.textContent='Não foi possível carregar as molduras. Confira o arquivo molduras.js.';selectedFrameName.textContent='Erro ao carregar';}
