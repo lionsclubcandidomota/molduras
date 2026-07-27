@@ -26,3 +26,12 @@
 - Atalho `/` para focar a pesquisa.
 - Categorias em chips com rolagem e estados mais evidentes.
 - Melhorias responsivas e de acessibilidade na galeria.
+
+
+## v10.3 — Editor e exportação
+
+- Exportação em três perfis de qualidade, com estimativa real do tamanho do arquivo.
+- Preferência de qualidade salva no navegador.
+- Histórico aprimorado para arraste, gesto de pinça e zoom pelo mouse.
+- Atalhos de teclado para desfazer, refazer, mover e ampliar a foto.
+- Feedback visual durante o reposicionamento da imagem.

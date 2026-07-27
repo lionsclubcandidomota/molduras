@@ -6,38 +6,35 @@
       if (!options.canvas) throw new Error('ExportManager: canvas não informado.');
       this.canvas = options.canvas;
       this.getRevision = options.getRevision || (() => 0);
-      this.maxDimension = options.maxDimension || 1600;
-      this.firstQuality = options.firstQuality || 0.90;
-      this.fallbackQuality = options.fallbackQuality || 0.84;
-      this.fallbackThreshold = options.fallbackThreshold || (1.5 * 1024 * 1024);
       this.onBusyChange = options.onBusyChange || (() => {});
       this.onStatus = options.onStatus || (() => {});
-      this.cache = null;
-      this.pending = null;
+      this.profiles = options.profiles || {};
+      this.cache = new Map();
+      this.pending = new Map();
     }
 
-    invalidate() {
-      this.cache = null;
+    invalidate() { this.cache.clear(); }
+
+    getProfile(profileKey) {
+      const profile = this.profiles[profileKey];
+      if (!profile) throw new Error('Qualidade de exportação inválida.');
+      return profile;
     }
 
     async canvasToBlob(canvas, type, quality) {
       return new Promise((resolve, reject) => {
-        canvas.toBlob(blob => {
-          if (blob) resolve(blob);
-          else reject(new Error('Não foi possível gerar a imagem.'));
-        }, type, quality);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Não foi possível gerar a imagem.')), type, quality);
       });
     }
 
-    createOutputCanvas() {
-      const ratio = Math.min(1, this.maxDimension / Math.max(this.canvas.width, this.canvas.height));
+    createOutputCanvas(profile) {
+      const maxDimension = profile.maxDimension || 1080;
+      const ratio = Math.min(1, maxDimension / Math.max(this.canvas.width, this.canvas.height));
       const output = document.createElement('canvas');
       output.width = Math.max(1, Math.round(this.canvas.width * ratio));
       output.height = Math.max(1, Math.round(this.canvas.height * ratio));
-
       const context = output.getContext('2d', { alpha: false });
       if (!context) throw new Error('Seu navegador não conseguiu preparar a imagem.');
-
       context.fillStyle = '#ffffff';
       context.fillRect(0, 0, output.width, output.height);
       context.imageSmoothingEnabled = true;
@@ -46,58 +43,44 @@
       return output;
     }
 
-    async prepare() {
+    async prepare(profileKey, { silent = false } = {}) {
+      const profile = this.getProfile(profileKey);
       const revision = this.getRevision();
-      if (this.cache && this.cache.revision === revision) return this.cache;
-      if (this.pending) return this.pending;
+      const cacheKey = `${revision}:${profileKey}`;
+      if (this.cache.has(cacheKey)) return this.cache.get(cacheKey);
+      if (this.pending.has(cacheKey)) return this.pending.get(cacheKey);
 
-      this.pending = (async () => {
-        this.onBusyChange(true);
-        this.onStatus('Preparando imagem…', 'loading');
-
+      const job = (async () => {
+        if (!silent) {
+          this.onBusyChange(true);
+          this.onStatus('Preparando imagem…', 'loading');
+        }
         try {
-          const output = this.createOutputCanvas();
-          let quality = this.firstQuality;
-          let blob = await this.canvasToBlob(output, 'image/jpeg', quality);
-
-          if (blob.size > this.fallbackThreshold) {
-            this.onStatus('Otimizando qualidade…', 'loading');
-            quality = this.fallbackQuality;
-            blob = await this.canvasToBlob(output, 'image/jpeg', quality);
-          }
-
-          const result = {
-            blob,
-            revision,
-            type: 'image/jpeg',
-            extension: 'jpg',
-            quality,
-            width: output.width,
-            height: output.height,
-            size: blob.size
-          };
-
-          this.cache = result;
-          this.onStatus(`Imagem pronta · ${this.formatSize(blob.size)}`, 'success');
+          const output = this.createOutputCanvas(profile);
+          const type = profile.type || 'image/jpeg';
+          const blob = await this.canvasToBlob(output, type, profile.quality ?? .9);
+          const result = { blob, revision, profileKey, type, extension: type === 'image/png' ? 'png' : 'jpg', quality: profile.quality, width: output.width, height: output.height, size: blob.size };
+          this.cache.set(cacheKey, result);
+          if (!silent) this.onStatus(`Imagem pronta · ${this.formatSize(blob.size)}`, 'success');
           return result;
         } catch (error) {
-          this.onStatus(error.message || 'Falha ao preparar a imagem.', 'error');
+          if (!silent) this.onStatus(error.message || 'Falha ao preparar a imagem.', 'error');
           throw error;
         } finally {
-          this.pending = null;
-          this.onBusyChange(false);
+          this.pending.delete(cacheKey);
+          if (!silent) this.onBusyChange(false);
         }
       })();
-
-      return this.pending;
+      this.pending.set(cacheKey, job);
+      return job;
     }
 
-    async download(filename) {
-      const result = await this.prepare();
+    async download(filename, profileKey) {
+      const result = await this.prepare(profileKey);
       const url = URL.createObjectURL(result.blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.download = filename.replace(/\.[^.]+$/, `.${result.extension}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -105,22 +88,15 @@
       return result;
     }
 
-    async share(filename) {
-      const result = await this.prepare();
-      const file = new File([result.blob], filename, {
-        type: result.type,
-        lastModified: Date.now()
-      });
-
+    async share(filename, profileKey) {
+      const result = await this.prepare(profileKey);
+      const finalName = filename.replace(/\.[^.]+$/, `.${result.extension}`);
+      const file = new File([result.blob], finalName, { type: result.type, lastModified: Date.now() });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          text: '🦁 Nós Servimos!'
-        });
+        await navigator.share({ files: [file], text: '🦁 Nós Servimos!' });
         return { ...result, shared: true };
       }
-
-      await this.download(filename);
+      await this.download(finalName, profileKey);
       return { ...result, shared: false, downloaded: true };
     }
 
@@ -130,6 +106,5 @@
       return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     }
   }
-
   window.ExportManager = ExportManager;
 })();

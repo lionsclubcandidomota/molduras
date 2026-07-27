@@ -56,6 +56,16 @@
   const downloadBtn = $('downloadBtn');
   const mobileDownloadBtn = $('mobileDownloadBtn');
   const shareBtn = $('shareBtn');
+  const exportDialog = $('exportDialog');
+  const closeExportDialogBtn = $('closeExportDialogBtn');
+  const cancelExportBtn = $('cancelExportBtn');
+  const confirmDownloadBtn = $('confirmDownloadBtn');
+  const qualityOptions = $('qualityOptions');
+  const exportEstimateStatus = $('exportEstimateStatus');
+  const exportQualityLabel = $('exportQualityLabel');
+  const exportQualityMeta = $('exportQualityMeta');
+  const changeExportQualityBtn = $('changeExportQualityBtn');
+  const EXPORT_QUALITY_KEY = 'lions-molduras-export-quality-v1';
   const fitBtn = $('fitBtn');
   const centerBtn = $('centerBtn');
   const newCreationBtn = $('newCreationBtn');
@@ -98,6 +108,10 @@
 
   let exportRevision = 0;
   let previewFrameId = null;
+  let gestureStartSnapshot = null;
+  let gestureChanged = false;
+  let wheelStartSnapshot = null;
+  let wheelCommitTimer = null;
 
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
@@ -438,6 +452,7 @@
     }
     if (mobileVisualToolbar) mobileVisualToolbar.hidden = true;
     editorSection?.classList.toggle('photo-ready', enabled);
+    wrap?.classList.toggle('has-photo', enabled);
     editorSection?.classList.remove('adjustments-open');
     if (advancedPanel) advancedPanel.open = false;
     placeAdjustmentPanels();
@@ -509,6 +524,7 @@
     if (state.frameImage) ctx.drawImage(state.frameImage, 0, 0, 1080, 1080);
     if (state.selectedFrame) scheduleSave();
     exportRevision += 1;
+    if (typeof exportManager !== 'undefined') exportManager.invalidate();
   }
 
   function updateFilterOutputs() {
@@ -815,10 +831,10 @@
   dismissRestoreBtn?.addEventListener('click',()=>{restoreNotice.hidden=true;});
 
   function canvasPoint(event){const rect=canvas.getBoundingClientRect();return{x:(event.clientX-rect.left)*1080/rect.width,y:(event.clientY-rect.top)*1080/rect.height};}
-  wrap.addEventListener('pointerdown',event=>{if(!state.photo)return;wrap.setPointerCapture(event.pointerId);const p=canvasPoint(event);state.pointers.set(event.pointerId,p);if(state.pointers.size===1)state.lastPointer=p;if(state.pointers.size===2){const[a,b]=[...state.pointers.values()];state.pinchDistance=Math.hypot(b.x-a.x,b.y-a.y);state.pinchScale=state.scale;}});
-  wrap.addEventListener('pointermove',event=>{if(!state.photo||!state.pointers.has(event.pointerId))return;const p=canvasPoint(event);state.pointers.set(event.pointerId,p);if(state.pointers.size===1&&state.lastPointer){state.x+=p.x-state.lastPointer.x;state.y+=p.y-state.lastPointer.y;state.lastPointer=p;draw();}else if(state.pointers.size===2&&state.pinchDistance){const[a,b]=[...state.pointers.values()];setZoom(state.pinchScale*Math.hypot(b.x-a.x,b.y-a.y)/state.pinchDistance);}});
-  function release(event){state.pointers.delete(event.pointerId);state.lastPointer=state.pointers.size===1?[...state.pointers.values()][0]:null;if(state.pointers.size<2)state.pinchDistance=null;}
-  wrap.addEventListener('pointerup',release);wrap.addEventListener('pointercancel',release);wrap.addEventListener('wheel',event=>{if(!state.photo)return;event.preventDefault();setZoom(state.scale*(event.deltaY<0?1.05:.95));},{passive:false});
+  wrap.addEventListener('pointerdown',event=>{if(!state.photo)return;wrap.setPointerCapture(event.pointerId);if(!state.pointers.size){gestureStartSnapshot=transformSnapshot();gestureChanged=false;wrap.classList.add('is-dragging');}const p=canvasPoint(event);state.pointers.set(event.pointerId,p);if(state.pointers.size===1)state.lastPointer=p;if(state.pointers.size===2){const[a,b]=[...state.pointers.values()];state.pinchDistance=Math.hypot(b.x-a.x,b.y-a.y);state.pinchScale=state.scale;}});
+  wrap.addEventListener('pointermove',event=>{if(!state.photo||!state.pointers.has(event.pointerId))return;const p=canvasPoint(event);state.pointers.set(event.pointerId,p);if(state.pointers.size===1&&state.lastPointer){const dx=p.x-state.lastPointer.x,dy=p.y-state.lastPointer.y;if(Math.abs(dx)+Math.abs(dy)>.1)gestureChanged=true;state.x+=dx;state.y+=dy;state.lastPointer=p;draw();}else if(state.pointers.size===2&&state.pinchDistance){const[a,b]=[...state.pointers.values()];const next=state.pinchScale*Math.hypot(b.x-a.x,b.y-a.y)/state.pinchDistance;if(Math.abs(next-state.scale)>.001)gestureChanged=true;setZoom(next);}});
+  function release(event){state.pointers.delete(event.pointerId);state.lastPointer=state.pointers.size===1?[...state.pointers.values()][0]:null;if(state.pointers.size<2)state.pinchDistance=null;if(!state.pointers.size){wrap.classList.remove('is-dragging');if(gestureChanged&&gestureStartSnapshot){state.history.push(gestureStartSnapshot);if(state.history.length>40)state.history.shift();state.future=[];updateHistoryButtons();scheduleSave();}gestureStartSnapshot=null;gestureChanged=false;}};
+  wrap.addEventListener('pointerup',release);wrap.addEventListener('pointercancel',release);wrap.addEventListener('wheel',event=>{if(!state.photo)return;event.preventDefault();if(!wheelStartSnapshot)wheelStartSnapshot=transformSnapshot();setZoom(state.scale*(event.deltaY<0?1.05:.95));clearTimeout(wheelCommitTimer);wheelCommitTimer=setTimeout(()=>{if(wheelStartSnapshot){state.history.push(wheelStartSnapshot);if(state.history.length>40)state.history.shift();state.future=[];updateHistoryButtons();scheduleSave();wheelStartSnapshot=null;}},220);},{passive:false});
 
   const exportStatus = document.createElement('div');
   exportStatus.className = 'export-status';
@@ -851,23 +867,59 @@
     shareBtn?.classList.toggle('is-loading', busy);
   }
 
+  const exportProfiles = {
+    high: { label: 'Alta qualidade', meta: '1080 × 1080 px · JPG', maxDimension: 1080, quality: .94 },
+    balanced: { label: 'Equilibrada', meta: '1080 × 1080 px · JPG otimizado', maxDimension: 1080, quality: .86 },
+    light: { label: 'Leve', meta: '900 × 900 px · JPG compacto', maxDimension: 900, quality: .78 }
+  };
+  let selectedExportQuality = localStorage.getItem(EXPORT_QUALITY_KEY);
+  if (!exportProfiles[selectedExportQuality]) selectedExportQuality = 'high';
+
   const exportManager = new window.ExportManager({
     canvas,
     getRevision: () => exportRevision,
-    maxDimension: 1600,
-    firstQuality: 0.90,
-    fallbackQuality: 0.84,
-    fallbackThreshold: 1.5 * 1024 * 1024,
+    profiles: exportProfiles,
     onBusyChange: setExportBusy,
     onStatus: showExportStatus
   });
 
+  function updateExportSummary() {
+    const profile = exportProfiles[selectedExportQuality];
+    if (exportQualityLabel) exportQualityLabel.textContent = profile.label;
+    if (exportQualityMeta) exportQualityMeta.textContent = profile.meta;
+    document.querySelectorAll('input[name="exportQuality"]').forEach(input => { input.checked = input.value === selectedExportQuality; });
+  }
+
+  async function estimateExport(profileKey) {
+    if (!state.photo || !exportEstimateStatus) return;
+    exportEstimateStatus.textContent = 'Calculando tamanho aproximado…';
+    exportEstimateStatus.classList.add('is-loading');
+    try {
+      const result = await exportManager.prepare(profileKey, { silent: true });
+      const target = $(`qualitySize${profileKey[0].toUpperCase()}${profileKey.slice(1)}`);
+      if (target) target.textContent = exportManager.formatSize(result.size);
+      exportEstimateStatus.textContent = `${result.width} × ${result.height} px · aproximadamente ${exportManager.formatSize(result.size)}`;
+    } catch (error) {
+      exportEstimateStatus.textContent = 'Não foi possível calcular o tamanho agora.';
+    } finally {
+      exportEstimateStatus.classList.remove('is-loading');
+    }
+  }
+
+  function openExportDialog() {
+    if (!state.photo || !exportDialog) return;
+    updateExportSummary();
+    exportDialog.showModal();
+    estimateExport(selectedExportQuality);
+  }
+  function closeExportDialog() { if (exportDialog?.open) exportDialog.close(); }
   function filename(){return `foto-${slug(state.selectedFrame?.nome)||'moldura-lions'}.jpg`;}
 
   async function downloadImage(){
     if(!state.photo)return;
     try {
-      await exportManager.download(filename());
+      closeExportDialog();
+      await exportManager.download(filename(), selectedExportQuality);
     } catch(error) {
       alert(error.message || 'Não foi possível baixar a imagem.');
     }
@@ -876,15 +928,29 @@
   async function shareImage(){
     if(!state.photo)return;
     try {
-      await exportManager.share(filename());
+      await exportManager.share(filename(), selectedExportQuality);
     } catch(error) {
-      if(error.name !== 'AbortError') {
-        alert(error.message || 'Não foi possível compartilhar a imagem.');
-      }
+      if(error.name !== 'AbortError') alert(error.message || 'Não foi possível compartilhar a imagem.');
     }
   }
 
-  downloadBtn.addEventListener('click',downloadImage);mobileDownloadBtn.addEventListener('click',downloadImage);shareBtn.addEventListener('click',shareImage);
+  downloadBtn.addEventListener('click',openExportDialog);
+  mobileDownloadBtn.addEventListener('click',openExportDialog);
+  shareBtn.addEventListener('click',shareImage);
+  changeExportQualityBtn?.addEventListener('click', openExportDialog);
+  closeExportDialogBtn?.addEventListener('click', closeExportDialog);
+  cancelExportBtn?.addEventListener('click', closeExportDialog);
+  confirmDownloadBtn?.addEventListener('click', downloadImage);
+  exportDialog?.addEventListener('click', event => { if (event.target === exportDialog) closeExportDialog(); });
+  qualityOptions?.addEventListener('change', event => {
+    const input = event.target.closest('input[name="exportQuality"]');
+    if (!input || !exportProfiles[input.value]) return;
+    selectedExportQuality = input.value;
+    localStorage.setItem(EXPORT_QUALITY_KEY, selectedExportQuality);
+    updateExportSummary();
+    estimateExport(selectedExportQuality);
+  });
+  updateExportSummary();
 
   closeFramePreviewBtn?.addEventListener('click', closeFramePreview);
   cancelFramePreviewBtn?.addEventListener('click', closeFramePreview);
@@ -902,6 +968,26 @@
       event.preventDefault();
       frameSearch.focus();
     }
+  });
+
+  document.addEventListener('keydown', event => {
+    if (!state.photo || helpDialog?.open || framePreviewDialog?.open || exportDialog?.open) return;
+    const target = event.target;
+    const typing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable;
+    const mod = event.ctrlKey || event.metaKey;
+    if (mod && !typing && event.key.toLowerCase() === 'z') {
+      event.preventDefault();
+      (event.shiftKey ? redoBtn : undoBtn)?.click();
+      return;
+    }
+    if (mod && !typing && event.key.toLowerCase() === 'y') { event.preventDefault(); redoBtn?.click(); return; }
+    if (typing) return;
+    const step = event.shiftKey ? 12 : 3;
+    const moves = { ArrowLeft:[-step,0], ArrowRight:[step,0], ArrowUp:[0,-step], ArrowDown:[0,step] };
+    if (moves[event.key]) {
+      event.preventDefault(); rememberState(); state.x += moves[event.key][0]; state.y += moves[event.key][1]; draw(); scheduleSave();
+    } else if (event.key === '+' || event.key === '=') { event.preventDefault(); rememberState(); setZoom(state.scale + .05); }
+    else if (event.key === '-') { event.preventDefault(); rememberState(); setZoom(state.scale - .05); }
   });
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}

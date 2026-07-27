@@ -226,7 +226,11 @@
           <div class="finish-number">3</div>
           <p class="eyebrow">Último passo</p>
           <h2>Finalize sua imagem</h2>
-          <p>Quando estiver satisfeito com o resultado, baixe ou compartilhe.</p>
+          <p>Quando estiver satisfeito com o resultado, escolha a qualidade e finalize.</p>
+          <div class="export-summary" id="exportSummary" aria-live="polite">
+            <span><strong id="exportQualityLabel">Alta qualidade</strong><small id="exportQualityMeta">1080 × 1080 px · JPG</small></span>
+            <button type="button" id="changeExportQualityBtn">Alterar</button>
+          </div>
           <button class="button success block large" id="downloadBtn" type="button" disabled>⬇ Baixar imagem</button>
           <button class="button secondary block" id="shareBtn" type="button" disabled>↗ Compartilhar</button>
         </aside>
@@ -260,6 +264,39 @@
         <button class="button primary" id="selectPreviewFrameBtn" type="button">Usar esta moldura</button>
         <button class="button subtle" id="cancelFramePreviewBtn" type="button">Continuar navegando</button>
       </div>
+    </div>
+  </dialog>
+
+  <dialog class="export-dialog" id="exportDialog" aria-labelledby="exportDialogTitle">
+    <button class="dialog-close" id="closeExportDialogBtn" type="button" aria-label="Fechar">×</button>
+    <p class="eyebrow">Exportação</p>
+    <h2 id="exportDialogTitle">Escolha a qualidade da imagem</h2>
+    <p class="export-dialog__intro">A opção alta é ideal para publicar. A opção leve gera um arquivo menor para enviar rapidamente.</p>
+    <fieldset class="quality-options" id="qualityOptions">
+      <legend class="sr-only">Qualidade de exportação</legend>
+      <label class="quality-option">
+        <input type="radio" name="exportQuality" value="high" checked>
+        <span class="quality-option__check" aria-hidden="true"></span>
+        <span><strong>Alta qualidade</strong><small>1080 × 1080 px · melhor definição</small></span>
+        <b id="qualitySizeHigh">—</b>
+      </label>
+      <label class="quality-option">
+        <input type="radio" name="exportQuality" value="balanced">
+        <span class="quality-option__check" aria-hidden="true"></span>
+        <span><strong>Equilibrada</strong><small>1080 × 1080 px · arquivo otimizado</small></span>
+        <b id="qualitySizeBalanced">—</b>
+      </label>
+      <label class="quality-option">
+        <input type="radio" name="exportQuality" value="light">
+        <span class="quality-option__check" aria-hidden="true"></span>
+        <span><strong>Leve</strong><small>900 × 900 px · envio mais rápido</small></span>
+        <b id="qualitySizeLight">—</b>
+      </label>
+    </fieldset>
+    <div class="export-dialog__status" id="exportEstimateStatus" role="status" aria-live="polite">Selecione uma opção para ver o tamanho estimado.</div>
+    <div class="export-dialog__actions">
+      <button class="button success block large" id="confirmDownloadBtn" type="button">Baixar imagem</button>
+      <button class="button subtle block" id="cancelExportBtn" type="button">Cancelar</button>
     </div>
   </dialog>
 
