@@ -149,11 +149,24 @@
 
       <div id="flashMessage" class="flash" hidden></div>
 
+      <nav class="admin-workspace-tabs" aria-label="Áreas do painel">
+        <button class="workspace-tab is-active" type="button" data-workspace-target="dashboard">Visão geral</button>
+        <button class="workspace-tab" type="button" data-workspace-target="framesSection">Molduras</button>
+        <button class="workspace-tab" type="button" data-workspace-target="categoryManagerPanel">Categorias</button>
+        <button class="workspace-tab" type="button" data-workspace-target="maintenancePanel">Importar e exportar</button>
+        <button class="workspace-tab" type="button" data-workspace-target="managementPanel">Configurações</button>
+      </nav>
+
       <div class="dashboard-summary v10-dashboard" aria-label="Resumo da biblioteca">
         <div class="summary-card"><i>🖼️</i><span>Total</span><strong id="summaryTotal">0</strong><small>molduras</small></div>
         <div class="summary-card"><i>👁️</i><span>Visíveis</span><strong id="summaryVisible">0</strong><small>no site</small></div>
         <div class="summary-card"><i>⭐</i><span>Destaques</span><strong id="summaryHighlights">0</strong><small>ativos</small></div>
         <div class="summary-card"><i>🗂️</i><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
+      </div>
+      <div class="dashboard-insights" id="dashboardInsights">
+        <article><span>Última moldura da lista</span><strong id="summaryLatest">—</strong></article>
+        <article><span>Categoria com mais itens</span><strong id="summaryLargestCategory">—</strong></article>
+        <article><span>Itens ocultos</span><strong id="summaryHidden">0</strong></article>
       </div>
 
       <section class="creation-mode-switch v10-create-hub" aria-label="Escolha o tipo de inclusão">
@@ -338,9 +351,19 @@
           <h3>Molduras cadastradas</h3>
           <p id="frameCount">0 molduras</p>
         </div>
-        <div class="search-control">
-          <input id="adminSearch" type="search" placeholder="Pesquisar por nome, ID ou categoria" autocomplete="off" />
-          <button id="clearSearchBtn" class="small-button" type="button" hidden>Limpar</button>
+        <div class="library-toolbar">
+          <div class="search-control">
+            <input id="adminSearch" type="search" placeholder="Pesquisar por nome, ID ou categoria" autocomplete="off" />
+            <button id="clearSearchBtn" class="small-button" type="button" hidden>Limpar</button>
+          </div>
+          <div class="view-switch" role="group" aria-label="Visualização das molduras">
+            <button id="listViewBtn" class="view-switch-button is-active" type="button" aria-pressed="true" title="Visualização em lista">☰</button>
+            <button id="cardViewBtn" class="view-switch-button" type="button" aria-pressed="false" title="Visualização em cartões">▦</button>
+          </div>
+          <label class="density-control">
+            <span>Densidade</span>
+            <select id="adminDensity"><option value="comfortable">Confortável</option><option value="compact">Compacta</option></select>
+          </label>
         </div>
       </div>
 
@@ -402,6 +425,8 @@
       </section>
     </section>
   </main>
+
+  <div id="adminToastRegion" class="admin-toast-region" aria-live="polite" aria-atomic="true"></div>
 
   <dialog id="confirmDialog">
     <form method="dialog" class="dialog-card">

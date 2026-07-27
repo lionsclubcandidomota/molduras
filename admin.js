@@ -40,6 +40,8 @@
     managementToggle: $("managementToggle"), settingsDrawer: $("settingsDrawer"), settingsBackdrop: $("settingsBackdrop"), settingsCancel: $("settingsCancel"), settingsReset: $("settingsReset"), newDurationValue: $("newDurationValue"), newDurationUnit: $("newDurationUnit"), updatedDurationValue: $("updatedDurationValue"), updatedDurationUnit: $("updatedDurationUnit"), showNewBadge: $("showNewBadge"), showUpdatedBadge: $("showUpdatedBadge"), colorNew: $("colorNew"), colorUpdated: $("colorUpdated"), colorVisible: $("colorVisible"), colorHidden: $("colorHidden"), rememberCategories: $("rememberCategories"), showCategoryCount: $("showCategoryCount"), confirmPublish: $("confirmPublish"), confirmDiscard: $("confirmDiscard"), deleteImageDefault: $("deleteImageDefault"), saveManagement: $("saveManagementBtn"), colorNewCode: $("colorNewCode"), colorUpdatedCode: $("colorUpdatedCode"), colorVisibleCode: $("colorVisibleCode"), colorHiddenCode: $("colorHiddenCode"),
     categoryEditor: $("categoryEditor"), categoryEditorBackdrop: $("categoryEditorBackdrop"), categoryEditorTitle: $("categoryEditorTitle"), categoryNameInput: $("categoryNameInput"), categoryActiveInput: $("categoryActiveInput"), categoryHighlight: $("categoryHighlight"), categoryEditorCancel: $("categoryEditorCancel"), categoryEditorSave: $("categoryEditorSave"), categoryEditorDelete: $("categoryEditorDelete"), categoryEditorCount: $("categoryEditorCount"),
     publicationNotice: $("publicationNotice"), publicationNoticeIcon: $("publicationNoticeIcon"), publicationNoticeTitle: $("publicationNoticeTitle"), publicationNoticeText: $("publicationNoticeText"), publicationNoticeLink: $("publicationNoticeLink"), publicationNoticeClose: $("publicationNoticeClose"), publicationNoticeRetry: $("publicationNoticeRetry"), publicationProgressBar: $("publicationProgressBar"),
+    summaryLatest: $("summaryLatest"), summaryLargestCategory: $("summaryLargestCategory"), summaryHidden: $("summaryHidden"),
+    listViewBtn: $("listViewBtn"), cardViewBtn: $("cardViewBtn"), adminDensity: $("adminDensity"), toastRegion: $("adminToastRegion"),
   };
 
   // v5.6 — drawers independentes do fluxo da página.
@@ -71,7 +73,19 @@
   const esc = (v) => String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
-  function flash(message, type = "info") { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; if(type==="success") recordActivity(message); }
+  function flash(message, type = "info") {
+    if (el.flash) { el.flash.textContent = message; el.flash.className = `flash ${type}`; el.flash.hidden = false; }
+    showToast(message, type);
+    if(type==="success") recordActivity(message);
+  }
+  function showToast(message, type="info"){
+    if(!el.toastRegion) return;
+    const toast=document.createElement("div");
+    toast.className=`admin-toast ${type}`;
+    const icon=type==="success"?"✓":type==="error"?"!":"i";
+    toast.innerHTML=`<strong aria-hidden="true">${icon}</strong><div><strong>${type==="success"?"Concluído":type==="error"?"Atenção":"Informação"}</strong><p>${esc(message)}</p></div><button type="button" aria-label="Fechar">×</button>`;
+    const remove=()=>{toast.remove();}; toast.querySelector("button").addEventListener("click",remove); el.toastRegion.appendChild(toast); setTimeout(remove,5200);
+  }
   function recordActivity(message){try{const key="lions-admin-history";const list=JSON.parse(localStorage.getItem(key)||"[]");list.unshift({message,date:new Date().toLocaleString("pt-BR")});localStorage.setItem(key,JSON.stringify(list.slice(0,30)));}catch{}}
   function status(message, type = "neutral") { el.status.textContent = message; el.status.className = `status ${type}`; }
   function setPanelOpen(panel, button, open, storageKey) {
@@ -369,6 +383,11 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
     if(el.summaryVisible) el.summaryVisible.textContent=state.molduras.filter(f=>f.ativo!==false).length;
     if(el.summaryHighlights) el.summaryHighlights.textContent=state.molduras.filter(f=>frameStatus(f)!=="normal").length;
     if(el.summaryCategories) el.summaryCategories.textContent=state.categorias.length;
+    if(el.summaryHidden) el.summaryHidden.textContent=state.molduras.filter(f=>f.ativo===false).length;
+    const ordered=[...state.categorias].sort((a,b)=>a.ordem-b.ordem).flatMap(c=>state.molduras.filter(f=>f.categoriaId===c.id).sort((a,b)=>a.ordem-b.ordem));
+    if(el.summaryLatest) el.summaryLatest.textContent=ordered.at(-1)?.nome||"—";
+    const largest=[...state.categorias].map(c=>({name:c.nome,count:state.molduras.filter(f=>f.categoriaId===c.id).length})).sort((a,b)=>b.count-a.count)[0];
+    if(el.summaryLargestCategory) el.summaryLargestCategory.textContent=largest?`${largest.name} (${largest.count})`:"—";
   }
   function renderCategoryOptions(){
     el.categoryList.innerHTML=state.categorias.sort((a,b)=>a.ordem-b.ordem).map(c=>`<option value="${esc(c.nome)}"></option>`).join("");
@@ -961,8 +980,8 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
     state.molduras.forEach(f=>{if(ids.has(f.id))issues.push(`ID duplicado: ${f.id}`);ids.add(f.id);if(!f.arquivo)issues.push(`Sem arquivo: ${f.nome}`);else if(files.has(f.arquivo))issues.push(`Arquivo repetido: ${f.arquivo}`);else files.add(f.arquivo);if(!cats.has(f.categoriaId))issues.push(`Categoria inexistente em: ${f.nome}`);});
     el.utilityResult.hidden=false;el.utilityResult.innerHTML=issues.length?`<strong>Foram encontrados ${issues.length} ponto(s):</strong><ul>${issues.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:`<strong>✅ Nenhum problema estrutural encontrado.</strong><p>${state.molduras.length} molduras e ${state.categorias.length} categorias verificadas.</p>`;
   });
-  el.exportBackupBtn?.addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:1,exportedAt:new Date().toISOString(),categorias:state.categorias,molduras:state.molduras},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-molduras-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);recordActivity("Backup exportado");});
-  el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
+  el.exportBackupBtn?.addEventListener("click",()=>{const blob=new Blob([JSON.stringify({version:2,exportedAt:new Date().toISOString(),categorias:state.categorias,molduras:state.molduras,configuracoes:state.configuracoes,publicacao:state.publicacao},null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`backup-molduras-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);recordActivity("Backup exportado");});
+  el.importBackupInput?.addEventListener("change",async()=>{const file=el.importBackupInput.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.categorias)||!Array.isArray(data.molduras))throw new Error("Backup inválido.");state.categorias=data.categorias;state.molduras=data.molduras;if(data.configuracoes)state.configuracoes={...state.configuracoes,...data.configuracoes};if(data.publicacao)state.publicacao=data.publicacao;fillManagementForm();renumber();render();flash("Backup carregado para revisão. Use a barra de alterações pendentes para publicar.","success");}catch(e){flash(e.message,"error");}finally{el.importBackupInput.value="";}});
   el.historyBtn?.addEventListener("click",()=>{let list=[];try{list=JSON.parse(localStorage.getItem("lions-admin-history")||"[]");}catch{}el.utilityResult.hidden=false;el.utilityResult.innerHTML=list.length?`<strong>Últimas ações</strong><ol>${list.map(x=>`<li><b>${esc(x.message)}</b><small>${esc(x.date)}</small></li>`).join("")}</ol>`:"<strong>Nenhuma ação registrada neste navegador.</strong>";});
 
   function openSettings(){
@@ -980,4 +999,33 @@ window.MOLDURAS = ${JSON.stringify(molduras, null, 2)};
     setBusy(true,"Salvando configurações...");try{await saveConfig("Atualiza configurações gerais");applyConfigAppearance();render();closeSettings();flash("Configurações gerais publicadas.","success");}catch(e){flash(e.message,"error");}finally{setBusy(false);status("Conectado","ok");}
   });
 
+
+
+  // v10.4 — navegação por áreas, visualização e densidade.
+  function setFrameView(view){
+    const cards=view==="cards"; el.list?.classList.toggle("card-view",cards);
+    el.listViewBtn?.classList.toggle("is-active",!cards); el.cardViewBtn?.classList.toggle("is-active",cards);
+    el.listViewBtn?.setAttribute("aria-pressed",String(!cards)); el.cardViewBtn?.setAttribute("aria-pressed",String(cards));
+    try{localStorage.setItem("lions-admin-frame-view",cards?"cards":"list");}catch{}
+  }
+  function setAdminDensity(value){
+    const compact=value==="compact"; document.body.classList.toggle("admin-density-compact",compact);
+    if(el.adminDensity) el.adminDensity.value=compact?"compact":"comfortable";
+    try{localStorage.setItem("lions-admin-density",compact?"compact":"comfortable");}catch{}
+  }
+  el.listViewBtn?.addEventListener("click",()=>setFrameView("list"));
+  el.cardViewBtn?.addEventListener("click",()=>setFrameView("cards"));
+  el.adminDensity?.addEventListener("change",()=>setAdminDensity(el.adminDensity.value));
+  try{setFrameView(localStorage.getItem("lions-admin-frame-view")||"list");setAdminDensity(localStorage.getItem("lions-admin-density")||"comfortable");}catch{setFrameView("list");setAdminDensity("comfortable");}
+
+  document.querySelectorAll("[data-workspace-target]").forEach(button=>button.addEventListener("click",()=>{
+    document.querySelectorAll(".workspace-tab").forEach(x=>x.classList.toggle("is-active",x===button));
+    const target=button.dataset.workspaceTarget;
+    if(target==="dashboard"){ el.manager?.scrollIntoView({behavior:"smooth",block:"start"}); return; }
+    const node=document.getElementById(target); if(!node)return;
+    if(target==="maintenancePanel") setPanelOpen(node,el.maintenanceToggle,true,"lions-maintenance-open");
+    if(target==="categoryManagerPanel") setPanelOpen(node,el.categoryManagerToggle,true,"lions-category-manager-open");
+    if(target==="managementPanel") el.managementToggle?.click();
+    setTimeout(()=>node.scrollIntoView({behavior:"smooth",block:"start"}),40);
+  }));
 })();
