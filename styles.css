@@ -2846,3 +2846,22 @@ kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 
 .canvas-stage.is-dragging{cursor:grabbing!important;box-shadow:0 0 0 4px rgba(28,101,181,.14),0 18px 42px rgba(10,47,86,.17)}.canvas-stage.has-photo{cursor:grab}.photo-history-hint{font-size:.72rem;color:var(--muted);text-align:center;margin:7px 0 0}
 @media(max-width:760px){.export-dialog{padding:23px 18px;border-radius:21px}.quality-option{grid-template-columns:20px 1fr;padding:13px 11px}.quality-option b{grid-column:2;text-align:left}.export-summary{padding:11px}.export-summary button{font-size:.78rem}.export-dialog h2{font-size:1.45rem}}
 @media(prefers-reduced-motion:reduce){.quality-option{transition:none}.export-dialog__status.is-loading::before{animation-duration:1.4s}}
+
+
+/* v10.4.1 Mobile refinements */
+@media (max-width:768px){
+.header-inner{padding:10px 16px;align-items:flex-start;flex-wrap:wrap}
+.brand img{width:42px;height:42px;border-radius:12px}
+.brand strong{font-size:1.05rem}
+.site-header nav{margin-left:auto}
+.site-header nav a,.nav-help{padding:8px 12px;font-size:.9rem}
+.hero-grid{padding:32px 18px 40px;gap:22px;grid-template-columns:1fr}
+.hero-label{margin-bottom:8px}
+.hero h1{font-size:2.2rem;margin:12px 0}
+.hero-copy>p{font-size:1rem}
+.hero-actions{margin:20px 0 10px;flex-direction:column}
+.button.large{padding:13px 18px}
+.hero-preview{max-width:290px}
+.steps,.stepper{margin-top:16px}
+section{scroll-margin-top:72px}
+}
