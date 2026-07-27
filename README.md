@@ -35,3 +35,25 @@
 - Histórico aprimorado para arraste, gesto de pinça e zoom pelo mouse.
 - Atalhos de teclado para desfazer, refazer, mover e ampliar a foto.
 - Feedback visual durante o reposicionamento da imagem.
+
+
+## v10.4 — Painel administrativo profissional
+
+- navegação rápida por áreas do painel;
+- dashboard com indicadores complementares;
+- alternância entre visualização em lista e cartões;
+- densidade confortável ou compacta, salva no navegador;
+- notificações em formato toast;
+- backup JSON v2 incluindo configurações e dados de publicação;
+- melhorias responsivas para administração em celular e tablet.
+
+## v10.5 — Polimento e acessibilidade
+
+- Tema claro, escuro ou automático, compartilhado entre o site e o painel.
+- Preferência visual salva no navegador, sem piscar o tema ao abrir a página.
+- Indicador de funcionamento offline.
+- Foco de teclado mais visível e navegação acessível no seletor de tema.
+- Respeito à preferência de redução de movimentos do dispositivo.
+- Carregamento progressivo e decodificação assíncrona das imagens.
+- Animação de carregamento da galeria e transição suave das miniaturas.
+- Otimização de renderização para listas e categorias extensas.
