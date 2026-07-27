@@ -7,7 +7,6 @@
   photoLayer.width = photoLayer.height = 1080;
   const photoCtx = photoLayer.getContext('2d');
   const wrap = $('canvasWrap');
-  const dropOverlay = $('dropOverlay');
   const undoBtn=$('undoBtn'), redoBtn=$('redoBtn'), resolutionWarning=$('resolutionWarning');
   const controls = $('controls');
   const photoInput = $('photoInput');
@@ -98,20 +97,6 @@
     favorites: new Set(), recents: [], history: [], future: [],
     categoryView: { collapsed: {}, expanded: {} }
   };
-
-  const appToast = document.createElement('div');
-  appToast.className = 'app-toast';
-  appToast.setAttribute('role', 'status');
-  appToast.setAttribute('aria-live', 'polite');
-  document.body.appendChild(appToast);
-  let appToastTimer = 0;
-  function notify(message, type = 'info') {
-    clearTimeout(appToastTimer);
-    appToast.textContent = message;
-    appToast.dataset.type = type;
-    appToast.classList.add('is-visible');
-    appToastTimer = window.setTimeout(() => appToast.classList.remove('is-visible'), 3200);
-  }
 
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   const normalizeSearchText = value => String(value ?? '')
@@ -342,7 +327,7 @@
       const cards = visibleFrames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id;
         const frameStatus = statusOf(frame);
-        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy" decoding="async"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 10.55 19.1C5.4 14.5 2 11.45 2 7.7 2 4.65 4.4 2.25 7.45 2.25c1.72 0 3.37.8 4.55 2.05a6.12 6.12 0 0 1 4.55-2.05C19.6 2.25 22 4.65 22 7.7c0 3.75-3.4 6.8-8.55 11.4L12 20.4Z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.55 3.25c-1.72 0-3.37.8-4.55 2.05a6.12 6.12 0 0 0-4.55-2.05C4.4 3.25 2 5.65 2 8.7c0 3.75 3.4 6.8 8.55 11.4L12 21.4l1.45-1.3C18.6 15.5 22 12.45 22 8.7c0-3.05-2.4-5.45-5.45-5.45Zm-4.45 15.2-.1.1-.1-.1C7.14 14.2 4 11.4 4 8.7c0-1.9 1.55-3.45 3.45-3.45 1.46 0 2.88.94 3.38 2.24h2.34c.5-1.3 1.92-2.24 3.38-2.24C18.45 5.25 20 6.8 20 8.7c0 2.7-3.14 5.5-7.9 9.75Z"/></svg>'}</button></div>`;
+        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 10.55 19.1C5.4 14.5 2 11.45 2 7.7 2 4.65 4.4 2.25 7.45 2.25c1.72 0 3.37.8 4.55 2.05a6.12 6.12 0 0 1 4.55-2.05C19.6 2.25 22 4.65 22 7.7c0 3.75-3.4 6.8-8.55 11.4L12 20.4Z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.55 3.25c-1.72 0-3.37.8-4.55 2.05a6.12 6.12 0 0 0-4.55-2.05C4.4 3.25 2 5.65 2 8.7c0 3.75 3.4 6.8 8.55 11.4L12 21.4l1.45-1.3C18.6 15.5 22 12.45 22 8.7c0-3.05-2.4-5.45-5.45-5.45Zm-4.45 15.2-.1.1-.1-.1C7.14 14.2 4 11.4 4 8.7c0-1.9 1.55-3.45 3.45-3.45 1.46 0 2.88.94 3.38 2.24h2.34c.5-1.3 1.92-2.24 3.38-2.24C18.45 5.25 20 6.8 20 8.7c0 2.7-3.14 5.5-7.9 9.75Z"/></svg>'}</button></div>`;
       }).join('');
 
       const counter = PUBLIC_CONFIG.mostrarContadorCategoria === false
@@ -447,7 +432,7 @@
   function loadFrame(src) {
     const image = new Image();
     image.onload = () => { state.frameImage = image; draw(); };
-    image.onerror = () => { state.frameImage = null; draw(); notify('Não foi possível carregar esta moldura.', 'error'); };
+    image.onerror = () => { state.frameImage = null; draw(); alert('Não foi possível carregar esta moldura.'); };
     image.src = src;
   }
 
@@ -611,52 +596,10 @@
     clearPhoto();
   });
 
-  function loadPhotoFile(file) {
-    if (!file) return;
-    if (!state.selectedFrame) return notify('Escolha uma moldura antes de adicionar a foto.', 'error');
-    if (!file.type.startsWith('image/')) return notify('Escolha um arquivo de imagem válido.', 'error');
-    if (file.size > 25 * 1024 * 1024) return notify('A imagem é muito grande. Use um arquivo de até 25 MB.', 'error');
-
-    const objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    image.decoding = 'async';
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      state.photo = image;
-      state.history = [];
-      state.future = [];
-      resetPhotoPosition();
-      setPhotoEnabled(true);
-      wrap.classList.remove('is-awaiting-photo');
-      if (resolutionWarning) resolutionWarning.hidden = Math.min(image.naturalWidth, image.naturalHeight) >= 900;
-      notify('Foto adicionada. Agora ajuste como desejar.', 'success');
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      notify('Não foi possível abrir esta imagem.', 'error');
-    };
-    image.src = objectUrl;
-  }
-
-  photoInput.addEventListener('change', event => loadPhotoFile(event.target.files?.[0]));
-
-  ['dragenter','dragover'].forEach(type => wrap.addEventListener(type, event => {
-    if (!state.selectedFrame) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
-    wrap.classList.add('is-dragging');
-    if (dropOverlay) dropOverlay.hidden = false;
-  }));
-  ['dragleave','dragend'].forEach(type => wrap.addEventListener(type, event => {
-    if (event.relatedTarget && wrap.contains(event.relatedTarget)) return;
-    wrap.classList.remove('is-dragging');
-    if (dropOverlay) dropOverlay.hidden = true;
-  }));
-  wrap.addEventListener('drop', event => {
-    event.preventDefault();
-    wrap.classList.remove('is-dragging');
-    if (dropOverlay) dropOverlay.hidden = true;
-    loadPhotoFile(event.dataTransfer.files?.[0]);
+  photoInput.addEventListener('change', event => {
+    const file=event.target.files?.[0]; if(!file)return;
+    if(!file.type.startsWith('image/')) return alert('Escolha um arquivo de imagem válido.');
+    const reader=new FileReader(); reader.onload=()=>{const image=new Image(); image.onload=()=>{state.photo=image;state.history=[];state.future=[];resetPhotoPosition();setPhotoEnabled(true);wrap.classList.remove('is-awaiting-photo');if(resolutionWarning)resolutionWarning.hidden=Math.min(image.naturalWidth,image.naturalHeight)>=900;};image.onerror=()=>alert('Não foi possível abrir esta imagem.');image.src=reader.result;};reader.readAsDataURL(file);
   });
   zoomRange.addEventListener('input',()=>setZoom(zoomRange.value)); zoomNumber.addEventListener('input',()=>{if(zoomNumber.value!=='')setZoom(Number(zoomNumber.value)/100);}); zoomNumber.addEventListener('change',()=>setZoom(Number(zoomNumber.value||100)/100));
   rotationRange.addEventListener('input',()=>setRotation(rotationRange.value,false)); rotationRange.addEventListener('change',()=>setRotation(rotationRange.value,true)); rotationNumber.addEventListener('input',()=>{if(rotationNumber.value!=='')setRotation(rotationNumber.value);}); rotationNumber.addEventListener('change',()=>setRotation(rotationNumber.value||0));
@@ -872,7 +815,7 @@
     try {
       await exportManager.download(filename());
     } catch(error) {
-      notify(error.message || 'Não foi possível baixar a imagem.', 'error');
+      alert(error.message || 'Não foi possível baixar a imagem.');
     }
   }
 
@@ -882,42 +825,12 @@
       await exportManager.share(filename());
     } catch(error) {
       if(error.name !== 'AbortError') {
-        notify(error.message || 'Não foi possível compartilhar a imagem.', 'error');
+        alert(error.message || 'Não foi possível compartilhar a imagem.');
       }
     }
   }
 
   downloadBtn.addEventListener('click',downloadImage);mobileDownloadBtn.addEventListener('click',downloadImage);shareBtn.addEventListener('click',shareImage);
-
-  document.addEventListener('keydown', event => {
-    const tag = document.activeElement?.tagName?.toLowerCase();
-    if (['input','textarea','select'].includes(tag) || document.activeElement?.isContentEditable) return;
-    const command = event.ctrlKey || event.metaKey;
-    if (command && event.key.toLowerCase() === 'z') {
-      event.preventDefault();
-      (event.shiftKey ? redoBtn : undoBtn)?.click();
-      return;
-    }
-    if (command && event.key.toLowerCase() === 'y') {
-      event.preventDefault();
-      redoBtn?.click();
-      return;
-    }
-    if (!state.photo) return;
-    if (event.key === '+' || event.key === '=') {
-      event.preventDefault(); rememberState(); setZoom(state.scale + .05);
-    } else if (event.key === '-' || event.key === '_') {
-      event.preventDefault(); rememberState(); setZoom(state.scale - .05);
-    } else if (event.key === 'ArrowLeft') {
-      event.preventDefault(); rememberState(); state.x -= event.shiftKey ? 20 : 5; draw();
-    } else if (event.key === 'ArrowRight') {
-      event.preventDefault(); rememberState(); state.x += event.shiftKey ? 20 : 5; draw();
-    } else if (event.key === 'ArrowUp') {
-      event.preventDefault(); rememberState(); state.y -= event.shiftKey ? 20 : 5; draw();
-    } else if (event.key === 'ArrowDown') {
-      event.preventDefault(); rememberState(); state.y += event.shiftKey ? 20 : 5; draw();
-    }
-  });
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}
   $('openHelpBtn').addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
