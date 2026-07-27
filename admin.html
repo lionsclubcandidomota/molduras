@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0f2d69" />
+  <title>Central Lions | Administração</title>
+  <link rel="icon" href="logo-lions.png" type="image/png" />
+  <link rel="apple-touch-icon" href="logo-lions.png" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <main class="admin-shell v10-shell">
+    <header class="admin-hero">
+      <div class="brand-logo-wrap"><img src="logo-lions.png" alt="Logo Lions Clubs International" class="admin-logo"></div>
+      <div>
+        <p class="eyebrow">Lions Clube de Cândido Mota · Administração</p>
+        <h1>Painel de Molduras</h1>
+        <p>Gerencie categorias, arquivos e publicações em um só lugar.</p>
+      </div>
+      <div class="hero-actions">
+        <a id="returnToSiteBtn" class="site-link site-link-button return-site-button" href="./index.html" aria-label="Voltar ao site principal"><span aria-hidden="true">←</span><span>Voltar ao site</span></a>
+        <button id="scrollTopBtn" class="site-link site-link-button" type="button" hidden>↑ Topo</button>
+      </div>
+    </header>
+
+    <section class="card" id="connectionCard">
+      <div class="heading-row">
+        <div>
+          <span class="step">Acesso seguro</span>
+          <h2>Conectar ao GitHub</h2>
+        </div>
+        <span id="connectionStatus" class="status neutral">Desconectado</span>
+      </div>
+
+      <div class="security-note">
+        <strong>Segurança:</strong> o token é mantido somente na memória desta aba. Ele não é salvo em arquivos, cookies ou armazenamento local.
+      </div>
+
+      <form id="connectionForm" class="form-grid">
+        <label>
+          <span>Usuário ou organização</span>
+          <input id="repoOwner" value="lionsclubcandidomota" required autocomplete="username" />
+        </label>
+        <label>
+          <span>Repositório</span>
+          <input id="repoName" value="molduras" required />
+        </label>
+        <label>
+          <span>Branch</span>
+          <input id="repoBranch" value="main" required />
+        </label>
+        <label class="token-field">
+          <span>Token de acesso do GitHub</span>
+          <div class="input-action">
+            <input id="githubToken" type="password" required autocomplete="off" placeholder="github_pat_..." />
+            <button id="toggleToken" type="button" class="small-button">Mostrar</button>
+          </div>
+        </label>
+        <button id="connectBtn" class="button primary full" type="submit">Conectar e carregar molduras</button>
+      </form>
+      <p class="help">Use um token <em>fine-grained</em> limitado somente a este repositório, com permissão <strong>Contents: Read and write</strong>.</p>
+    </section>
+
+    <section class="admin-quick-nav v10-sidebar" id="adminQuickNav" hidden aria-label="Navegação do painel">
+      <div class="sidebar-brand"><img src="logo-lions.png" alt=""><div><strong>Central Lions</strong><small>Administração</small></div></div>
+      <div class="nav-title">Principal</div>
+      <a href="#managerCard" class="nav-dashboard is-active">🏠 <span>Dashboard</span></a>
+      <a href="#framesSection">🖼️ <span>Molduras</span></a>
+      <a href="#categoryManagerPanel">🗂️ <span>Categorias</span></a>
+      <div class="nav-title">Publicação</div>
+      <button type="button" data-admin-mode="single">➕ <span>Nova moldura</span></button>
+      <button type="button" data-admin-mode="bulk">📤 <span>Upload em lote</span></button>
+      <a href="#maintenancePanel">🧰 <span>Diagnóstico e backup</span></a>
+      <div class="sidebar-footer"><span class="sidebar-dot"></span><span>GitHub Pages</span></div>
+    </section>
+
+    <div id="pendingChangesBar" class="pending-changes-bar" hidden>
+      <div class="pending-changes-copy"><strong>Alterações pendentes</strong><small>Revise, publique ou descarte para voltar à última versão carregada.</small></div>
+      <div class="pending-changes-actions">
+        <button id="discardPendingBtn" class="button pending-discard" type="button">Descartar alterações</button>
+        <button id="publishPendingBtn" class="button primary" type="button">Publicar alterações</button>
+      </div>
+    </div>
+    <div id="editorBackdrop" class="editor-backdrop" hidden></div>
+    <div id="categoryEditorBackdrop" class="editor-backdrop" hidden></div>
+    <aside id="categoryEditor" class="category-editor-drawer" hidden aria-labelledby="categoryEditorTitle">
+      <div class="category-editor-header">
+        <div><span class="step">📁 Categoria / edição</span><h2 id="categoryEditorTitle">Editar categoria</h2><p id="categoryEditorCount">0 molduras</p></div>
+        <button id="categoryEditorCancel" class="button light" type="button">Cancelar edição</button>
+      </div>
+      <div class="category-editor-body">
+        <div class="form-section-title"><span>1</span><div><strong>Identificação</strong><small>Altere o nome e a visibilidade da categoria.</small></div></div>
+        <label><span>Nome da categoria</span><input id="categoryNameInput" type="text" required /></label>
+        <label class="switch-card visibility-card category-visibility-card">
+          <span class="visibility-copy"><strong>Visibilidade da categoria</strong><small>Quando oculta, a categoria deixa de aparecer no site.</small></span>
+          <span class="toggle-control"><input id="categoryActiveInput" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span><span class="toggle-label">Exibir no site</span></span>
+        </label>
+        <div class="form-section-title"><span>2</span><div><strong>Destaques</strong><small>Aplique ou remova o destaque de todas as molduras desta categoria.</small></div></div>
+        <label><span>Ação para os destaques</span><select id="categoryHighlight"><option value="manter">Manter como está</option><option value="novo">Marcar todas como Novo</option><option value="atualizada">Marcar todas como Atualizada</option><option value="normal">Remover todos os destaques</option></select><small>Os prazos configurados em Controle gerencial serão aplicados ao escolher Novo ou Atualizada.</small></label>
+      </div>
+      <div class="category-editor-footer">
+        <button id="categoryEditorDelete" class="button danger" type="button">Excluir categoria</button>
+        <button id="categoryEditorSave" class="button success" type="button">Aplicar alterações</button>
+      </div>
+    </aside>
+
+    <div id="settingsBackdrop" class="editor-backdrop" hidden></div>
+    <aside id="settingsDrawer" class="category-editor-drawer settings-drawer catalog-drawer" hidden aria-labelledby="settingsTitle">
+      <div class="category-editor-header catalog-header">
+        <div><span class="step">⚙️ Catálogo</span><h2 id="settingsTitle">Configurações do catálogo</h2><p>Defina a duração dos destaques e as cores dos status.</p></div>
+        <button id="settingsCancel" class="icon-close" type="button" aria-label="Fechar">×</button>
+      </div>
+      <div class="category-editor-body settings-body catalog-settings-body">
+        <section class="catalog-section">
+          <div class="catalog-section-heading"><span class="catalog-section-icon">🏷️</span><div><h3>Destaques</h3><p>Escolha por quanto tempo cada selo permanece visível.</p></div></div>
+          <div class="highlight-config-grid">
+            <article class="highlight-config-card new-card">
+              <div class="highlight-card-top"><span class="status-dot new-dot"></span><div><strong>Novo</strong><small>Para molduras recém-publicadas</small></div></div>
+              <label class="compact-field"><span>Duração</span><div class="duration-row"><input id="newDurationValue" type="number" min="1" value="7"><select id="newDurationUnit"><option value="dias">Dias</option><option value="horas">Horas</option></select></div></label>
+            </article>
+            <article class="highlight-config-card updated-card">
+              <div class="highlight-card-top"><span class="status-dot updated-dot"></span><div><strong>Atualizada</strong><small>Para molduras que receberam alterações</small></div></div>
+              <label class="compact-field"><span>Duração</span><div class="duration-row"><input id="updatedDurationValue" type="number" min="1" value="7"><select id="updatedDurationUnit"><option value="dias">Dias</option><option value="horas">Horas</option></select></div></label>
+            </article>
+          </div>
+        </section>
+        <section class="catalog-section">
+          <div class="catalog-section-heading"><span class="catalog-section-icon">🎨</span><div><h3>Aparência</h3><p>Personalize as cores usadas nos indicadores do painel.</p></div></div>
+          <div class="status-color-list">
+            <label class="status-color-row"><span><i class="status-preview visible-preview"></i><b>Visível</b><small>Moldura publicada no site</small></span><span class="color-control"><input id="colorVisible" type="color" value="#2d8fd5"><em id="colorVisibleCode">#2D8FD5</em></span></label>
+            <label class="status-color-row"><span><i class="status-preview new-preview"></i><b>Novo</b><small>Destaque de conteúdo novo</small></span><span class="color-control"><input id="colorNew" type="color" value="#2f9e72"><em id="colorNewCode">#2F9E72</em></span></label>
+            <label class="status-color-row"><span><i class="status-preview updated-preview"></i><b>Atualizada</b><small>Destaque de conteúdo alterado</small></span><span class="color-control"><input id="colorUpdated" type="color" value="#d99a16"><em id="colorUpdatedCode">#D99A16</em></span></label>
+            <label class="status-color-row"><span><i class="status-preview hidden-preview"></i><b>Oculta</b><small>Moldura indisponível no site</small></span><span class="color-control"><input id="colorHidden" type="color" value="#7b8794"><em id="colorHiddenCode">#7B8794</em></span></label>
+          </div>
+        </section>
+      </div>
+      <div class="category-editor-footer catalog-footer"><button id="settingsReset" class="button light" type="button">Restaurar padrões</button><button id="saveManagementBtn" class="button success" type="button">Salvar alterações</button></div>
+    </aside>
+
+    <section class="card v10-manager" id="managerCard" hidden>
+      <div class="heading-row">
+        <div>
+          <span class="step">Dashboard</span>
+          <h2>Visão geral da biblioteca</h2>
+        </div>
+        <button id="refreshBtn" class="button light" type="button">↻ Atualizar lista</button>
+      </div>
+
+      <div id="flashMessage" class="flash" hidden></div>
+
+      <div class="dashboard-summary v10-dashboard" aria-label="Resumo da biblioteca">
+        <div class="summary-card"><i>🖼️</i><span>Total</span><strong id="summaryTotal">0</strong><small>molduras</small></div>
+        <div class="summary-card"><i>👁️</i><span>Visíveis</span><strong id="summaryVisible">0</strong><small>no site</small></div>
+        <div class="summary-card"><i>⭐</i><span>Destaques</span><strong id="summaryHighlights">0</strong><small>ativos</small></div>
+        <div class="summary-card"><i>🗂️</i><span>Categorias</span><strong id="summaryCategories">0</strong><small>organizadas</small></div>
+      </div>
+
+      <section class="creation-mode-switch v10-create-hub" aria-label="Escolha o tipo de inclusão">
+        <div class="creation-mode-intro">
+          <span class="step">Adicionar conteúdo</span>
+          <h3>Adicionar molduras</h3>
+          <p>Escolha o modo de inclusão. Apenas a área selecionada será exibida.</p>
+        </div>
+        <div class="creation-mode-options" role="tablist" aria-label="Modo de inclusão">
+          <button id="singleModeBtn" class="creation-mode-card is-active" type="button" role="tab" aria-selected="true" aria-controls="frameForm">
+            <span class="mode-icon">＋</span><span><strong>Nova moldura</strong><small>Cadastro individual</small></span>
+          </button>
+          <button id="bulkModeBtn" class="creation-mode-card" type="button" role="tab" aria-selected="false" aria-controls="bulkUploadPanel">
+            <span class="mode-icon">⇧</span><span><strong>Upload em lote</strong><small>Vários arquivos</small></span>
+          </button>
+        </div>
+      </section>
+
+      <div id="singleModeContainer" class="creation-mode-content is-active">
+      <form id="frameForm" class="editor-panel is-open">
+        <input id="editingOriginalId" type="hidden" />
+        <div class="editor-heading fixed-panel-heading">
+          <div class="panel-heading-copy">
+            <span class="step">🖼️ Moldura avulsa / edição</span>
+            <strong id="formTitle">Adicionar nova moldura</strong>
+            <small>Cadastre uma moldura ou altere informações já existentes.</small>
+          </div>
+          <button id="cancelEditBtn" class="button light" type="button" hidden>Cancelar edição</button>
+        </div>
+
+        <div id="editorBody" class="fixed-panel-body">
+        <div class="form-section-title"><span>1</span><div><strong>Identificação</strong><small>Defina como a moldura aparecerá no site.</small></div></div>
+        <div class="form-grid enhanced-fields">
+          <label>
+            <span>Nome exibido</span>
+            <input id="frameName" required placeholder="Ex.: Nós vamos na I RCD" aria-describedby="frameNameError" /><small class="field-error" id="frameNameError"></small>
+          </label>
+          <label>
+            <span>Identificador <em>URL</em></span>
+            <div class="input-action compact-action">
+              <input id="frameId" required pattern="[a-z0-9-]+" placeholder="nos-vamos-rcd" aria-describedby="frameIdError" /><small class="field-error" id="frameIdError"></small>
+              <button id="generateIdBtn" class="small-button" type="button" title="Gerar pelo nome">Gerar</button>
+            </div>
+            <small>Usado no link direto da moldura. Somente letras minúsculas, números e hífens.</small>
+          </label>
+          <label>
+            <span>Categoria</span>
+            <input id="frameCategory" required list="categoryList" placeholder="Eventos" aria-describedby="frameCategoryError" /><small class="field-error" id="frameCategoryError"></small>
+            <datalist id="categoryList"></datalist>
+          </label>
+          <label>
+            <span>Arquivo de imagem</span>
+            <input id="frameFile" type="file" accept="image/*,.svg,.avif,.gif,.bmp" />
+            <small id="fileHint">Obrigatório para uma nova moldura.</small>
+          </label>
+        </div>
+
+        <div class="form-section-title"><span>2</span><div><strong>Publicação</strong><small>Controle destaque, categoria e visibilidade.</small></div></div>
+        <div class="form-grid status-form-grid">
+          <label>
+            <span>Destaque da moldura</span>
+            <select id="frameStatus">
+              <option value="normal">Sem destaque</option>
+              <option value="novo">Novo</option>
+              <option value="atualizada">Atualizada</option>
+            </select>
+            <small>O destaque também aparece automaticamente na categoria.</small>
+          </label>
+          <label class="switch-card visibility-card">
+            <span class="visibility-copy">
+              <strong>Visibilidade</strong>
+              <small>Desative para ocultar sem excluir.</small>
+            </span>
+            <span class="toggle-control">
+              <input id="frameActive" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+              <span class="toggle-label">Exibir no site</span>
+            </span>
+          </label>
+        </div>
+        <div class="form-section-title"><span>3</span><div><strong>Imagem e prévia</strong><small>Confira o arquivo antes de publicar.</small></div></div>
+        <div class="preview-area">
+          <div id="filePreview" class="file-preview"><span>Prévia da moldura</span></div>
+          <div class="upload-summary">
+            <p><strong>Destino:</strong> <code id="destinationPath">assets/molduras/arquivo.png</code></p>
+            <p>A publicação normalmente aparece no GitHub Pages após o novo commit ser processado.</p>
+          </div>
+        </div>
+
+        <div class="editor-footer-actions">
+          <span id="editorModeHint" class="editor-mode-hint" hidden>Modo de edição</span>
+          <button id="saveFrameBtn" class="button success" type="submit">Adicionar e publicar moldura</button>
+        </div>
+        </div>
+      </form>
+      </div>
+
+      <div id="bulkModeContainer" class="creation-mode-content" hidden>
+      <section id="bulkUploadPanel" class="bulk-upload-panel" aria-labelledby="bulkUploadTitle">
+        <div class="editor-heading fixed-panel-heading">
+          <div class="panel-heading-copy">
+            <span class="step">📚 Inclusão em lote</span>
+            <strong id="bulkUploadTitle">Adicionar várias molduras</strong>
+            <small>Selecione diversos arquivos, revise os dados e publique tudo de uma vez.</small>
+          </div>
+          <span id="bulkUploadSummary" class="panel-summary-pill">Nenhum arquivo</span>
+        </div>
+        <div id="bulkUploadBody" class="fixed-panel-body">
+        <div class="form-grid bulk-settings-grid">
+          <label>
+            <span>Arquivos</span>
+            <input id="bulkFiles" type="file" multiple accept="image/*,.svg,.avif,.gif,.bmp" />
+            <small>Compatível com formatos de imagem aceitos pelo navegador, como PNG, JPG, JPEG, WEBP, SVG, GIF, AVIF e BMP.</small>
+          </label>
+          <label>
+            <span>Categoria para todas</span>
+            <input id="bulkCategory" list="categoryList" placeholder="Eventos" />
+          </label>
+          <label>
+            <span>Destaque inicial</span>
+            <select id="bulkStatus">
+              <option value="normal">Sem destaque</option>
+              <option value="novo" selected>Novo</option>
+              <option value="atualizada">Atualizada</option>
+            </select>
+          </label>
+          <div class="switch-card visibility-card bulk-visibility-card">
+            <span class="visibility-copy">
+              <strong>Visibilidade inicial</strong>
+              <small>Desative para cadastrar as molduras ocultas.</small>
+            </span>
+            <label class="toggle-control" for="bulkActive">
+              <input id="bulkActive" type="checkbox" checked />
+              <span class="toggle-track" aria-hidden="true"><span class="toggle-thumb"></span></span>
+              <span class="toggle-label">Exibir no site</span>
+            </label>
+          </div>
+        </div>
+        <div id="bulkReview" class="bulk-review" hidden></div>
+        <div class="bulk-upload-actions">
+          <button id="clearBulkBtn" class="button light" type="button" disabled>Limpar seleção</button>
+          <button id="publishBulkBtn" class="button success" type="button" disabled>Publicar molduras em lote</button>
+        </div>
+        </div>
+      </section>
+      </div>
+
+      
+      <section class="admin-utilities collapsible-admin-panel settings-launch-card" id="managementPanel">
+        <div class="maintenance-heading">
+          <button id="managementToggle" class="section-toggle-button maintenance-toggle" type="button">
+            <span class="section-chevron">›</span><span><span class="step">Controle gerencial</span><strong>Centro de configurações</strong><small>Destaques, aparência, categorias, publicação e exclusão.</small></span>
+          </button><span class="panel-summary-pill">Configurações</span>
+        </div>
+      </section>
+
+      <section class="admin-utilities collapsible-admin-panel" id="maintenancePanel">
+        <div class="maintenance-heading">
+          <button id="maintenanceToggle" class="section-toggle-button maintenance-toggle" type="button" aria-expanded="false" aria-controls="maintenanceBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <span class="step">Ferramentas administrativas</span>
+              <strong>Diagnóstico e backup</strong>
+              <small>Abra somente quando precisar verificar, exportar ou restaurar dados.</small>
+            </span>
+          </button>
+          <span class="panel-summary-pill">4 ferramentas</span>
+        </div>
+        <div id="maintenanceBody" class="collapsible-panel-body" hidden>
+          <div class="utility-grid">
+            <button class="utility-card" id="diagnoseBtn" type="button"><span>🩺</span><strong>Diagnosticar</strong><small>Verifica IDs, arquivos e categorias.</small></button>
+            <button class="utility-card" id="exportBackupBtn" type="button"><span>⬇️</span><strong>Exportar backup</strong><small>Baixa os dados em formato JSON.</small></button>
+            <label class="utility-card utility-upload"><span>⬆️</span><strong>Importar backup</strong><small>Carrega um JSON para revisão.</small><input id="importBackupInput" type="file" accept="application/json,.json" hidden></label>
+            <button class="utility-card" id="historyBtn" type="button"><span>🕘</span><strong>Histórico local</strong><small>Mostra as últimas ações do painel.</small></button>
+          </div>
+          <div id="utilityResult" class="utility-result" hidden></div>
+        </div>
+      </section>
+
+      <section id="framesSection" class="frames-section"><div class="list-heading">
+        <div>
+          <h3>Molduras cadastradas</h3>
+          <p id="frameCount">0 molduras</p>
+        </div>
+        <div class="search-control">
+          <input id="adminSearch" type="search" placeholder="Pesquisar por nome, ID ou categoria" autocomplete="off" />
+          <button id="clearSearchBtn" class="small-button" type="button" hidden>Limpar</button>
+        </div>
+      </div>
+
+      <div class="order-compat-controls" hidden aria-hidden="true">
+        <button id="cancelOrderBtn" type="button" disabled>Descartar</button>
+        <button id="saveOrderBtn" type="button" disabled>Publicar</button>
+        <div id="orderNotice" hidden></div>
+      </div>
+
+      <section id="categoryManagerPanel" class="category-order-panel collapsible-admin-panel is-open" aria-labelledby="categoryOrderTitle">
+        <div class="category-order-heading">
+          <button id="categoryManagerToggle" class="section-toggle-button" type="button" aria-expanded="true" aria-controls="categoryManagerBody">
+            <span class="section-chevron">›</span>
+            <span>
+              <strong id="categoryOrderTitle">Categorias</strong>
+              <small>Expanda para renomear, limpar destaques, excluir ou reorganizar categorias.</small>
+            </span>
+          </button>
+          <span id="categoryManagerSummary" class="panel-summary-pill">0 categorias</span>
+        </div>
+        <div id="categoryManagerBody" class="collapsible-panel-body">
+          <div class="category-panel-tip">Arraste pelo símbolo ☰ ou use as setas. As alterações serão reunidas na barra inferior, onde você poderá <strong>publicar ou descartar</strong>.</div>
+          <div id="categoriesOrderList" class="categories-order-list"></div>
+        </div>
+      </section>
+
+      <div class="frames-order-heading collapsible-heading">
+        <div>
+          <h3>🖼️ Molduras por categoria</h3>
+          <p>Use o cabeçalho de cada categoria para contrair ou expandir. Uma moldura só pode ser movida dentro da própria categoria.</p>
+        </div>
+        <div class="collapse-actions" aria-label="Ações de visualização das categorias">
+          <button id="expandAllCategoriesBtn" class="button light" type="button">Expandir todas</button>
+          <button id="collapseAllCategoriesBtn" class="button light" type="button">Contrair todas</button>
+        </div>
+      </div>
+
+      <div id="bulkActionBar" class="bulk-action-bar" hidden>
+        <div><strong id="bulkSelectedCount">0 selecionadas</strong><small>As ações abaixo serão aplicadas em uma única atualização do molduras.js.</small></div>
+        <div class="bulk-action-controls">
+          <select id="bulkActionSelect" aria-label="Ação em lote">
+            <option value="">Escolha uma ação</option>
+            <option value="move">Mover para categoria</option>
+            <option value="status-normal">Remover destaque</option>
+            <option value="status-novo">Marcar como Novo</option>
+            <option value="status-atualizada">Marcar como Atualizada</option>
+            <option value="show">Exibir no site</option>
+            <option value="hide">Ocultar no site</option>
+            <option value="delete-records">Excluir registros</option>
+            <option value="delete-files">Excluir registros e arquivos</option>
+          </select>
+          <input id="bulkMoveCategory" list="categoryList" placeholder="Categoria de destino" hidden />
+          <button id="applyBulkActionBtn" class="button primary" type="button">Aplicar</button>
+          <button id="clearSelectionBtn" class="button light" type="button">Cancelar seleção</button>
+        </div>
+      </div>
+
+      <div id="framesList" class="frames-list accordion-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <dialog id="confirmDialog">
+    <form method="dialog" class="dialog-card">
+      <h2>Remover moldura?</h2>
+      <p id="confirmText"></p>
+      <label class="delete-file-option"><input id="deleteImageFile" type="checkbox" checked /> Apagar também o arquivo de imagem do repositório</label>
+      <div class="dialog-actions">
+        <button type="submit" value="cancel" class="button light">Cancelar</button>
+        <button id="confirmDeleteBtn" type="submit" value="confirm" class="button danger">Remover</button>
+      </div>
+    </form>
+  </dialog>
+
+  <aside id="publicationNotice" class="publication-notice" data-state="waiting" hidden aria-live="polite" aria-atomic="true">
+    <div class="publication-notice-head">
+      <span id="publicationNoticeIcon" class="publication-notice-icon" aria-hidden="true"><span class="publication-spinner"></span></span>
+      <div class="publication-notice-content">
+        <strong id="publicationNoticeTitle">Publicando alterações</strong>
+        <span id="publicationNoticeText">Aguardando a nova versão aparecer no Index…</span>
+      </div>
+      <button id="publicationNoticeClose" class="publication-notice-close" type="button" aria-label="Fechar notificação">×</button>
+    </div>
+    <div class="publication-progress" aria-hidden="true"><span id="publicationProgressBar"></span></div>
+    <ol class="publication-steps" aria-label="Etapas da publicação">
+      <li data-step="github"><span class="step-dot">✓</span><span>Alterações enviadas ao GitHub</span></li>
+      <li data-step="pages"><span class="step-dot">…</span><span>Processando no GitHub Pages</span></li>
+      <li data-step="index"><span class="step-dot">○</span><span>Confirmando no Index</span></li>
+    </ol>
+    <div class="publication-notice-actions">
+      <button id="publicationNoticeRetry" class="publication-notice-retry" type="button" hidden>Verificar novamente</button>
+      <a id="publicationNoticeLink" class="publication-notice-link" href="../" target="_blank" rel="noopener" hidden>Abrir Index</a>
+    </div>
+  </aside>
+
+  <div id="pageBusyOverlay" class="page-busy-overlay" hidden aria-live="polite">
+    <div class="page-busy-card"><span class="busy-spinner"></span><strong id="pageBusyText">Processando...</strong></div>
+  </div>
+  <script src="admin.js"></script>
+</body>
+</html>
