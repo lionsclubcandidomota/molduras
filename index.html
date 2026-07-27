@@ -87,6 +87,10 @@
             </div>
           </div>
         </div>
+        <div class="gallery-results" id="galleryResults" aria-live="polite">
+          <span id="galleryResultCount">Carregando molduras...</span>
+          <span class="gallery-search-hint">Dica: pressione <kbd>/</kbd> para pesquisar</span>
+        </div>
       </div>
       <div id="restoreNotice" class="restore-notice" hidden><span>Seu último trabalho foi recuperado.</span><button id="dismissRestoreBtn" type="button">Entendi</button></div>
       <p id="frameMessage" class="notice" hidden></p>
@@ -242,6 +246,22 @@
   </footer>
 
   <div class="mobile-action-bar" id="mobileActionBar" hidden><button class="button success block" id="mobileDownloadBtn" type="button">⬇ Baixar imagem</button></div>
+
+  <dialog class="frame-preview-dialog" id="framePreviewDialog" aria-labelledby="framePreviewTitle">
+    <button class="dialog-close frame-preview-close" id="closeFramePreviewBtn" type="button" aria-label="Fechar prévia">×</button>
+    <div class="frame-preview-media">
+      <img id="framePreviewImage" src="" alt="">
+    </div>
+    <div class="frame-preview-content">
+      <p class="eyebrow" id="framePreviewCategory">Categoria</p>
+      <h2 id="framePreviewTitle">Prévia da moldura</h2>
+      <p id="framePreviewDescription">Confira os detalhes antes de selecionar.</p>
+      <div class="frame-preview-actions">
+        <button class="button primary" id="selectPreviewFrameBtn" type="button">Usar esta moldura</button>
+        <button class="button subtle" id="cancelFramePreviewBtn" type="button">Continuar navegando</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="help-dialog" id="helpDialog">
     <button class="dialog-close" id="closeHelpBtn" type="button" aria-label="Fechar">×</button>

@@ -16,3 +16,13 @@
 - botão flutuante “Voltar ao topo” responsivo;
 - workspace dinâmico: centralizado com os ajustes fechados e em duas colunas quando os ajustes são abertos;
 - manutenção do fluxo vertical dos ajustes no celular.
+
+## v10.2 — Galeria e descoberta
+
+- Cards de molduras redesenhados com seleção mais clara.
+- Prévia ampliada em janela antes de escolher a moldura.
+- Busca ampliada para descrição, palavras-chave e tags.
+- Contador dinâmico de resultados.
+- Atalho `/` para focar a pesquisa.
+- Categorias em chips com rolagem e estados mais evidentes.
+- Melhorias responsivas e de acessibilidade na galeria.

@@ -37,6 +37,15 @@
   const desktopStartOverBtn = $('desktopStartOverBtn');
   const selectedFrameName = $('selectedFrameName');
   const frameMessage = $('frameMessage');
+  const galleryResultCount = $('galleryResultCount');
+  const framePreviewDialog = $('framePreviewDialog');
+  const framePreviewImage = $('framePreviewImage');
+  const framePreviewCategory = $('framePreviewCategory');
+  const framePreviewTitle = $('framePreviewTitle');
+  const framePreviewDescription = $('framePreviewDescription');
+  const closeFramePreviewBtn = $('closeFramePreviewBtn');
+  const cancelFramePreviewBtn = $('cancelFramePreviewBtn');
+  const selectPreviewFrameBtn = $('selectPreviewFrameBtn');
   const photoStatus = $('photoStatus');
   const editorSubtitle = $('editorSubtitle');
   const selectedFrameContext = $('selectedFrameContext');
@@ -88,6 +97,7 @@
   const mobileRemoveBtn = $('mobileRemoveBtn');
 
   let exportRevision = 0;
+  let previewFrameId = null;
 
   const state = {
     categories: [], frames: [], filteredFrames: [], activeCategory: 'todas', personalFilter: 'all', selectedFrame: null,
@@ -282,6 +292,10 @@
         categoryName(frame),
         frame.id,
         frame.arquivo,
+        frame.descricao,
+        frame.description,
+        frame.palavrasChave,
+        frame.keywords,
         ...(Array.isArray(frame.tags) ? frame.tags : [frame.tags || ''])
       ].join(' '));
 
@@ -291,12 +305,26 @@
     renderFrames();
   }
 
+  function updateGalleryResultCount() {
+    if (!galleryResultCount) return;
+    const total = state.filteredFrames.length;
+    const context = state.personalFilter === 'favorites'
+      ? 'nas favoritas'
+      : state.personalFilter === 'recent'
+        ? 'nos recentes'
+        : state.activeCategory !== 'todas'
+          ? `em ${categoryName(state.filteredFrames[0] || { categoriaId: state.activeCategory })}`
+          : '';
+    galleryResultCount.textContent = `${total} ${total === 1 ? 'moldura encontrada' : 'molduras encontradas'}${context ? ` ${context}` : ''}`;
+  }
+
   function renderFrames() {
     if (!state.filteredFrames.length) {
       frameGallery.innerHTML = '';
       frameMessage.hidden = false;
       frameMessage.textContent = 'Nenhuma moldura encontrada. Tente outra pesquisa ou categoria.';
       updateCategoryViewActions();
+      updateGalleryResultCount();
       return;
     }
 
@@ -327,7 +355,7 @@
       const cards = visibleFrames.map(frame => {
         const selected = state.selectedFrame?.id === frame.id;
         const frameStatus = statusOf(frame);
-        return `<div class="frame-card-wrap"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<i aria-hidden="true">✓</i></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 10.55 19.1C5.4 14.5 2 11.45 2 7.7 2 4.65 4.4 2.25 7.45 2.25c1.72 0 3.37.8 4.55 2.05a6.12 6.12 0 0 1 4.55-2.05C19.6 2.25 22 4.65 22 7.7c0 3.75-3.4 6.8-8.55 11.4L12 20.4Z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.55 3.25c-1.72 0-3.37.8-4.55 2.05a6.12 6.12 0 0 0-4.55-2.05C4.4 3.25 2 5.65 2 8.7c0 3.75 3.4 6.8 8.55 11.4L12 21.4l1.45-1.3C18.6 15.5 22 12.45 22 8.7c0-3.05-2.4-5.45-5.45-5.45Zm-4.45 15.2-.1.1-.1-.1C7.14 14.2 4 11.4 4 8.7c0-1.9 1.55-3.45 3.45-3.45 1.46 0 2.88.94 3.38 2.24h2.34c.5-1.3 1.92-2.24 3.38-2.24C18.45 5.25 20 6.8 20 8.7c0 2.7-3.14 5.5-7.9 9.75Z"/></svg>'}</button></div>`;
+        return `<div class="frame-card-wrap${selected?' is-selected':''}"><button class="frame-option${selected?' is-selected':''}" type="button" data-frame-id="${escapeHtml(frame.id)}" aria-pressed="${selected}"><span class="frame-thumb"><img src="${escapeHtml(frame.arquivo)}" alt="Prévia de ${escapeHtml(frame.nome)}" loading="lazy"><span class="frame-card-hover-label">${selected?'Selecionada':'Selecionar'}</span></span><span class="frame-info"><strong>${escapeHtml(frame.nome)}</strong><small>${escapeHtml(category.nome)}</small></span>${frameStatus!=='normal'&&statusLabel(frameStatus)?`<em class="frame-badge ${frameStatus}">${statusLabel(frameStatus)}</em>`:''}<span class="frame-selected-check" aria-hidden="true">✓</span></button><button class="frame-preview-button" type="button" data-preview-frame-id="${escapeHtml(frame.id)}" aria-label="Ampliar prévia de ${escapeHtml(frame.nome)}" title="Ampliar prévia"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4M8.5 11h5M11 8.5v5"/></svg></button><button class="favorite-button${state.favorites.has(frame.id)?' is-favorite':''}" type="button" data-favorite-id="${escapeHtml(frame.id)}" aria-label="${state.favorites.has(frame.id)?'Remover dos favoritos':'Adicionar aos favoritos'}">${state.favorites.has(frame.id)?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.4 10.55 19.1C5.4 14.5 2 11.45 2 7.7 2 4.65 4.4 2.25 7.45 2.25c1.72 0 3.37.8 4.55 2.05a6.12 6.12 0 0 1 4.55-2.05C19.6 2.25 22 4.65 22 7.7c0 3.75-3.4 6.8-8.55 11.4L12 20.4Z"/></svg>':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.55 3.25c-1.72 0-3.37.8-4.55 2.05a6.12 6.12 0 0 0-4.55-2.05C4.4 3.25 2 5.65 2 8.7c0 3.75 3.4 6.8 8.55 11.4L12 21.4l1.45-1.3C18.6 15.5 22 12.45 22 8.7c0-3.05-2.4-3.45-5.45-3.45-1.46 0-2.88.94-3.38 2.24h-2.34c-.5-1.3-1.92-2.24-3.38-2.24C4.45 5.25 3 6.8 3 8.7c0 2.7 3.14 5.5 7.9 9.75l.1.1.1-.1C16.86 14.2 20 11.4 20 8.7c0-1.9-1.55-3.45-3.45-3.45Z"/></svg>'}</button></div>`;
       }).join('');
 
       const counter = PUBLIC_CONFIG.mostrarContadorCategoria === false
@@ -341,6 +369,7 @@
       return `<section class="frame-group${collapsed?' is-collapsed':''}" data-category-group="${escapeHtml(category.id)}"><div class="frame-group-header"><button type="button" class="category-collapse-button" data-category-collapse="${escapeHtml(category.id)}" aria-expanded="${!collapsed}" aria-controls="${groupId}"><span class="category-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m7 9.5 5 5 5-5"/></svg></span><span class="category-title"><span><h3>${escapeHtml(category.nome)}</h3>${status!=='normal'&&statusLabel(status)?`<small class="category-badge ${status}">${statusLabel(status)}</small>`:''}</span><small>${collapsed ? '' : expanded || searching ? 'Todas as molduras estão visíveis' : `Exibindo ${visibleFrames.length} de ${frames.length}`} </small></span></button><div class="category-count">${counter}</div></div><div class="frame-group-body" id="${groupId}"${collapsed?' hidden':''}><div class="frame-grid">${cards}</div>${footer}</div></section>`;
     }).join('');
     updateCategoryViewActions();
+    updateGalleryResultCount();
   }
 
   function updateEditorLayout() {
@@ -614,6 +643,23 @@
   resetFiltersBtn.addEventListener('click',resetAdvanced);
   advancedPanel.addEventListener('toggle', draw);
 
+  function openFramePreview(frame) {
+    if (!frame || !framePreviewDialog) return;
+    previewFrameId = frame.id;
+    const category = state.categories.find(item => item.id === frame.categoriaId);
+    framePreviewImage.src = frame.arquivo;
+    framePreviewImage.alt = `Prévia ampliada de ${frame.nome}`;
+    framePreviewCategory.textContent = category?.nome || 'Moldura';
+    framePreviewTitle.textContent = frame.nome;
+    framePreviewDescription.textContent = String(frame.descricao || frame.description || '').trim() || 'Confira a composição completa desta moldura antes de usá-la.';
+    framePreviewDialog.showModal();
+  }
+
+  function closeFramePreview() {
+    if (framePreviewDialog?.open) framePreviewDialog.close();
+    previewFrameId = null;
+  }
+
   frameGallery.addEventListener('click', event => {
     const collapseButton = event.target.closest('[data-category-collapse]');
     if (collapseButton) {
@@ -633,6 +679,14 @@
       requestAnimationFrame(() => {
         document.querySelector(`[data-category-group="${CSS.escape(id)}"]`)?.scrollIntoView({behavior:'smooth', block:'nearest'});
       });
+      return;
+    }
+
+    const previewButton = event.target.closest('[data-preview-frame-id]');
+    if (previewButton) {
+      event.stopPropagation();
+      const frame = state.frames.find(item => item.id === previewButton.dataset.previewFrameId);
+      openFramePreview(frame);
       return;
     }
 
@@ -831,6 +885,24 @@
   }
 
   downloadBtn.addEventListener('click',downloadImage);mobileDownloadBtn.addEventListener('click',downloadImage);shareBtn.addEventListener('click',shareImage);
+
+  closeFramePreviewBtn?.addEventListener('click', closeFramePreview);
+  cancelFramePreviewBtn?.addEventListener('click', closeFramePreview);
+  selectPreviewFrameBtn?.addEventListener('click', () => {
+    const frame = state.frames.find(item => item.id === previewFrameId);
+    if (!frame) return closeFramePreview();
+    closeFramePreview();
+    selectFrame(frame);
+  });
+  framePreviewDialog?.addEventListener('click', event => { if (event.target === framePreviewDialog) closeFramePreview(); });
+  document.addEventListener('keydown', event => {
+    const target = event.target;
+    const typing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable;
+    if (event.key === '/' && !typing && !helpDialog?.open && !framePreviewDialog?.open) {
+      event.preventDefault();
+      frameSearch.focus();
+    }
+  });
 
   const helpDialog=$('helpDialog'); function openHelp(){helpDialog.showModal();} function closeHelp(){helpDialog.close();}
   $('openHelpBtn').addEventListener('click',openHelp);$('heroHelpBtn').addEventListener('click',openHelp);$('closeHelpBtn').addEventListener('click',closeHelp);$('startFromHelpBtn').addEventListener('click',()=>{closeHelp();$('galeria').scrollIntoView({behavior:'smooth'});});helpDialog.addEventListener('click',event=>{if(event.target===helpDialog)closeHelp();});
