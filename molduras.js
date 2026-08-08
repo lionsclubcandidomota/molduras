@@ -1,8 +1,8 @@
 // Gerenciado pelo Painel de Molduras Lions v64
 window.PUBLICACAO = {
-  "versao": "1784917748313-3ksf2qd",
-  "atualizadoEm": "2026-07-24T18:29:08.313Z",
-  "descricao": "Atualiza moldura Tesoureira de Clube"
+  "versao": "1786196205781-lhxxqcv",
+  "atualizadoEm": "2026-08-08T13:36:45.781Z",
+  "descricao": "Manutenção em lote em 4 molduras"
 };
 
 window.CONFIGURACOES = {
@@ -75,7 +75,7 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 1,
     "arquivo": "assets/molduras/nos-vamos-ircd.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:45:56.151Z",
@@ -87,7 +87,7 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 2,
     "arquivo": "assets/molduras/eu-vou-ircd.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:45:56.151Z",
@@ -399,7 +399,7 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 3,
     "arquivo": "assets/molduras/eu-vou-porco-no-rolete.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:45:56.152Z",
@@ -411,7 +411,7 @@ window.MOLDURAS = [
     "categoriaId": "ircd-26-27",
     "ordem": 4,
     "arquivo": "assets/molduras/nos-vamos-porco-no-rolete.png",
-    "ativo": true,
+    "ativo": false,
     "status": "atualizada",
     "statusVisivel": true,
     "statusDesde": "2026-07-24T01:45:56.152Z",
@@ -749,7 +749,9 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/secretaria-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   },
   {
     "id": "tesoureira-de-clube",
@@ -759,6 +761,8 @@ window.MOLDURAS = [
     "arquivo": "assets/molduras/tesoureira-de-clube.png",
     "ativo": true,
     "status": "normal",
-    "statusVisivel": false
+    "statusVisivel": false,
+    "statusDesde": "",
+    "statusAte": ""
   }
 ];
